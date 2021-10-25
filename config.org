@@ -180,7 +180,6 @@ You can test themes by using the counsel-load-theme.
 #+begin_src emacs-lisp
 
   (use-package doom-themes
-                                          ;:ensure t
     :config
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
           doom-themes-enable-italic t) ; if nil, italics is universally disabled
@@ -270,7 +269,7 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
     (general-create-definer my/leader-keys
       :keymaps '(normal insert visual emacs)
       :prefix "SPC"
-      :global-prefix "C-SPC")
+      :global-prefix "M-SPC")
 
     (general-create-definer my/ctrl-c-keys
       :prefix "C-c")
@@ -571,25 +570,6 @@ Basic Usage
 
 #+end_src
 
-** Hydra
-
-Hydra helps in desgning transient key bindings to run commands easily 
-#+begin_src emacs-lisp
-
-  ;; (use-package hydra
-  ;;   :defer t)
-
-  ;; (defhydra hydra-text-scale (:timeout 4)
-  ;;   "scale text"
-  ;;   ("j" text-scale-increase "in")
-  ;;   ("k" text-scale-decrease "out")
-  ;;   ("f" nil "finished" :exit t))
-
-  ;; (my/leader-keys
-  ;;   "ts" '(hydra-text-scale/body :which-key "scale text"))
-
-#+end_src
-
 * EVIL MODE
 
 Extensible Vi layer for Emacs
@@ -818,6 +798,7 @@ Check show paren mode [[stack-exchange:52209][fix]].
 * DASHBOARD
 ** Setup
 #+begin_src emacs-lisp
+
   (use-package dashboard
     :init      ;; tweak dashboard config before loading it
     (setq dashboard-set-heading-icons t)
@@ -836,13 +817,17 @@ Check show paren mode [[stack-exchange:52209][fix]].
     :config
     (dashboard-setup-startup-hook)
     (dashboard-modify-heading-icons '((recents . "file-text")
-                                      (bookmarks . "book"))))
+                                      (bookmarks . "book")))
+  )
+
 #+end_src
 
 ** Open dashboard in emacsclient instead of scratch
 
 #+begin_src emacs-lisp
+
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+
 #+end_src
 
 * SHELL
@@ -1190,6 +1175,50 @@ Explore *tab-to-tab-stop* and *indent-relative*
 
 #+end_src
 
+*** Aggressive Indent
+
+By default GNU Emacs auto-indents the code while typing with electric-indent-mode, but the indentation made is wrong when moving blocks, transposing lines and so on. The aggresive-indent package is an improved version of the previous mode, allowing a code to be always indented
+
+#+begin_src emacs-lisp
+
+  (use-package aggressive-indent
+    :custom (aggressive-indent-comments-too t))
+
+#+end_src
+
+*** Highlight Indent Guides
+
+With code nesting, it is important to always have a discrete visual on the indentation of our code. The highlight-indent-guides package allows you to see at a glance if an indentation is bad through block highlight.
+
+#+begin_src emacs-lisp
+
+  (use-package highlight-indent-guides
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :custom (highlight-indent-guides-method 'character))
+
+#+end_src
+
+** Linter
+
+To integrate syntax checking during development, [[https://www.flycheck.org/][Flycheck]] lints warnings and
+errors directly within buffers. To use it, you need to install the [[https://github.com/flycheck/flycheck][flycheck]]
+package on GNU Emacs and install the necessary linters for the programming
+languages you use, via your system package manager.
+
+*NOTE:* The GNU Emacs community has produced a number of [[https://github.com/flycheck/flycheck/blob/master/doc/community/extensions.rst][extensions to Flycheck]].
+
+#+begin_src emacs-lisp
+
+  ;; (use-package flycheck
+  ;;   :delight
+  ;;   :hook (lsp-mode . flycheck-mode)
+  ;;   :bind (:map flycheck-mode-map
+  ;;               ("M-'" . flycheck-previous-error)
+  ;;               ("M-\\" . flycheck-next-error))
+  ;;   :custom (flycheck-display-errors-delay .3))
+
+#+end_src
+
 ** Expand Region
 
 If you expand too far, you can contract the region by pressing - (minus key),
@@ -1405,33 +1434,71 @@ Nodemon config for attach request with ts-node
   
 #+end_src
 
-** Language Support
+** Programming Languages and Tools
+*** JavaScript
+**** Js2 Mode
+JavaScript is one of those languages that needs a bit of setup time to get some
+stability with GNU Emacs. By default GNU Emacs uses =js-mode= as the major mode
+for JavaScript buffers. However, I prefer to use [[https://github.com/mooz/js2-mode][js2-mode]] which is an enhanced
+version of =js-mode=. This package offers a better syntax highlighting and
+proposes many other features.
 
-Packages for syntax highlighting in programming languages
-
-*** Haskell
-
-- [[github:ndmitchell/ghcid][ghcid (GHCi Auto-Reloader)]]
-- [[github:ndmitchell/hlint][hlint (Smart Linter)]]
-- [[github:chrisdone/hindent][hindent (Formatter)]]
+As LSP server I use [[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]] (=ts-ls=) which is the one
+recommended by the LSP mode community. To use the LSP server, do not forget to
+configure the LSP package and to install this LSP server through LSP mode or
+with your system package manager
 
 #+begin_src emacs-lisp
-
-  (use-package haskell-mode)
-
+  (use-package js2-mode
+    ;; :straight flycheck
+    :mode "\\.js\\'"
+    :hook ((js2-mode . js2-imenu-extras-mode)
+           (js2-mode . prettier-js-mode))
+    :custom (js-indent-level 2)
+    ;; :config (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  )
 #+end_src
 
-*** JavaScript
+**** Prettier js
+I like to use [[https://prettier.io/][prettier]] to get my TypeScript code clean. To use it, do not forget
+to install it with your package manager.
+
+#+begin_src emacs-lisp
+  (use-package prettier-js
+    :delight
+    :custom (prettier-js-args '("--print-width" "100"
+                                "--single-quote" "true"
+                                "--trailing-comma" "all")))
+#+end_src
+
 **** TypeScript
-This is a basic configuration for the TypeScript language so that =.ts= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
+
+For my TypeScript adventures, the [[http://github.com/ananthakumaran/typescript.el][typescript-mode]] package and the
+[[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]] (=ts-ls=) LSP server are more than enough. To use the
+LSP server, do not forget to configure the LSP package and to install this LSP
+server through LSP mode or with your system package manager if it is not already
+done.
+
+Finally, I also use =prettier-js= to ensure proper indentation of my code. To
+enable it, you must install the =prettier= package with your package manager
+system. Concerning the configuration of prettier, this is done in the JavaScript
+section.
 
 #+begin_src emacs-lisp
 
   (use-package typescript-mode
-    :mode "\\.ts\\'"
-    :hook (typescript-mode . lsp-deferred)
+    ;; :straight flycheck
+    :hook ((typescript-mode . prettier-js-mode)
+           (typescript-mode . lsp-deferred))
+    :mode ("\\.\\(ts\\|tsx\\)\\'")
+    :custom
+    ;; TSLint is depreciated in favor of ESLint.
+    ;; (flycheck-disable-checker 'typescript-tslint)
+    (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
+    (typescript-indent-level 2)
     :config
-    (setq typescript-indent-level 2))
+    ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
+  )
 
 #+end_src
 
