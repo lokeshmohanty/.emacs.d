@@ -979,28 +979,22 @@ filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][
 | dired-extra-startup | all-the-icons-dired-mode | dired-hide-details-mode | doom-modeline-set-project-modeline |
 
 * DASHBOARD
+
 ** Setup
+
 #+begin_src emacs-lisp
 
   (use-package dashboard
-    :init      ;; tweak dashboard config before loading it
+    :init
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
     (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
     ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
     (setq dashboard-startup-banner "~/.emacs.d/emacs-dash.png")  ;; use custom image as banner
-    (setq dashboard-center-content nil) ;; set to 't' for centered content
-    (setq dashboard-items '((recents . 5)
-                            (agenda . 5 )
-                            (bookmarks . 3)
-                            (projects . 3)
-                            (registers . 3)))
-    (setq dashboard-filter-agenda-entry "+TODO=\"TODO\"&-STYLE=\"habit\"")
+    (setq dashboard-center-content nil)
 
     :config
     (dashboard-setup-startup-hook)
-    (dashboard-modify-heading-icons '((recents . "file-text")
-                                      (bookmarks . "book")))
   )
 
 #+end_src
