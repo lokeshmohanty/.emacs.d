@@ -467,6 +467,62 @@ C-w -> Prefix for evil window commands
 
 #+end_src
 
+** Popups
+
+#+begin_src emacs-lisp
+
+  (use-package popper
+    :straight (popper :host github
+                      :repo "karthink/popper"
+                      :build (:not autoloads))
+    ;; :commands popper-mode
+    :bind (("M-'" . popper-toggle-latest)
+           ("C-'" . popper-cycle)
+           ("C-M-'" . popper-toggle-type))
+    :config
+    (setq popper-mode-line nil)      
+
+    :custom
+    (popper-window-height 15)
+    (popper-group-function #'popper-group-by-projectile)
+    ;; (popper-group-function #'popper-group-by-project)
+    (popper-reference-buffers
+     '("^\\*eshell\\*"
+       "^vterm"
+       help-mode
+       helpful-mode
+       compilation-mode))
+    :init
+    ;; (setq popper-reference-buffers
+    ;;  (append +help-modes-list
+    ;;          +repl-modes-list
+    ;;          +occur-grep-modes-list
+    ;;          +man-modes-list
+    ;;          '(Custom-mode
+    ;;            (compilation-mode . hide)
+    ;;            messages-buffer-mode)
+    ;;          '(("^\\*Warnings\\*$" . hide)
+    ;;            ("^\\*Compile-Log\\*$" . hide)
+    ;;            "^\\*Matlab Help\\*"
+    ;;            "^\\*Messages\\*$"
+    ;;            "^\\*Backtrace\\*"
+    ;;            "^\\*evil-registers\\*"
+    ;;            "^\\*Apropos"
+    ;;            "^Calc:"
+    ;;            "^\\*TeX errors\\*"
+    ;;            "^\\*ielm\\*"
+    ;;            "^\\*TeX Help\\*"
+    ;;            "\\*Shell Command Output\\*"
+    ;;            ("\\*Async Shell Command\\*" . hide)
+    ;;            "\\*Completions\\*"
+    ;;            ;; "\\*scratch\\*"
+    ;;            "[Oo]utput\\*")))
+    (require 'popper) ;; Needed because I disabled autoloads
+    (popper-mode 1))
+
+
+#+end_src
+
 ** Tab
 Basic Usage
 
