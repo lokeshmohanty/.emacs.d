@@ -758,77 +758,196 @@ Check show paren mode [[stack-exchange:52209][fix]].
 #+end_src
 
 * DIRED
+** Keybindings
 
-| Command                   | Key |
-|---------------------------+-----|
-| dired-hide-details-mode   | (   |
-| dired-maybe-insert-subdir | I   |
-
+| Key      | Command                   |
+|----------+---------------------------|
+| (        | dired-hide-details-mode   |
+| I        | dired-maybe-insert-subdir |
+| h        | dired-up-directory        |
+| j        | dired-next-line           |
+| k        | dired-previous-line       |
+| l        | dired-single-buffer       |
+| M-DEL    | dired-prev-subdir         |
+| H        | dired-hide-dotfiles-mode  |
+| <tab>    | dired-subtree-toggle      |
+| C-c C-n  | dired-narrow              |
+| C-c C-f  | dired-narrow-fuzzy        |
+           
 #+begin_src emacs-lisp
-
-  (use-package all-the-icons-dired)
 
   (my/leader-keys
     "d d" '(dired :which-key "Open dired")
     "d j" '(dired-jump :which-key "Dired jump to current")
-    ;; "d p" '(peep-dired :which-key "Peep-dired")
     )
+
+#+end_src
+
+** Basic Config
+To manage your files, =dired= is already a good file manager. To fine-tune its
+use, let's change some default values.
+
+#+begin_src emacs-lisp
 
   (use-package dired
     :straight nil
-    ;; :defer 1
-    ;; :commands (dired dired-jump)
-    :hook
-    (dired-mode . dired-hide-details-mode)
-    :config
-    ;; (dired-async-mode 1)
-    ;; (setq dired-dwim-target t)
+    :commands (dired dired-jump)
+    ;; :bind (:map dired-mode-map
+    ;;             ("h" . dired-up-directory)
+    ;;             ("j" . dired-next-line)
+    ;;             ("k" . dired-previous-line)
+    ;;             ("l" . dired-single-buffer))
+    :delight "Dired"
+    :custom
+    (dired-auto-revert-buffer t)
+    (dired-dwim-target t)
+    (dired-hide-details-hide-symlink-targets nil)
+    (dired-listing-switches "-alh --group-directories-first")
+    (dired-ls-F-marks-symlinks nil)
+    (dired-recursive-copies 'always)
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "h" 'dired-up-directory
+      "l" 'dired-find-file))
 
+#+end_src
 
+** Dired Single
+To avoid =dired= to keep buffers, I use [[https://github.com/crocket/dired-single][dired-single]].
 
-    (setq dired-listing-switches "-Alh1vD --group-directories-first")
-    ;; (setq dired-listing-switches "-agho --group-directories-first"
-    ;;       dired-omit-files "^\\.[^.].*"
-    ;;       dired-omit-verbose nil
-    ;;       dired-hide-details-hide-symlink-targets nil
-    ;;       delete-by-moving-to-trash t)
+#+begin_src emacs-lisp
 
-    ;; (setq wdired-allow-to-change-permissions t)
-    ;; (setq wdired-create-parent-directories t)
-
-    ;; (autoload 'dired-omit-mode "dired-x")
-
-    ;; (add-hook 'dired-load-hook
-    ;;           (lambda ()
-    ;;             (interactive)
-    ;;             (dired-collapse)))
-
-    ;; ;; (add-hook 'dired-mode-hook
-    ;; ;;           (lambda ()
-    ;; ;;             (interactive)
-    ;; ;;             (dired-omit-mode 1)
-    ;; ;;             (dired-hide-details-mode 1)
-    ;; ;;             (hl-line-mode 1)))
-
-    ;; (use-package dired-single
-    ;;   :defer t)
-
-    ;; (use-package dired-ranger
-    ;;   :defer t)
-
-    ;; (use-package dired-collapse
-    ;;   :defer t)
-
-    ;; (evil-collection-define-key 'normal 'dired-mode-map
-    ;;   "h" 'dired-single-up-directory
-    ;;   "H" 'dired-omit-mode
-    ;;   "l" 'dired-single-buffer
-    ;;   "y" 'dired-ranger-copy
-    ;;   "X" 'dired-ranger-move
-    ;;   "p" 'dired-ranger-paste)
-
+  (use-package dired-single
+    :after dired
     :bind (:map dired-mode-map
-    ("C-c o" . dired-open-file)))
+                ([remap dired-find-file] . dired-single-buffer)
+                ([remap dired-up-directory] . dired-single-up-directory)
+                ("M-DEL" . dired-prev-subdir)))
+
+#+end_src
+
+** Dired Open
+By default, =dired= opens files in plain text. This behavior is sometimes
+undesirable. Hopefully, [[https://github.com/Fuco1/dired-hacks/blob/master/dired-open.el][dired-open]] can be used to informs =dired= that certain
+desired file extensions must be opened with external packages to GNU Emacs.
+
+#+begin_src emacs-lisp
+
+  (use-package dired-open
+    :after (dired dired-jump)
+    :custom (dired-open-extensions '(("mp4" . "mpv"))))
+
+#+end_src
+
+** Dired Icons
+To know the type of file at a glance, [[https://github.com/jtbm37/all-the-icons-dired][all-the-icons-dired]] integrates icons
+directly into =dired=.
+
+#+begin_src emacs-lisp
+
+  (use-package all-the-icons-dired
+    :if (display-graphic-p)
+    :hook (dired-mode . all-the-icons-dired-mode))
+
+#+end_src
+
+** Dired Hide Dotfiles
+It is sometimes convenient to hide dotfiles. With [[https://github.com/mattiasb/dired-hide-dotfiles][dired-hide-dotfiles]] this
+becomes possible.
+
+#+begin_src emacs-lisp
+
+  (use-package dired-hide-dotfiles
+    :hook (dired-mode . dired-hide-dotfiles-mode)
+    :bind (:map dired-mode-map
+                ("H" . dired-hide-dotfiles-mode)))
+
+#+end_src
+
+** Dired Subtree
+I like being able to =<TAB>= on a folder and see its contents, without me getting
+into it. [[https://github.com/Fuco1/dired-hacks/blob/master/dired-subtree.el][dired-subtree]] allows this behavior.
+
+#+begin_src emacs-lisp
+
+  (use-package dired-subtree
+    :after dired
+    :bind (:map dired-mode-map
+                ("<tab>" . dired-subtree-toggle)))
+
+#+end_src
+
+** Dired Narrow
+Finally, to manage folders with a large number of files, it may be useful to
+filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][dired-narrow]]
+
+#+begin_src emacs-lisp
+
+  (use-package dired-narrow
+    ;; :straight nil
+    :bind (("C-c C-n" . dired-narrow)
+           ("C-c C-f" . dired-narrow-fuzzy)))
+
+#+end_src
+
+** Commented
+
+#+begin_src emacs-lisp
+
+  ;; (use-package dired
+  ;;   :straight nil
+  ;;   ;; :defer 1
+  ;;   ;; :commands (dired dired-jump)
+  ;;   :hook
+  ;;   (dired-mode . dired-hide-details-mode)
+  ;;   :config
+  ;;   ;; (dired-async-mode 1)
+  ;;   ;; (setq dired-dwim-target t)
+
+
+
+  ;;   (setq dired-listing-switches "-Alh1vD --group-directories-first")
+  ;;   ;; (setq dired-listing-switches "-agho --group-directories-first"
+  ;;   ;;       dired-omit-files "^\\.[^.].*"
+  ;;   ;;       dired-omit-verbose nil
+  ;;   ;;       dired-hide-details-hide-symlink-targets nil
+  ;;   ;;       delete-by-moving-to-trash t)
+
+  ;;   ;; (setq wdired-allow-to-change-permissions t)
+  ;;   ;; (setq wdired-create-parent-directories t)
+
+  ;;   ;; (autoload 'dired-omit-mode "dired-x")
+
+  ;;   ;; (add-hook 'dired-load-hook
+  ;;   ;;           (lambda ()
+  ;;   ;;             (interactive)
+  ;;   ;;             (dired-collapse)))
+
+  ;;   ;; ;; (add-hook 'dired-mode-hook
+  ;;   ;; ;;           (lambda ()
+  ;;   ;; ;;             (interactive)
+  ;;   ;; ;;             (dired-omit-mode 1)
+  ;;   ;; ;;             (dired-hide-details-mode 1)
+  ;;   ;; ;;             (hl-line-mode 1)))
+
+  ;;   ;; (use-package dired-single
+  ;;   ;;   :defer t)
+
+  ;;   ;; (use-package dired-ranger
+  ;;   ;;   :defer t)
+
+  ;;   ;; (use-package dired-collapse
+  ;;   ;;   :defer t)
+
+  ;;   ;; (evil-collection-define-key 'normal 'dired-mode-map
+  ;;   ;;   "h" 'dired-single-up-directory
+  ;;   ;;   "H" 'dired-omit-mode
+  ;;   ;;   "l" 'dired-single-buffer
+  ;;   ;;   "y" 'dired-ranger-copy
+  ;;   ;;   "X" 'dired-ranger-move
+  ;;   ;;   "p" 'dired-ranger-paste)
+
+  ;;   ;; :bind (:map dired-mode-map
+  ;;   ;; ("C-c o" . dired-open-file)))
 
   ;; Custom function for dired
   ;; (progn
