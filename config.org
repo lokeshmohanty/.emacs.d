@@ -3432,10 +3432,14 @@ Run *pkill mu* in case of mu lock error
 
     ;; don't keep message buffers around
     (setq message-kill-buffer-on-exit t)
-    
+
     (setq mu4e-attachment-dir "~/Downloads")
     (setq mu4e-view-show-images t)
-    
+
+    ;; (setq mu4e-html2text-command "html2text -utf8 -nobs -width 72")
+    ;; (setq mu4e-html2text-command "w3m -T text/html")
+    ;; (add-to-list 'mu4e-view-actions '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
     ;; (setq mu4e-main-buffer-hide-personal-addresses t)
     ;; (setq starttls-use-gnutls t)
 
@@ -3682,22 +3686,18 @@ Run *pkill mu* in case of mu lock error
 *** Mu4e Alerts
 
 #+begin_src emacs-lisp
-
   (use-package mu4e-alert
-    :after mu4e
-    :config
+    :hook ((after-init . mu4e-alert-enable-mode-line-display)
+           (after-init . mu4e-alert-enable-notifications))
+    :config 
     ;; Show unread emails from all inboxes
     ;; (setq mu4e-alert-interesting-mail-query my/mu4e-inbox-query)
 
     ;; Show notifications for mails already notified
-    (setq mu4e-alert-notify-repeated-mails nil)
+    ;; (setq mu4e-alert-notify-repeated-mails nil)
 
     ;; Set notify-send for alert
-    (mu4e-alert-set-default-style 'libnotify)
-    (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
-
-    ;; (mu4e-alert-enable-notifications)
-  )
+    (mu4e-alert-set-default-style 'libnotify))
 
 #+end_src
 
@@ -3771,16 +3771,11 @@ Documentation: https://github.com/jeremy-compostella/org-msg
 ** Tips
 
 General commands:
-| Commmand                 | evil-mu4e | Alternative |
-|--------------------------+-----------+-------------|
-| Jump to maildir          | J         |             |
-| Update                   | u         |             |
-| Compose message          | cc        | C           |
-| Kill update mail process | x         |             |
-
-Commands for header-mode and view-mode:
 | Command                         | evil-mu4e | Alternative |
 |---------------------------------+-----------+-------------|
+| Jump to maildir                 | J         |             |
+| Update                          | u         |             |
+| Kill update mail process        | x         |             |
 | Next message                    | C-j       |             |
 | Previous message                | C-k       |             |
 | Mark the current thread as read | T, !      |             |
@@ -3801,73 +3796,1038 @@ Commands for header-mode and view-mode:
 | Go to url                       | gx        |             |
 | Fetch url                       | gX        |             |
 
-- * denotes only in header-mode
-- ** denotes Alternative only in header-mode
-- *** denotes Alternative only in view-mode
-* DEFINE WORD
+*** Headers Mode
+
+Key Bindings:
+
+| Key | Evil  | Command                             | Description                          |
+|-----+-------+-------------------------------------+--------------------------------------|
+|     |       | *Movement*                            |                                      |
+| ~C-n~ | ~j~     | =next-line=                           | Moves to the next header line        |
+| ~C-p~ | ~k~     | =previous-line=                       | Moves to the previous header line    |
+| ~[[~  | ~[[~    | =mu4e-headers-prev-unread=            | Moves to previous unread message     |
+| ~]]~  | ~]]~    | =mu4e-headers-next-unread=            | Moves to next unread message         |
+| ~j~   | ~J~     | =mu4e~headers-jump-to-maildir=        | Jump to another mail directory       |
+|     |       |                                     |                                      |
+|     |       | *Toggles*                             |                                      |
+| ~P~   | ~zt~    | =mu4e-headers-toggle-threading=       | Toggles threaded message display     |
+| ~W~   | ~zr~    | =mu4e-headers-toggle-include-related= | Toggles related message display      |
+|     |       |                                     |                                      |
+|     |       | *Marking*                             |                                      |
+| ~d~   | ~d~     | =mu4e-headers-mark-for-trash=         | Marks message for deletion           |
+| ~m~   | ~m~     | =mu4e-headers-mark-for-move=          | Marks message for move to folder     |
+| ~+~   | ~+~     | =mu4e-headers-mark-for-flag=          | Marks message for flagging           |
+| ~-~   | ~-~     | =mu4e-headers-mark-for-unflag=        | Marks message for unflagging         |
+| ~%~   | ~%~     | =mu4e-headers-mark-pattern=           | Marks based on a regex pattern       |
+| ~u~   | ~u~     | =mu4e-headers-mark-for-unmark=        | Removes mark for message             |
+| ~U~   | ~U~     | =mu4e-mark-unmark-all=                | Unmarks all marks in the view        |
+| ~x~   | ~x~     | =mu4e-mark-execute-all=               | Executes all marks in the view       |
+|     |       |                                     |                                      |
+|     |       | *Searching*                           |                                      |
+| ~s~   | ~s~     | =mu4e-headers-search=                 | Search all e-mails                   |
+| ~S~   | ~S~     | =mu4e-headers-search-edit=            | Edit current search (useful!)        |
+| ~/~   | ~/~     | =mu4e-headers-search-narrow=          | Narrow down the current results      |
+| ~b~   | ~b~     | =mu4e-headers-search-bookmark=        | Select a bookmark to search with     |
+| ~B~   | ~B~     | =mu4e-headers-search-bookmark-edit=   | Edit bookmark before search          |
+| ~g~   | ~gr~    | =mu4e-rerun-search=                   | Rerun the current search             |
+|     |       |                                     |                                      |
+|     |       | *Composing*                           |                                      |
+| ~C~   | ~C~, ~cc~ | =mu4e-compose-new=                    | Compose a new e-mail                 |
+| ~R~   | ~R~, ~cr~ | =mu4e-compose-reply=                  | Compose a reply to selected email    |
+| ~F~   | ~F~, ~cf~ | =mu4e-compose-forward=                | Compose a forward for selected email |
+| ~E~   | ~E~, ~ce~ | =mu4e-compose-edit=                   | Edit selected draft message          |
+|     |       |                                     |                                      |
+|     |       | *Other Actions*                       |                                      |
+| ~q~   | ~q~     | =mu4e~headers-quit-buffer=            | Quit the headers view                |
+
+Controlling the number of messages visible:
+
+- =mu4e-headers-results-limit=: The number of messages to display in mail listings (default 500)
+- =mu4e-headers-full-search=: If =t=, shows all messages, ignoring limit
+
+You can toggle =mu4e-headers-full-search= with =M-x mu4e-headers-toggle-full-search=!
+
+*** View Mode
+
+Many of the same keybindings work!  Marking keys work on the currently viewed message.
+
+| Key | Evil | Command                  | Description                            |
+|-----+------+--------------------------+----------------------------------------|
+|     |      | *Movement*                 |                                        |
+| ~C-n~ | ~j~    | =next-line=                | Moves to the next line in message      |
+| ~C-p~ | ~k~    | =previous-line=            | Moves to the previous line in message  |
+| ~n~   | ~C-j~  | =mu4e-view-headers-next=   | Moves to next email in header list     |
+| ~p~   | ~C-k~  | =mu4e-view-headers-prev=   | Moves to previous email in header list |
+| ~[[~  | ~[[~   | =mu4e-headers-prev-unread= | Moves to previous unread message       |
+| ~]]~  | ~]]~   | =mu4e-headers-next-unread= | Moves to next unread message           |
+
+* PDF
+
+#+begin_src emacs-lisp
+
+  (use-package pdf-tools
+    :magic ("%PDF" . pdf-view-mode)
+    :init (pdf-tools-install :no-query))
+    
+  (use-package pdf-view
+    :straight nil
+    :after pdf-tools
+    :bind (:map pdf-view-mode-map
+                ("C-s" . isearch-forward)
+                ("d" . pdf-annot-delete)
+                ("h" . pdf-annot-add-highlight-markup-annotation)
+                ("t" . pdf-annot-add-text-annotation))
+    :custom
+    (pdf-view-display-size 'fit-page)
+    (pdf-view-resize-factor 1.1)
+    ;; Avoid searching for unicodes to speed up pdf-tools.
+    (pdf-view-use-unicode-ligther nil)
+    ;; Enable HiDPI support, at the cost of memory.
+    (pdf-view-use-scaling t))
+
+#+end_src
+
+* SHARING
+** Webpaste
+
+The current bindings are overwritten by other binding
+
+#+begin_src emacs-lisp
+
+  (use-package webpaste
+    ;; :defer 0.4
+    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+           ("C-c C-p C-p" . webpaste-paste-buffer-or-region)
+           ("C-c C-p C-r" . webpaste-paste-region))
+    :custom (webpaste-provider-priority '("dpaste.org" "dpaste.com" "ix.io")))
+
+#+end_src
+
+** Imgbb
+
+#+begin_src emacs-lisp
+
+  (use-package imgbb
+    :commands imgbb-upload
+    :bind ("C-c C-p C-i" . imgbb-upload))
+
+#+end_src
+
+* WORD DICTIONARY
 
 #+begin_src emacs-lisp
 
   (use-package define-word
     :config
-    (setq define-word-default-service 'wordnik)
-    (defun url-http-user-agent-string ()
-    "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36 "))
+    (setq define-word-default-service 'offline-wikitionary)
+    (setq define-word-offline-dict-directory "~/.emacs.d/dictionaries_enwiktionary"))
+    ;; (defun url-http-user-agent-string ()
+    ;; "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36 ")
 
-  (my/leader-keys
-    "s w"   '(define-word :which-key "search definition of a word")
-    "s d"   '(define-word-at-point :which-key "search definition at point")
-    )
+  ;; (my/ctrl-c-keys
+  ;;   "D"   '(define-word :which-key "search definition of a word")
+  ;;   "d"   '(define-word-at-point :which-key "search definition at point")
+  ;;   )
+
+#+end_src
+
+* DAEMONS
+
+[[https://github.com/cbowdon/daemons.el][Daemons.el]] helps in managing init system daemons (services).
+
+| Command         | Key in =*daemons*= buffer |
+|-----------------+-------------------------|
+| =daemons-status=  | RET                     |
+| =daemons-start=   | s                       |
+| =daemons-stop=    | S                       |
+| =daemons-reload=  | r                       |
+| =daemons-restart= | R                       |
+| =daemons-enable=  | e                       |
+| =daemons-disable= | d                       |
+
+#+begin_src emacs-lisp
+
+  (use-package daemons
+    :commands daemons)
 
 #+end_src
 
 * ELFEED
 
-# #+begin_src emacs-lisp
-# (use-package elfeed
-#   :config
-#   (setq elfeed-search-feed-face ":foreground #fff :weight bold"
-#         elfeed-feeds (quote
-#                        (("https://www.reddit.com/r/linux.rss" reddit linux)
-#                         ("https://www.reddit.com/r/commandline.rss" reddit commandline)
-#                         ("https://www.reddit.com/r/distrotube.rss" reddit distrotube)
-#                         ("https://www.reddit.com/r/emacs.rss" reddit emacs)
-#                         ("https://www.gamingonlinux.com/article_rss.php" gaming linux)
-#                         ("https://hackaday.com/blog/feed/" hackaday linux)
-#                         ("https://opensource.com/feed" opensource linux)
-#                         ("https://linux.softpedia.com/backend.xml" softpedia linux)
-#                         ("https://itsfoss.com/feed/" itsfoss linux)
-#                         ("https://www.zdnet.com/topic/linux/rss.xml" zdnet linux)
-#                         ("https://www.phoronix.com/rss.php" phoronix linux)
-#                         ("http://feeds.feedburner.com/d0od" omgubuntu linux)
-#                         ("https://www.computerworld.com/index.rss" computerworld linux)
-#                         ("https://www.networkworld.com/category/linux/index.rss" networkworld linux)
-#                         ("https://www.techrepublic.com/rssfeeds/topic/open-source/" techrepublic linux)
-#                         ("https://betanews.com/feed" betanews linux)
-#                         ("http://lxer.com/module/newswire/headlines.rss" lxer linux)
-#                         ("https://distrowatch.com/news/dwd.xml" distrowatch linux)))))
+[[https://github.com/skeeto/elfeed][Elfeed]] looks like a great RSS feed reader.  Not using it much yet, but definitely looking forward to using it to keep track of a few different blogs I follow using Twitter.  Also seems to be great for following subreddits like /r/Emacs.
 
-# (use-package elfeed-goodies
-#   :init
-#   (elfeed-goodies/setup)
-#   :config
-#   (setq elfeed-goodies/entry-pane-size 0.5))
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :config
+    (setq elfeed-search-feed-face ":foreground #fff :weight bold"
+          elfeed-feeds (quote
+                         (("https://www.reddit.com/r/linux.rss" reddit linux)
+                          ("https://www.reddit.com/r/commandline.rss" reddit commandline)
+                          ("https://www.reddit.com/r/distrotube.rss" reddit distrotube)
+                          ("https://www.reddit.com/r/emacs.rss" reddit emacs)
+                          ("https://www.gamingonlinux.com/article_rss.php" gaming linux)
+                          ("https://hackaday.com/blog/feed/" hackaday linux)
+                          ("https://opensource.com/feed" opensource linux)
+                          ("https://linux.softpedia.com/backend.xml" softpedia linux)
+                          ("https://itsfoss.com/feed/" itsfoss linux)
+                          ("https://www.zdnet.com/topic/linux/rss.xml" zdnet linux)
+                          ("https://www.phoronix.com/rss.php" phoronix linux)
+                          ("http://feeds.feedburner.com/d0od" omgubuntu linux)
+                          ("https://www.computerworld.com/index.rss" computerworld linux)
+                          ("https://www.networkworld.com/category/linux/index.rss" networkworld linux)
+                          ("https://www.techrepublic.com/rssfeeds/topic/open-source/" techrepublic linux)
+                          ("https://betanews.com/feed" betanews linux)
+                          ("http://lxer.com/module/newswire/headlines.rss" lxer linux)
+                          ("https://distrowatch.com/news/dwd.xml" distrowatch linux)))))
 
-# (add-hook 'elfeed-show-mode-hook 'visual-line-mode)
-# (evil-define-key 'normal elfeed-show-mode-map
-#   (kbd "J") 'elfeed-goodies/split-show-next
-#   (kbd "K") 'elfeed-goodies/split-show-prev)
-# (evil-define-key 'normal elfeed-search-mode-map
-#   (kbd "J") 'elfeed-goodies/split-show-next
-#   (kbd "K") 'elfeed-goodies/split-show-prev)
-# #+end_src
+  (use-package elfeed-goodies
+    :init
+    (elfeed-goodies/setup)
+    :config
+    (setq elfeed-goodies/entry-pane-size 0.5))
 
-* EMOJI
+  (add-hook 'elfeed-show-mode-hook 'visual-line-mode)
+  (evil-define-key 'normal elfeed-show-mode-map
+    (kbd "C-j") 'elfeed-goodies/split-show-next
+    (kbd "C-k") 'elfeed-goodies/split-show-prev)
+  (evil-define-key 'normal elfeed-search-mode-map
+    (kbd "C-j") 'elfeed-goodies/split-show-next
+    (kbd "C-k") 'elfeed-goodies/split-show-prev)
+    
+#+end_src
 
-# #+begin_src emacs-lisp
-# (use-package emojify
-#   :hook (after-init . global-emojify-mode))
-# #+end_src
+* Chat
+
+- /join -> join a channel
+- /part -> leave a channel
+- /list <search-string> -> list channels
+- /query <username> -> private conversation
+- /msg <username> <message> -> private conversation without a new buffer
+- /nick <username>  -> change username
+- /quit <message>  -> disconnect from server
+- /reconnect -> reconnect to server
+- /help
+- NickServ, help
+
+** Tracking
+
+#+begin_src emacs-lisp
+
+  ;; (use-package tracking
+  ;;   :defer t
+  ;;   :config
+  ;;   (setq tracking-faces-priorities '(all-the-icons-pink
+  ;;                                     all-the-icons-lgreen
+  ;;                                     all-the-icons-lblue))
+  ;;   (setq tracking-frame-behavior nil))
+
+#+end_src
+
+** Telegram
+
+#+begin_src emacs-lisp
+
+  ;; ;; Add faces for specific people in the modeline.  There must
+  ;; ;; be a better way to do this.
+  ;; (defun dw/around-tracking-add-buffer (original-func buffer &optional faces)
+  ;;   (let* ((name (buffer-name buffer))
+  ;;          (face (cond ((s-contains? "Maria" name) '(all-the-icons-pink))
+  ;;                      ((s-contains? "Alex " name) '(all-the-icons-lgreen))
+  ;;                      ((s-contains? "Steve" name) '(all-the-icons-lblue))))
+  ;;          (result (apply original-func buffer (list face))))
+  ;;     (dw/update-polybar-telegram)
+  ;;     result))
+
+  ;; (defun dw/after-tracking-remove-buffer (buffer)
+  ;;   (dw/update-polybar-telegram))
+
+  ;; (advice-add 'tracking-add-buffer :around #'dw/around-tracking-add-buffer)
+  ;; (advice-add 'tracking-remove-buffer :after #'dw/after-tracking-remove-buffer)
+  ;; (advice-remove 'tracking-remove-buffer #'dw/around-tracking-remove-buffer)
+
+  ;; ;; Advise exwm-workspace-switch so that we can more reliably clear tracking buffers
+  ;; ;; NOTE: This is a hack and I hate it.  It'd be great to find a better solution.
+  ;; (defun dw/before-exwm-workspace-switch (frame-or-index &optional force)
+  ;;   (when (fboundp 'tracking-remove-visible-buffers)
+  ;;     (when (eq exwm-workspace-current-index 0)
+  ;;       (tracking-remove-visible-buffers))))
+
+  ;; (advice-add 'exwm-workspace-switch :before #'dw/before-exwm-workspace-switch)
+
+  ;; (use-package telega
+  ;;   :commands telega
+  ;;   :config
+  ;;   (setq telega-user-use-avatars nil
+  ;;         telega-use-tracking-for '(any pin unread)
+  ;;         telega-chat-use-markdown-formatting t
+  ;;         telega-emoji-use-images t
+  ;;         telega-completing-read-function #'ivy-completing-read
+  ;;         telega-msg-rainbow-title nil
+  ;;         telega-chat-fill-column 75))
+
+#+end_src
+
+** Discord
+
+=elcord= makes it possible to notify Discord when Emacs is "playing" using the Game Activity feature.  Since I run the Discord Flatpak from Flathub, I have to [[https://github.com/flathub/com.discordapp.Discord/wiki/Rich-Precense-(discord-rpc)#regular-unsandboxed-apps][expose the socket]] file via symbolic link like so:
+
+#+begin_src shell :tangle no
+
+  ln -sf {app/com.discordapp.Discord,$XDG_RUNTIME_DIR}/discord-ipc-0
+
+#+end_src
+
+#+begin_src emacs-lisp
+
+  ;; (use-package elcord
+  ;;   :straight t
+  ;;   :disabled dw/is-termux
+  ;;   :custom
+  ;;   (elcord-display-buffer-details nil)
+  ;;   :config
+  ;;   (elcord-mode))
+
+#+end_src
+
+** CIRCE
+
+#+begin_src emacs-lisp
+
+  ;; (defun dw/on-erc-track-list-changed ()
+  ;;   (dolist (buffer erc-modified-channels-alist)
+  ;;     (tracking-add-buffer (car buffer))))
+
+  ;; (use-package erc-hl-nicks
+  ;;   :after erc)
+
+  ;; (use-package erc-image
+  ;;   :after erc)
+
+  (use-package circe
+  :commands circe
+  :preface
+  (defun my/circe-count-nicks ()
+    "Display the number of users connected on the current channel."
+    (interactive)
+    (when (eq major-mode 'circe-channel-mode)
+      (message "%i users are online on %s."
+               (length (circe-channel-nicks)) (buffer-name))))
+
+  (defun my/circe-fetch-password (&rest params)
+    "Fetch the NickServ password for an username."
+    (require 'auth-source)
+    (let ((match (car (apply 'auth-source-search params))))
+      (if match
+          (let ((secret (plist-get match :secret)))
+            (if (functionp secret)
+                (funcall secret)
+              secret))
+        (error "[✗] Password not found for %S" params))))
+
+  (defun my/circe-nickserv-password (server)
+    "Fetch the NickServ password for the Libera Chat."
+    (my/circe-fetch-password :login "lokesh1197" :machine "irc.libera.chat"))
+  :custom
+  (circe-default-part-message nil)
+  (circe-default-quit-message nil)
+  (circe-format-say (format "{nick:+%ss}: {body}" 8))
+  (circe-network-options
+   '(("Libera Chat"
+      :nick "lokesh1197"
+      :tls t
+      :port 6697
+      :server-buffer-name "⇄ Libera Chat"
+      :channels (:after-auth "#archlinux" "#bash" "#emacs" "#linux" "#python" "#qutebrowser" "#sway")
+      :nickserv-password my/circe-nickserv-password)))
+  (circe-reduce-lurker-spam t)
+  (circe-use-cycle-completion t)
+  (lui-flyspell-p t)
+  :config
+  (circe-lagmon-mode)
+  (enable-circe-color-nicks)
+  (enable-circe-display-images))
+
+  (use-package circe-notifications
+  :after circe
+  :hook (circe-server-connected . enable-circe-notifications))
+
+#+end_src
+
+** ERC
+
+[[https://www.gnu.org/software/emacs/manual/html_node/erc/Modules.html][ERC]] is the big kahuna of Emacs IRC clients.  At first I thought it was too bulky, but after using =circe= and =rcirc= I started to appreciate some of the features it provides.  The "static center" fill mode is really awesome.
+
+#+begin_src emacs-lisp
+    (defun dw/on-erc-track-list-changed ()
+      (dolist (buffer erc-modified-channels-alist)
+        (tracking-add-buffer (car buffer))))
+
+    (use-package erc-hl-nicks
+      :after erc)
+
+    (use-package erc-image
+      :after erc)
+
+    (use-package erc
+      :commands erc
+      :hook (erc-track-list-changed . dw/on-erc-track-list-changed)
+      :config
+      (require 'erc-desktop-notifications)
+      (setq
+          erc-nick "lokesh1197"
+          erc-user-full-name "Lokesh Mohanty"
+          erc-prompt-for-password nil
+          erc-auto-query 'bury
+          erc-join-buffer 'bury
+          erc-track-shorten-start 8
+          erc-interpret-mirc-color t
+          erc-rename-buffers t
+          erc-kill-buffer-on-part t
+          erc-track-exclude '("#twitter_daviwil")
+          erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "AWAY")
+          erc-track-enable-keybindings nil
+          erc-track-visibility nil ; Only use the selected frame for visibility
+          erc-track-exclude-server-buffer t
+          erc-fill-column 120
+          erc-fill-function 'erc-fill-static
+          erc-fill-static-center 20
+          erc-image-inline-rescale 400
+          erc-server-reconnect-timeout 10
+          erc-server-reconnect-attempts 5
+          erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs" "#guix"))
+          erc-quit-reason (lambda (s) (or s "Ejecting from cyberspace"))
+          erc-modules
+          '(autoaway autojoin button completion fill irccontrols keep-place
+              list match menu move-to-prompt netsplit networks noncommands
+              readonly ring stamp track image hl-nicks notify notifications))
+
+      (add-hook 'erc-join-hook 'bitlbee-identify)
+      (defun bitlbee-identify ()
+        "If we're on the bitlbee server, send the identify command to the &bitlbee channel."
+        (when (and (string= "127.0.0.1" erc-session-server)
+                   (string= "&bitlbee" (buffer-name)))
+          (erc-message "PRIVMSG" (format "%s identify %s"
+                                         (erc-default-target)
+                                         (password-store-get "IRC/Bitlbee"))))))
+
+    (defun dw/connect-irc ()
+      (interactive)
+      (erc-tls :server "irc.libera.chat" :port 6697 :nick "lokesh1197"))
+      ;; (erc
+      ;;    :server "127.0.0.1" :port 6667
+      ;;    :nick "daviwil" :password (password-store-get "IRC/Bitlbee")))
+
+    ;; Thanks karthik!
+    (defun erc-image-create-image (file-name)
+      "Create an image suitably scaled according to the setting of
+    'ERC-IMAGE-RESCALE."
+      (let* ((positions (window-inside-absolute-pixel-edges))
+            (width (- (nth 2 positions) (nth 0 positions)))
+            (height (- (nth 3 positions) (nth 1 positions)))
+            (image (create-image file-name))
+            (dimensions (image-size image t))
+            (imagemagick-p (and (fboundp 'imagemagick-types) 'imagemagick)))
+                                            ; See if we want to rescale the image
+        (if (and erc-image-inline-rescale
+                (not (image-multi-frame-p image)))
+            ;; Rescale based on erc-image-rescale
+            (cond (;; Numeric: scale down to that size
+                  (numberp erc-image-inline-rescale)
+                  (if (> (cdr dimensions) erc-image-inline-rescale)
+                      (create-image file-name imagemagick-p nil :height erc-image-inline-rescale)
+                    image))
+                  (;; 'window: scale down to window size, if bigger
+                  (eq erc-image-inline-rescale 'window)
+                  ;; But only if the image is greater than the window size
+                  (if (or (> (car dimensions) width)
+                          (> (cdr dimensions) height))
+                      ;; Figure out in which direction we need to scale
+                      (if (> width height)
+                          (create-image file-name imagemagick-p nil :height  height)
+                        (create-image file-name imagemagick-p nil :width width))
+                    ;; Image is smaller than window, just give that back
+                    image))
+                  (t (progn (message "Error: none of the rescaling options matched") image)))
+          ;; No rescale
+          image)))
+#+end_src
+
+*** Sharing Files with 0x0
+
+I use this nice package from [[https://gitlab.com/willvaughn][nackjicholson]] to make sharing files and images on IRC much easier.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package 0x0
+  ;;   :straight '(0x0 :host gitlab
+  ;;                   :repo "willvaughn/emacs-0x0"))
+
+#+end_src
+
+*** Reference
+- https://www.gnu.org/software/emacs/manual/html_mono/erc.html
+- https://www.emacswiki.org/emacs/ErcChannelTracking
+- [[https://www.emacswiki.org/emacs/ErcFilling][Automatic window-width filling]]
+- John Wiegley's ERC config:
+  - https://github.com/jwiegley/dot-emacs/blob/master/lisp/erc-alert.el
+  - Settings: https://github.com/jwiegley/dot-emacs/blob/0f7d2c04ac38857d8e0fb036faedbf84193c8bd4/settings.el#L445
+  - Commands: https://github.com/jwiegley/dot-emacs/blob/f23993cfcb9ca90c289b4214b9bafbf46883bdb4/lisp/erc-macros.el
+
+** Matrix
+
+#+begin_src emacs-lisp
+
+  ;; (use-package matrix-client)
+
+#+end_src
+
+* Gemini
+
+#+begin_src emacs-lisp
+
+  (use-package elpher)
+
+#+end_src
+
+* Emoji
+
+#+begin_src emacs-lisp
+
+  ;; (use-package emojify
+  ;;   :hook (after-init . global-emojify-mode))
+
+#+end_src
+
+* Credential Management
+
+I use [[https://www.passwordstore.org/][pass]] to manage all of my passwords locally.  I also use [[https://github.com/DamienCassou/auth-password-store][auth-source-pass]] as the primary =auth-source= provider so that all passwords are stored in a single place.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package password-store
+  ;;   :config
+  ;;   (setq password-store-password-length 12))
+
+  ;; (use-package auth-source-pass
+  ;;   :config
+  ;;   (auth-source-pass-enable))
+
+  ;; (use-package oauth2
+  ;;   :straight t)
+
+  ;; (leader-key
+  ;;   "ap" '(:ignore t :which-key "pass")
+  ;;   "app" 'password-store-copy
+  ;;   "api" 'password-store-insert
+  ;;   "apg" 'password-store-generate)
+
+#+end_src
+
+* Money Management
+
+Good money management is a skill to be acquired as soon as possible. Fortunately
+for us, [[https://www.ledger-cli.org/][Ledger]] allows you to have a double-entry accounting system directly from
+the UNIX command line. To use Ledger with GNU Emacs, you need to the [[https://github.com/ledger/ledger-mode][ledger-mode]]
+package. However, do not forget to install the =ledger= package with your system
+package manager.
+
+I discovered Ledger as a student and learning how to manage time and expenses at
+the same time was too much. I decided for the time being to briefly learn Ledger
+and focus more on time management. One issue I had with Ledger was the lack of
+support from my bank to export my transactions into a file type that Ledger
+could understand. Unfortunately, since I often made bank transfers, encoding
+each payment by hand was a pain. For the curious people, alternatives to Ledger
+exist, some of which are open-source and proprietary (e.g., [[https://www.youneedabudget.com/][YNAB]]).
+
+*NOTE:* by default, Ledger uses the [[ https://xkcd.com/1179/][ISO 8601]] format to write dates, which is the
+recommended format.
+
+#+begin_src emacs-lisp
+  ;; (use-package ledger-mode
+  ;;   :ensure-system-package (ledger . "yay -S --noconfirm ledger")
+  ;;   :mode ("\\.\\(dat\\|ledger\\)\\'")
+  ;;   :preface
+  ;;   (defun my/ledger-save ()
+  ;;     "Clean the ledger buffer at each save."
+  ;;     (interactive)
+  ;;     (ledger-mode-clean-buffer)
+  ;;     (save-buffer))
+  ;;   :bind (:map ledger-mode-map
+  ;;               ("C-x C-s" . my/ledger-save))
+  ;;   :hook (ledger-mode . ledger-flymake-enable)
+  ;;   :custom
+  ;;   (ledger-clear-whole-transactions t)
+  ;;   (ledger-reconcile-default-commodity "EUR")
+  ;;   (ledger-reports
+  ;;    '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
+  ;;      ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
+  ;;      ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
+  ;;      ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
+  ;;      ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
+  ;;      ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
+  ;;      ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
+  ;;      ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
+  ;;      ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
+  ;;    (ledger-report-use-header-line nil)))
+#+end_src
+
+Finally, to provides a =flychecker= checker for Ledger files, you can use
+[[https://github.com/purcell/flycheck-ledger][flycheck-ledger]].
+
+#+begin_src emacs-lisp
+  ;; (use-package flycheck-ledger :after ledger-mode)
+#+end_src
+
+* TRY
+
+#+begin_src emacs-lisp
+
+  (use-package try
+    :commands try)
+
+#+end_src
+
+* Hydra
+
+GNU Emacs has so many commands per mode that it is tedious to remember all the
+keybindings for quick access.  Fortunately, [[https://github.com/abo-abo/hydra][hydra]] allows you to create menu
+commands and on the basis of a popup, display the commands you have associated
+with it.
+
+#+begin_src emacs-lisp
+  (use-package hydra
+    :bind (("C-c I" . hydra-image/body)
+           ("C-c L" . hydra-ledger/body)
+           ("C-c M" . hydra-merge/body)
+           ("C-c T" . hydra-tool/body)
+           ("C-c b" . hydra-btoggle/body)
+           ("C-c c" . hydra-clock/body)
+           ("C-c e" . hydra-circe/body)
+           ("C-c f" . hydra-flycheck/body)
+           ("C-c g" . hydra-go-to-file/body)
+           ("C-c m" . hydra-magit/body)
+           ("C-c o" . hydra-org/body)
+           ("C-c p" . hydra-projectile/body)
+           ("C-c s" . hydra-spelling/body)
+           ("C-c t" . hydra-tex/body)
+           ("C-c u" . hydra-upload/body)
+           ("C-c w" . hydra-windows/body)))
+
+  (use-package major-mode-hydra
+    :after hydra
+    :preface
+    (defun with-alltheicon (icon str &optional height v-adjust face)
+      "Display an icon from all-the-icon."
+      (s-concat (all-the-icons-alltheicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+    (defun with-faicon (icon str &optional height v-adjust face)
+      "Display an icon from Font Awesome icon."
+      (s-concat (all-the-icons-faicon icon ':v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+    (defun with-fileicon (icon str &optional height v-adjust face)
+      "Display an icon from the Atom File Icons package."
+      (s-concat (all-the-icons-fileicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+    (defun with-octicon (icon str &optional height v-adjust face)
+      "Display an icon from the GitHub Octicons."
+      (s-concat (all-the-icons-octicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str)))
+#+end_src
+
+** Hydra / BToggle
+
+Group a lot of commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-btoggle
+    (:hint nil :color amaranth :quit-key "q" :title (with-faicon "toggle-on" "Toggle" 1 -0.05))
+    ("Basic"
+     (("a" abbrev-mode "abbrev" :toggle t)
+      ("h" global-hungry-delete-mode "hungry delete" :toggle t))
+     "Coding"
+     (("e" electric-operator-mode "electric operator" :toggle t)
+      ("F" flyspell-mode "flyspell" :toggle t)
+      ("f" flycheck-mode "flycheck" :toggle t)
+      ("l" lsp-mode "lsp" :toggle t)
+      ("s" smartparens-mode "smartparens" :toggle t))
+     "UI"
+     (("i" ivy-rich-mode "ivy-rich" :toggle t))))
+
+#+end_src
+
+** Hydra / Circe
+
+Group circe commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-circe
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "comments-o" "Circe" 1 -0.05))
+    ("Action"
+     (("c" circe "connect")
+      ("r" circe-reconnect "reconnect")
+      ("u" my/circe-count-nicks "user"))))
+      
+#+end_src
+
+** Hydra / Clock
+
+Group clock commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-clock
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "clock-o" "Clock" 1 -0.05))
+    ("Action"
+     (("c" org-clock-cancel "cancel")
+      ("d" org-clock-display "display")
+      ("e" org-clock-modify-effort-estimate "effort")
+      ("i" org-clock-in "in")
+      ("j" org-clock-goto "jump")
+      ("o" org-clock-out "out")
+      ("p" org-pomodoro "pomodoro")
+      ("r" org-clock-report "report"))))
+
+#+end_src
+
+** Hydra / Flycheck
+
+Group Flycheck commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-flycheck
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "plane" "Flycheck" 1 -0.05))
+    ("Checker"
+     (("?" flycheck-describe-checker "describe")
+      ("d" flycheck-disable-checker "disable")
+      ("m" flycheck-mode "mode")
+      ("s" flycheck-select-checker "select"))
+     "Errors"
+     (("<" flycheck-previous-error "previous" :color pink)
+      (">" flycheck-next-error "next" :color pink)
+      ("f" flycheck-buffer "check")
+      ("l" flycheck-list-errors "list"))
+     "Other"
+     (("M" flycheck-manual "manual")
+      ("v" flycheck-verify-setup "verify setup"))))
+
+#+end_src
+
+** Hydra / Go To
+
+Group jump-to-files commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-go-to-file
+    (:hint nil :color teal :quit-key "q" :title (with-octicon "file-symlink-file" "Go To" 1 -0.05))
+    ("Agenda"
+     (("ac" (find-file "~/.personal/agenda/contacts.org") "contacts")
+      ("ah" (find-file "~/.personal/agenda/home.org") "home")
+      ("ai" (find-file "~/.personal/agenda/inbox.org") "inbox")
+      ("ap" (find-file "~/.personal/agenda/people.org") "people")
+      ("ar" (find-file "~/.personal/agenda/routine.org") "routine")
+      ("aw" (find-file "~/.personal/agenda/work.org") "work"))
+     "Config"
+     (("ca" (find-file (format "%s/alacritty/alacritty.yml" xdg-config)) "alacritty")
+      ("cA" (find-file (format "%s/sh/aliases" xdg-config)) "aliases")
+      ("ce" (find-file "~/.emacs.d/config.org") "emacs")
+      ("cE" (find-file (format "%s/sh/environ" xdg-config)) "environ")
+      ("cn" (find-file (format "%s/neofetch/config.conf" xdg-config)) "neofetch")
+      ("cq" (find-file (format "%s/qutebrowser/config.py" xdg-config)) "qutebrowser")
+      ("cr" (find-file (format "%s/ranger/rc.conf" xdg-config)) "ranger")
+      ("cs" (find-file (format "%s/sway/config" xdg-config)) "sway")
+      ("ct" (find-file (format "%s/tmux/tmux.conf" xdg-config)) "tmux")
+      ("cw" (find-file (format "%s/waybar/config" xdg-config)) "waybar")
+      ("cW" (find-file (format "%s/wofi/config" xdg-config)) "wofi")
+      ("cx" (find-file (format "%s/sh/xdg" xdg-config)) "xdg"))
+     "Notes"
+     (("na" (find-file (format "~/.personal/notes/affirmations.pdf" xdg-config)) "Affirmations"))
+     "Other"
+     (("ob" (find-file "~/.personal/other/books.org") "book")
+      ("ol" (find-file "~/.personal/other/long-goals.org") "long-terms goals")
+      ("om" (find-file "~/.personal/other/movies.org"))
+      ("op" (find-file "~/.personal/other/purchases.org") "purchase")
+      ("os" (find-file "~/.personal/other/short-goals.org") "short-terms goals")
+      ("ou" (find-file "~/.personal/other/usb.org") "usb")
+      ("oL" (find-file "~/.personal/other/learning.org") "learning"))))
+
+#+end_src
+
+** Hydra / Image
+
+Group images commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-image
+    (:hint nil :color pink :quit-key "q" :title (with-faicon "file-image-o" "Images" 1 -0.05))
+    ("Action"
+     (("r" image-rotate "rotate")
+      ("s" image-save "save" :color teal))
+      "Zoom"
+      (("-" image-decrease-size "out")
+       ("+" image-increase-size "in")
+       ("=" image-transform-reset "reset"))))
+
+#+end_src
+
+** Hydra / Ledger
+
+Group Ledger commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-ledger
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "usd" "Ledger" 1 -0.05))
+    ("Action"
+     (("b" leadger-add-transaction "add")
+      ("c" ledger-mode-clean-buffer "clear")
+      ("i" ledger-copy-transaction-at-point "copy")
+      ("s" ledger-delete-current-transaction "delete")
+      ("r" ledger-report "report"))))
+
+#+end_src
+
+** Hydra / Magit
+
+Group Magit commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-magit
+    (:hint nil :color teal :quit-key "q" :title (with-octicon "mark-github" "Magit" 1 -0.05))
+    ("Action"
+     (("b" magit-blame "blame")
+      ("c" magit-clone "clone")
+      ("i" magit-init "init")
+      ("l" magit-log-buffer-file "commit log (current file)")
+      ("L" magit-log-current "commit log (project)")
+      ("s" magit-status "status"))))
+
+#+end_src
+
+** Hydra / Merge
+
+Group Merge commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-merge
+    (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Magit" 1 -0.05))
+    ("Move"
+     (("n" smerge-next "next")
+      ("p" smerge-prev "previous"))
+     "Keep"
+     (("RET" smerge-keep-current "current")
+      ("a" smerge-keep-all "all")
+      ("b" smerge-keep-base "base")
+      ("l" smerge-keep-lower "lower")
+      ("u" smerge-keep-upper "upper"))
+     "Diff"
+     (("<" smerge-diff-base-upper "upper/base")
+      ("=" smerge-diff-upper-lower "upper/lower")
+      (">" smerge-diff-base-lower "base/lower")
+      ("R" smerge-refine "redefine")
+      ("E" smerge-ediff "ediff"))
+     "Other"
+     (("C" smerge-combine-with-next "combine")
+      ("r" smerge-resolve "resolve")
+      ("k" smerge-kill-current "kill current"))))
+
+#+end_src
+
+** Hydra / Org
+
+Group Org commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-org
+    (:hint nil :color teal :quit-key "q" :title (with-fileicon "org" "Org" 1 -0.05))
+    ("Action"
+     (("A" my/org-archive-done-tasks "archive")
+      ("a" org-agenda "agenda")
+      ("c" org-capture "capture")
+      ("d" org-decrypt-entry "decrypt")
+      ("i" org-insert-link-global "insert-link")
+      ("j" my/org-jump "jump-task")
+      ("k" org-cut-subtree "cut-subtree")
+      ("o" org-open-at-point-global "open-link")
+      ("r" org-refile "refile")
+      ("s" org-store-link "store-link")
+      ("t" org-show-todo-tree "todo-tree"))))
+
+#+end_src
+
+** Hydra / Projectile
+
+Group Projectile commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-projectile
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "rocket" "Projectile" 1 -0.05))
+    ("Buffers"
+     (("b" projectile-switch-to-buffer "list")
+      ("k" projectile-kill-buffers "kill all")
+      ("S" projectile-save-project-buffers "save all"))
+     "Find"
+     (("d" projectile-find-dir "directory")
+      ("D" projectile-dired "root")
+      ("f" projectile-find-file "file")
+      ("p" consult-projectile "project"))
+     "Other"
+     (("i" projectile-invalidate-cache "reset cache"))
+     "Search"
+     (("r" projectile-replace "replace")
+      ("R" projectile-replace-regexp "regexp replace")
+      ("s" counsel-ripgrep "search"))))
+      
+#+end_src
+
+** Hydra / Roam
+
+Group =org-roam= commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-notes
+    (:hint nil :color teal :quit-key "q" :title (with-octicon "pencil" "Notes" 1 -0.05))
+    ("Notes"
+     (("c" org-roam-dailies-capture-today "capture")
+      ("C" org-roam-dailies-capture-tomorrow "capture tomorrow")
+      ("g" org-roam-graph "graph")
+      ("f" org-roam-node-find "find")
+      ("i" org-roam-node-insert "insert"))
+     "Go To"
+     ((">" org-roam-dailies-goto-next-note "next note")
+      ("<" org-roam-dailies-goto-previous-note "previous note")
+      ("d" org-roam-dailies-goto-date "date")
+      ("t" org-roam-dailies-goto-today "today")
+      ("T" org-roam-dailies-goto-tomorrow "tomorrow")
+      ("y" org-roam-dailies-goto-yesterday "yesterday"))))
+
+#+end_src
+
+** Hydra / Spelling
+
+Group spelling commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-spelling
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "magic" "Spelling" 1 -0.05))
+    ("Checker"
+     (("c" langtool-correct-buffer "correction")
+      ("C" langtool-check-done "clear")
+      ("d" ispell-change-dictionary "dictionary")
+      ("l" (message "Current language: %s (%s)" langtool-default-language ispell-current-dictionary) "language")
+      ("s" my/switch-language "switch")
+      ("w" wiki-summary "wiki"))
+     "Errors"
+     (("<" flyspell-correct-previous "previous" :color pink)
+      (">" flyspell-correct-next "next" :color pink)
+      ("f" langtool-check "find"))))
+
+#+end_src
+
+** Hydra / TeX
+
+Group TeX commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-tex
+    (:hint nil :color teal :quit-key "q" :title (with-fileicon "tex" "LaTeX" 1 -0.05))
+    ("Action"
+     (("g" reftex-goto-label "goto")
+      ("r" reftex-query-replace-document "replace")
+      ("s" counsel-rg "search")
+      ("t" reftex-toc "table of content"))))
+
+#+end_src
+
+** Hydra / Tool
+
+Group Tool commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-tool
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "briefcase" "Tool" 1 -0.05))
+    ("Network"
+     (("c" ipcalc "subnet calculator")
+      ("i" ipinfo "ip info"))))
+
+#+end_src
+
+** Hydra / TypeScript
+
+Group TypeScript commands.
+
+#+begin_src emacs-lisp
+
+  (defhydra hydra-typescript (:color blue)
+    "
+    ^
+    ^TypeScript^          ^Do^
+    ^──────────^──────────^──^───────────
+    _q_ quit             _b_ back
+    ^^                   _e_ errors
+    ^^                   _j_ jump
+    ^^                   _r_ references
+    ^^                   _R_ restart
+    ^^                   ^^
+    "
+    ("q" nil)
+    ("b" tide-jump-back)
+    ("e" tide-project-errors)
+    ("j" tide-jump-to-definition)
+    ("r" tide-references)
+    ("R" tide-restart-server))
+
+#+end_src
+
+** Hydra / Upload
+
+Group upload commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-upload
+    (:hint nil :color teal :quit-key "q" :title (with-faicon "cloud-upload" "Upload" 1 -0.05))
+    ("Action"
+     (("b" webpaste-paste-buffer "buffer")
+      ("i" imgbb-upload "image")
+      ("r" webpaste-paste-region "region"))))
+
+#+end_src
+
+** Hydra / Windows
+
+Group window-related commands.
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-windows
+    (:hint nil :forein-keys warn :quit-key "q" :title (with-faicon "windows" "Windows" 1 -0.05))
+    ("Window"
+     (("b" balance-windows "balance")
+      ("i" enlarge-window "heighten")
+      ("j" shrink-window-horizontally "narrow")
+      ("k" shrink-window "lower")
+      ("u" winner-undo "undo")
+      ("r" winner-redo "redo")
+      ("l" enlarge-window-horizontally "widen")
+      ("s" switch-window-then-swap-buffer "swap" :color teal))
+     "Zoom"
+     (("-" text-scale-decrease "out")
+      ("+" text-scale-increase "in")
+      ("=" (text-scale-increase 0) "reset"))))
+
+#+end_src
 
 * UNSET DEBUGGING
 
