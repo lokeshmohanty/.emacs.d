@@ -1134,7 +1134,8 @@ Easy switching directories. Works great when combined with embark
 #+begin_src emacs-lisp
 
   (use-package avy
-    :commands (avy-goto-char avy-goto-word-0 avy-goto-line))
+    :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
+    :bind ("M-j" . avy-goto-char-timer))
 
   (my/leader-keys
     "j"   '(:ignore t :which-key "jump")
@@ -1240,10 +1241,23 @@ Use Language server protocol.
 #+begin_src emacs-lisp
 
   (use-package lsp-mode
+    :hook ((latex-mode js2-mode) . lsp-deferred)
     :init
-    (setq lsp-keymap-prefix "C-l")  ;; Or 'C-l', 's-l'
+    (setq lsp-keymap-prefix "C-l")
     :config
-    (lsp-enable-which-key-integration t)  ;; integrate with which-key for help with bindings
+    (lsp-enable-which-key-integration t)
+    )
+
+  (my/leader-keys
+    "l"  '(:ignore t :which-key "lsp")
+    ;; "ld" 'xref-find-definitions
+    ;; "lr" 'xref-find-references
+    "ln" 'lsp-ui-find-next-reference
+    "lp" 'lsp-ui-find-prev-reference
+    ;; "ls" 'counsel-imenu
+    "le" 'lsp-ui-flycheck-list
+    ;; "lS" 'lsp-ui-sideline-mode
+    ;; "lX" 'lsp-execute-code-action
     )
 
 #+end_src
@@ -2540,11 +2554,11 @@ window layout.
 
 #+begin_src emacs-lisp
 
-  (use-package restclient
-    :defer t
-    :mode (("\\.http\\'" . restclient-mode))
-    :bind (:map restclient-mode-map
-                ("C-c C-f" . json-mode-beautify)))
+  ;; (use-package restclient
+  ;;   :defer t
+  ;;   :mode (("\\.http\\'" . restclient-mode))
+  ;;   :bind (:map restclient-mode-map
+  ;;               ("C-c C-f" . json-mode-beautify)))
 
 #+end_src
 
@@ -2592,48 +2606,63 @@ To import postman collection
 | M-<down>             |                          |                              |
 | M-<left>             | Increase heading         |                              |
 | M-<rignt>            | Decrease heading         |                              |
-| C-c C-o              | org-open-at-point        |                              |
-| C-c C-j              | org-goto                 |                              |
-| C-c C-t              | org-todo                 |                              |
-| Shift-<left>,<right> | org-todo                 |                              |
-| C-c C-l              | org-insert-link          |                              |
-| C-c '                | org-edit-special         | edit block in another buffer |
+| C-c C-o              | =org-open-at-point=        |                              |
+| C-c C-j              | =org-goto=                 |                              |
+| C-c C-t              | =org-todo=                 |                              |
+| Shift-<left>,<right> | =org-todo=                 |                              |
+| C-c C-l              | =org-insert-link=          |                              |
+| C-c '                | =org-edit-special=         | edit block in another buffer |
 | M-<enter>            |                          |                              |
 |----------------------+--------------------------+------------------------------|
-| C-c C-s              | org-schedule             |                              |
-| C-c C-d              | org-deadline             |                              |
-| C-c C-x e            | org-set-effort           |                              |
-| C-c C-x p            | org-set-property         |                              |
+| C-c C-s              | =org-schedule=             |                              |
+| C-c C-d              | =org-deadline=             |                              |
+| C-c C-x e            | =org-set-effort=           |                              |
+| C-c C-x p            | =org-set-property=         |                              |
 |----------------------+--------------------------+------------------------------|
-| C-c C-x C-i          | org-clock-in             |                              |
-| C-c C-x C-o          | org-clock-out            |                              |
-| C-c C-x C-j          | org-clock-jump           |                              |
-|                      | org-clock-report         |                              |
+| C-c C-x C-i          | =org-clock-in=             |                              |
+| C-c C-x C-o          | =org-clock-out=            |                              |
+| C-c C-x C-j          | =org-clock-jump=           |                              |
+|                      | =org-clock-report=         |                              |
 |----------------------+--------------------------+------------------------------|
-| C-c M-:              | repeat-complex-command   |                              |
-| C-c *                | org-ctrl-c-star          |                              |
-| C-c -                | org-ctrl-c-minus         |                              |
-|                      | counsel-org-goto         |                              |
-|                      | org-export-dispatch      |                              |
-|                      | org-footnote-new         |                              |
-|                      | org-toggle-heading       |                              |
-|                      | org-toggle-item          |                              |
-|                      | org-toggle-checkbox      |                              |
-|                      | org-babel-tangle         |                              |
-|                      | org-toggle-inline-images |                              |
-|                      | org-todo-list            |                              |
+| C-c M-:              | =repeat-complex-command=   |                              |
+| C-c *                | =org-ctrl-c-star=          |                              |
+| C-c -                | =org-ctrl-c-minus=         |                              |
+|                      | =counsel-org-goto=         |                              |
+|                      | =org-export-dispatch=      |                              |
+|                      | =org-footnote-new=         |                              |
+|                      | =org-toggle-heading=       |                              |
+|                      | =org-toggle-item=          |                              |
+|                      | =org-toggle-checkbox=      |                              |
+|                      | =org-babel-tangle=         |                              |
+|                      | =org-toggle-inline-images= |                              |
+|                      | =org-todo-list=            |                              |
 # | C-c ESC ESC          | repeat-complex-command |
 
-M-<Enter> -> Continue adding tags in add tag minibuffer
+=M-<Enter>= -> Continue adding tags in add tag minibuffer
+
 ** Basic
+
 #+begin_src emacs-lisp
+
+  (use-package org
+    :straight nil
+    :config
+  (setq org-modules '(
+                      org-crypt
+                      org-agenda
+                      org-habit
+                      ;; org-bullets              ;; show bullets instead of asterisks
+                      ;; org-bookmark
+                      ;; org-eshell
+                      ;; org-irc
+                      ))
 
   (add-hook 'org-mode-hook 'org-indent-mode)
   (setq org-directory "~/Org/")
   (setq org-ellipsis " ▾"
         org-hide-emphasis-markers t     ;; hide rich text markers      
         org-hide-block-startup nil
-        org-startup-folded 'content
+        org-startup-folded t
         org-cycle-separator-lines 2
         org-capture-bookmark nil
 
@@ -2669,26 +2698,6 @@ M-<Enter> -> Continue adding tags in add tag minibuffer
 
 #+end_src
 
-** Modules
-
-#+begin_src emacs-lisp
-
-  (use-package org-bullets)
-  ;; (use-package org-habit)
-
-  (setq org-modules '(
-                      ;; org-crypt
-                      org-agenda
-                      org-habit
-                      org-bullets              ;; show bullets instead of asterisks
-                      ;; org-bookmark
-                      ;; org-eshell
-                      ;; org-irc
-                      ))
-  (add-hook 'org-mode-hook 'org-bullets-mode)
-
-#+end_src
-
 ** Priorities
 
 Allow priorities from A to E.
@@ -2702,8 +2711,13 @@ Allow priorities from A to E.
 #+end_src
 
 ** Todo
+
+| =!=   | record timestamp                                 |
+| =@=   | record a note                                    |
+| =x/y= | do x while entering state, y while exiting state |
+
 #+begin_src emacs-lisp
-  ;; '!' -> record timestamp; '@' -> record a note; x/y -> do x while entering state, y while exiting state
+          
   (setq org-todo-keywords 
         '(
           (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "|" "DONE(D!)")
@@ -2907,9 +2921,19 @@ This is particularly useful if you use the org-habits module and you are late to
 | olp         | choose the outlinepath for the entry                              |
 | datetree    | automatically choose/insert the date tree i.e year>month>day      |
 +-------------+-------------------------------------------------------------------+
-              
+
+| Item                                                 | Description             |
+|------------------------------------------------------+-------------------------|
+| %:date, %:date-timestamp, %d:date-timestamp-inactive | date, org timestamps    |
+| %:from, %:fromname, %:fromaddress                    | sender, name/address    |
+| %:to, %:toname, %:toaddress                          | recipient, name/address |
+| %:maildir                                            | maildir for the message |
+| %:message-id                                         | message-id              |
+| %:path                                               | file system path        |
+| %:subject                                            | message subject         |
 
 #+begin_src emacs-lisp
+
   (setq org-capture-templates 
         `(("t" "Tasks")
           ("tt" "General Task" entry 
@@ -2969,32 +2993,39 @@ This is particularly useful if you use the org-habits module and you are late to
           ("h" "Habit Entries")
           ("hd" "Daily Habit" entry
            (file+olp "~/Org/Habits.org" "Daily Habits")
-           "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
            :empty-lines 1)
           ("hw" "Weekly Habit" entry
            (file+olp "~/Org/Habits.org" "Weekly Habits")
-           "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
            :empty-lines 1)
           ("hm" "Monthly Habit" entry
            (file+olp "~/Org/Habits.org" "Monthly Habits")
-           "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
            :empty-lines 1)
           ("hy" "Yearly Habit" entry
            (file+olp "~/Org/Habits.org" "Yearly Habits")
-           "* TODO %?\nSCHEDULED: %^t\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
            :empty-lines 1)
           ("hr" "Repeat Tasks" entry 
            (file "~/Org/Habits.org")
            "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
 
+          ("P" "process-soon" entry 
+           (file+headline "todo.org" "Todo")
+           "* TODO %:fromname: %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))")
+
           ("m" "Metrics Capture")
           ("mw" "Weight" table-line (file+headline "~/Org/Metrics.org" "Weight")
            "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)
           ))
+
 #+end_src
 
 ** Refile
+
 #+begin_src emacs-lisp
+
   (setq org-refile-targets '(
                              (nil :maxlevel . 1)
                              (org-agenda-files :maxlevel . 1)
