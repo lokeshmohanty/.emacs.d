@@ -1210,14 +1210,54 @@ Use Language server protocol.
 Useful commands: flymake-show-diagnostics-buffer (show error messages on the fly)
 *** lsp-ui
 
-[[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.  Check out the screenshots on the =lsp-ui= homepage (linked at the beginning of this paragraph) to see examples of what it can do.
+[[https://github.com/emacs-lsp/lsp-ui][Documentation]]
+
+| Command                               | Description                                                        |
+|---------------------------------------+--------------------------------------------------------------------|
+| Sideline                              |                                                                    |
+|---------------------------------------+--------------------------------------------------------------------|
+| =lsp-ui-sideline-show-diagnostics=      | show =diagnostics messages= in sideline                              |
+| =lsp-ui-sideline-show-hover=            | show =hover messages= in sideline                                    |
+| =lsp-ui-sideline-show-code-actions=     | show =code actions= in sideline                                      |
+| =lsp-ui-sideline-update-mode=           | When set to 'line' the information will be                         |
+|                                       | updated when user changes current line otherwise                   |
+|                                       | the information will be updated when user changes current point    |
+| =lsp-ui-sideline-delay=                 | seconds to wait before showing sideline                            |
+|---------------------------------------+--------------------------------------------------------------------|
+| Peak                                  |                                                                    |
+|---------------------------------------+--------------------------------------------------------------------|
+| =lsp-ui-peek-enable=                    | enable =lsp-ui-peek=                                                |
+| =lsp-ui-peek-show-directory=            | show the directory of files                                        |
+|---------------------------------------+--------------------------------------------------------------------|
+| Doc                                   |                                                                    |
+|---------------------------------------+--------------------------------------------------------------------|
+| =lsp-ui-doc-enable=                     | enable =lsp-ui-doc=                                                  |
+| =lsp-ui-doc-position=                   | Where to display the doc                                           |
+| =lsp-ui-doc-delay=                      | Number of seconds before showing the doc                           |
+| =lsp-ui-doc-show-with-cursor=           | When non-nil, move the cursor over a symbol to show the doc        |
+| =lsp-ui-doc-show-with-mouse=            | When non-nil, move the mouse pointer over a symbol to show the doc |
+|---------------------------------------+--------------------------------------------------------------------|
+| Imenu                                 |                                                                    |
+|---------------------------------------+--------------------------------------------------------------------|
+| =lsp-ui-imenu-window-width=             | set window width                                                   |
+| =lsp-ui-imenu--custom-mode-line-format= | mode line format                                                   |
+| =lsp-ui-imenu-auto-refresh=             | auto refresh when necessary                                        |
+| =lsp-ui-imenu-refresh-delay=            | delay to refresh imenu                                             |
 
 #+begin_src emacs-lisp
 
   (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode)
-    :custom
-    (lsp-ui-doc-position 'bottom))
+    ;; :after lsp
+    ;; :hook (lsp-mode . lsp-ui-mode)
+    ;; :custom
+    ;; ;; (lsp-ui-sideline-enable t)
+    ;; ;; (lsp-ui-sideline-show-hover nil)
+    ;; (lsp-ui-doc-position 'bottom)
+    ;; :config
+    ;; (lsp-ui-doc-show)
+  )
+(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 
 #+end_src
 
