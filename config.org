@@ -858,43 +858,17 @@ Check show paren mode [[stack-exchange:52209][fix]].
 ** Vertico
 #+begin_src emacs-lisp
 
-  ;; Borrowed from systemcrafters.cc
-  (defun my/minibuffer-backward-kill (arg)
-    "When minibuffer is completing a file name delete up to parent
-  folder, otherwise delete a word"
-    (interactive "p")
-    (if minibuffer-completing-file-name
-        ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
-        (if (string-match-p "/." (minibuffer-contents))
-            (zap-up-to-char (- arg) ?/)
-          (delete-minibuffer-contents))
-      (delete-word (- arg))))
-
-  ;; Enable vertico
   (use-package vertico
+    :straight (:files (:defaults "extensions/*"))
+    :init (vertico-mode)
     :bind (:map vertico-map
-                ("C-j" . vertico-next)
-                ("C-k" . vertico-previous)
-                ("C-f" . vertico-exit)
-                :map minibuffer-local-map
-                ("C-b" . my/minibuffer-backward-kill))
-    :custom 
-    (vertico-cycle t)
-    :init
-    (vertico-mode)
-
-    ;; Grow and shrink the Vertico minibuffer
-    ;; (setq vertico-resize t)
-
-    ;; The text menu bar works well with Vertico but always shows a *Completions* buffer, 
-    ;; which is unwanted if you are using the Vertico UI. This completion buffer can be disabled as follows.
-    ;; (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
-
-    ;; In combination with Orderless, hostnames are not made available for completion after entering /ssh:. 
-    ;; In order to avoid this problem, the basic completion style should be specified for the file completion category.
-    ;; (setq completion-styles '(orderless)
-    ;;   completion-category-overrides '((file (styles basic partial-completion))))
+                  ("C-j" . vertico-next)
+                  ("C-k" . vertico-previous)
+                  ("C-f" . vertico-exit)
+                ("C-<backspace>" . vertico-directory-up))
+    :custom (vertico-cycle t)
     )
+
 #+end_src
 
 ** Save History
@@ -949,6 +923,10 @@ Persist history over Emacs restarts. Vertico sorts by history position.
     ;; Must be in the :init section of use-package such that the mode gets
     ;; enabled right away. Note that this forces loading the package.
     (marginalia-mode))
+    
+  (use-package all-the-icons-completion
+    :after (marginalia all-the-icons)
+    :hook (marginalia-mode . all-the-icons-completion-marginalia-setup))
 
 #+end_src
 
