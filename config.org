@@ -734,11 +734,19 @@ Distraction free writing mode
 
 #+end_src
 
-** Parenthesis
+* PARENTHESIS
 
 Check show paren mode [[stack-exchange:52209][fix]].
 
 #+begin_src emacs-lisp
+
+  (use-package faces
+    :straight nil
+    :custom (show-paren-delay 0)
+    :config
+    (set-face-background 'show-paren-match "#161719")
+    (set-face-bold 'show-paren-match t)
+    (set-face-foreground 'show-paren-match "#ffffff"))
 
   ;; Turn on matching parenthesis highlighting
   ;; Commented as it doesn't work properly. A fix is required
