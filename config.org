@@ -1465,53 +1465,410 @@ Fixes warning -> (Unknown notification: angular/projectLanguageService) from [[h
           "--stdio"))
 #+end_src
 
-**** Js2-mode
+**** Js2 refactor
+To get additional refactoring functions, I use the [[https://github.com/js-emacs/js2-refactor.el][js2-refactor]] package. This
+package also allows me to use the =js2r-kill= commands which easily delete the
+implementation of a function.
+
+#+begin_src emacs-lisp
+  ;; (use-package js2-refactor
+  ;;   :hook (js2-mode . js2-refactor-mode)
+  ;;   :bind (:map js2-mode-map
+  ;;               ("C-k" . js2r-kill)
+  ;;               ("M-." . lsp-find-definition)))
+#+end_src
+
+**** Yarn mode
+*NOTE:* I have long used [[https://github.com/js-emacs/xref-js2][xref-js2]] to navigate through definitions and references
+in JavaScript. However, lsp-mode now already provides this functionality for us.
+
+Finally, I sometimes take a look at the generated =yarn.lock= file. To have a nice
+syntax color and avoid modifying it, the [[https://github.com/anachronic/yarn-mode][yarn-mode]] package is perfect.
+
+#+begin_src emacs-lisp
+  ;; (use-package yarn-mode :mode "yarn\\.lock\\'")
+#+end_src
+
+*** Dockerfile
+
+I often use Docker with Dockerfile. To support it with LSP and GNU Emacs, the
+package dockerfile-mode with [[dockerfile-language-server-nodejs][dockerfile-language-server-nodejs]] (=dockerfile-ls=)
+as LSP server is enough. To use it, do not forget to configure the LSP package
+and to install this LSP server through LSP mode or with your system package
+manager.
 
 #+begin_src emacs-lisp
 
-  ;; (defun my/set-js-indentation ()
-  ;;   (setq js-indent-level 2)
-  ;;   (setq evil-shift-width js-indent-level)
-  ;;   (setq-default tab-width 2))
-
-  ;; (use-package js2-mode
-  ;;   :mode "\\.jsx?\\'"
-  ;;   :config
-  ;;   ;; Use js2-mode for Node scripts
-  ;;   (add-to-list 'magic-mode-alist '("#!/usr/bin/env node" . js2-mode))
-
-  ;;   ;; Don't use built-in syntax checking
-  ;;   (setq js2-mode-show-strict-warnings nil)
-
-  ;;   ;; Set up proper indentation in JavaScript and JSON files
-  ;;   (add-hook 'js2-mode-hook #'my/set-js-indentation)
-  ;;   (add-hook 'json-mode-hook #'my/set-js-indentation))
+  (use-package dockerfile-mode :delight "δ" :mode "Dockerfile\\'")
 
 #+end_src
 
-**** Prettier
+*** JSON
+
+JSON is probably the data format I use the most in the web. That's why its setup
+below is a bit more advanced. As LSP server I prefer
+[[https://emacs-lsp.github.io/lsp-mode/page/lsp-json/][vscode-json-languageserver]]. To use it, make sure you install it with your
+package manager and to configure the LSP package.
+
+#+begin_src emacs-lisp
+  (use-package json-mode
+    :delight "J"
+    :mode "\\.json\\'"
+    :hook (before-save . my/json-mode-before-save-hook)
+    :preface
+    (defun my/json-mode-before-save-hook ()
+      (when (eq major-mode 'json-mode)
+        (json-pretty-print-buffer)))
+
+    (defun my/json-array-of-numbers-on-one-line (encode array)
+      "Print the arrays of numbers in one line."
+      (let* ((json-encoding-pretty-print
+              (and json-encoding-pretty-print
+                   (not (loop for x across array always (numberp x)))))
+             (json-encoding-separator (if json-encoding-pretty-print "," ", ")))
+        (funcall encode array)))
+    :config (advice-add 'json-encode-array :around #'my/json-array-of-numbers-on-one-line))
+#+end_src
+
+*** Markdown
+
+To edit my files in Markdown, I use [[https://github.com/jrblevin/markdown-mode][markdown-mode]] with [[https://emacs-lsp.github.io/lsp-mode/page/lsp-markdown/][unified-language-server]]
+as LSP server. To use it, do not forget to configure the LSP package and to
+install this LSP server with your system package manager. Added to that, to
+convert Markdown files, you can also install [[https://github.com/jgm/pandoc][pandoc]] with your package manager
+system.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package prettier-js
-  ;;   ;; :hook ((js2-mode . prettier-js-mode)
-  ;;   ;;        (typescript-mode . prettier-js-mode))
-  ;;   :config
-  ;;   (setq prettier-js-show-errors nil))
+  (use-package markdown-mode
+    :delight "μ"
+    ;; :ensure-system-package (pandoc . "yay -S pandoc")
+    :mode ("\\.\\(md\\|markdown\\)\\'")
+    :custom (markdown-command "/usr/bin/pandoc"))
 
 #+end_src
 
-**** Apheleia (To auto format)
+Finally, it is always good to have a preview of the Markdown rendering. The
+[[https://github.com/ancane/markdown-preview-mode][markdown-preview-mode]] package allows this.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package apheleia
-  ;;   :config
-  ;;   (apheleia-global-mode +1))
+  (use-package markdown-preview-mode
+    :commands markdown-preview-mode
+    :custom
+    (markdown-preview-javascript
+     (list (concat "https://github.com/highlightjs/highlight.js/"
+                   "9.15.6/highlight.min.js")
+           "<script>
+              $(document).on('mdContentChange', function() {
+                $('pre code').each(function(i, block)  {
+                  hljs.highlightBlock(block);
+                });
+              });
+            </script>"))
+    (markdown-preview-stylesheets
+     (list (concat "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/"
+                   "3.0.1/github-markdown.min.css")
+           (concat "https://github.com/highlightjs/highlight.js/"
+                   "9.15.6/styles/github.min.css")
+
+           "<style>
+              .markdown-body {
+                box-sizing: border-box;
+                min-width: 200px;
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 45px;
+              }
+
+              @media (max-width: 767px) { .markdown-body { padding: 15px; } }
+            </style>")))
 
 #+end_src
 
-*** C/C++
+*** LaTeX
+
+Being a lover of beautiful writing, it is important for me to have a stable
+LaTeX environment. To have access to this stability, I use the =tex-mode= built-in
+package and [[https://github.com/latex-lsp/texlab][texlab]] as LSP server. To use it, make sure you install it with your
+package manager and to configure the LSP package.
+
+With =tex-mode= we need to ensure to install AUCTeX, which is a built-in package
+for writing and formatting TeX files in GNU Emacs. With =AUCTeX you can for
+example use the =TeX-command-master= (=C-c C-c=) command to compile your TeX files
+and the =LaTeX-environment= (=C-c C-e=) command to insert a LaTeX environment.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package tex
+  ;;   :straight auctex
+  ;;   :preface
+  ;;   (defun my/switch-to-help-window (&optional ARG REPARSE)
+  ;;     "Switches to the *TeX Help* buffer after compilation."
+  ;;     (other-window 1))
+  ;;   :hook (LaTeX-mode . reftex-mode)
+  ;;   :bind (:map TeX-mode-map
+  ;;               ("C-c C-o" . TeX-recenter-output-buffer)
+  ;;               ("C-c C-l" . TeX-next-error)
+  ;;               ("M-[" . outline-previous-heading)
+  ;;               ("M-]" . outline-next-heading))
+  ;;   :custom
+  ;;   (TeX-auto-save t)
+  ;;   (TeX-byte-compile t)
+  ;;   (TeX-clean-confirm nil)
+  ;;   (TeX-master 'dwim)
+  ;;   (TeX-parse-self t)
+  ;;   (TeX-PDF-mode t)
+  ;;   (TeX-source-correlate-mode t)
+  ;;   (TeX-view-program-selection '((output-pdf "PDF Tools")))
+  ;;   :config
+  ;;   (advice-add 'TeX-next-error :after #'my/switch-to-help-window)
+  ;;   (advice-add 'TeX-recenter-output-buffer :after #'my/switch-to-help-window)
+  ;;   ;; the ":hook" doesn't work for this one... don't ask me why.
+  ;;   (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer))
+  
+#+end_src
+
+Also, I like to use a TeX engine that can handle Unicode and use the font of my
+choice.
+
+#+begin_src emacs-lisp
+
+  ;; (setq-default TeX-engine 'xetex)
+
+#+end_src
+
+By default, LSP mode uses =lsp-tex= as the LSP client for LaTeX. However, I prefer
+to use [[https://github.com/ROCKTAKEY/lsp-latex][lsp-latex]] which fully supports =texlab=
+(cf. https://github.com/ROCKTAKEY/lsp-latex/issues/26)
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-latex
+    :if (executable-find "texlab")
+    ;; To properly load `lsp-latex', the `require' instruction is important.
+    :hook (LaTeX-mode . (lambda ()
+                          (require 'lsp-latex)
+                          (lsp-deferred)))
+    :custom (lsp-latex-build-on-save t))
+
+#+end_src
+
+To easier deal with =\label=, =\ref=, and =\cite= commands in LaTeX, I use the =reftex=
+built-in package.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package reftex
+  ;;   :straight nil
+  ;;   :custom
+  ;;   (reftex-save-parse-info t)
+  ;;   (reftex-use-multiple-selection-buffers t))
+
+#+end_src
+
+Finally, it is often useful to put our hands in a bibliography in LaTeX. The built-in
+package =bibtex= improves the visual and provides several commands.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package bibtex
+  ;;   :straight nil
+  ;;   :preface
+  ;;   (defun my/bibtex-fill-column ()
+  ;;     "Ensure that each entry does not exceed 120 characters."
+  ;;     (setq fill-column 120))
+  ;;   :hook ((bibtex-mode . lsp-deferred)
+  ;;          (bibtex-mode . my/bibtex-fill-column)))
+
+#+end_src
+
+*** YAML
+
+When I have to develop through YAML files, the [[https://github.com/yoshiki/yaml-mode][yaml-mode]] package with the
+[[https://emacs-lsp.github.io/lsp-mode/page/lsp-yaml/][yaml-language-server]] LSP server meets my needs. To use it, do not forget to
+configure the LSP package and to install this LSP server through LSP mode or
+with your system package manager.
+
+#+begin_src emacs-lisp
+    
+  (use-package yaml-mode
+    :delight "ψ"
+    :hook (yaml-mode . lsp-deferred)
+    :mode ("\\.\\(yaml\\|yml\\)\\'"))
+    
+#+end_src
+
+*** SQL
+
+For handling SQL files, the =sql-mode= built-in package of GNU Emacs with the [[https://emacs-lsp.github.io/lsp-mode/page/lsp-sqls/][sqls]]
+LSP server does the job.
+
+#+begin_src emacs-lisp
+
+  (use-package sql-mode
+    :straight nil
+    ;; :ensure-system-package (sqls . "yay -S sqls")
+    :mode "\\.sql\\'")
+
+#+end_src
+
+Finally, I use [[https://github.com/alex-hhh/emacs-sql-indent][sql-indent]] to better manage the indentations of my SQL queries.
+
+#+begin_src emacs-lisp
+
+  (use-package sql-indent
+    :delight sql-mode "Σ"
+    :hook (sql-mode . sqlind-minor-mode))
+
+#+end_src
+
+*** Haskell
+
+- [[github:ndmitchell/ghcid][ghcid (GHCi Auto-Reloader)]]
+- [[github:ndmitchell/hlint][hlint (Smart Linter)]]
+- [[github:chrisdone/hindent][hindent (Formatter)]]
+
+#+begin_src emacs-lisp
+
+  (use-package haskell-mode)
+
+#+end_src
+
+*** Bash
+
+Being a UNIX user, I often do Bash. Since GNU Emacs already supports it, I only
+use the [[https://emacs-lsp.github.io/lsp-mode/page/lsp-bash/][bash-language-server]] (=bash-ls=) as LSP server. To use it, do not forget
+to configure the LSP package and to install this LSP server through LSP mode or
+with your system package manager.
+
+Finally, the following snippet ensures that execution right (with =chmod +x=) is
+automatically granted to save a shell script file that begins with a =#!= shebang.
+
+#+begin_src emacs-lisp
+  (use-package sh-script
+    :straight nil
+    ;; :hook (after-save . executable-make-buffer-file-executable-if-script-p)
+  )
+#+end_src
+
+*** Python
+
+Python with GNU Emacs is one of the best supported languages. By using
+=python-mode= and [[https://github.com/microsoft/pyright][pyright]] as LSP server, it's fun to develop in Python. With
+=python-mode= I like to add some bindings to speed up the code code navigation in
+Python. Besides that, I use [[https://github.com/myint/autoflake][autoflake]] to remove unused imports and variables.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package python
+  ;;   :straight flycheck
+  ;;   :delight "π"
+  ;;   :preface
+  ;;   (defun python-remove-unused-imports()
+  ;;     "Remove unused imports and unused variables with autoflake."
+  ;;     (interactive)
+  ;;     (if (executable-find "autoflake")
+  ;;         (progn
+  ;;           (shell-command (format "autoflake --remove-all-unused-imports -i %s"
+  ;;                                  (shell-quote-argument (buffer-file-name))))
+  ;;           (revert-buffer t t t))
+  ;;       (warn "[✗] python-mode: Cannot find autoflake executable.")))
+  ;;   :bind (:map python-mode-map
+  ;;               ("M-[" . python-nav-backward-block)
+  ;;               ("M-]" . python-nav-forward-block)
+  ;;               ("M-|" . python-remove-unused-imports))
+  ;;   :custom
+  ;;   (flycheck-pylintrc "~/.pylintrc")
+  ;;   (flycheck-python-pylint-executable "/usr/bin/pylint"))
+
+#+end_src
+
+I have tried several LSP servers. I have experienced that =mspyls= is faster than
+=pylsp=, but =mspyls= has a memory leakage and became depreciated in favor of
+=pyright=. To configure pyright with GNU Emacs, the [[https://github.com/emacs-lsp/lsp-pyright][lsp-pyright]] package is
+enough.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package lsp-pyright
+  ;;   :if (executable-find "pyright")
+  ;;   ;; To properly load `lsp-pyrigt', the `require' instruction is important.
+  ;;   :hook (python-mode . (lambda ()
+  ;;                          (require 'lsp-pyright)
+  ;;                          (lsp-deferred)))
+  ;;   :custom
+  ;;   (lsp-pyright-python-executable-cmd "python3")
+  ;;   (lsp-pyright-venv-path "~/.cache/pypoetry/virtualenvs/"))
+
+#+end_src
+
+To make sure my Python code is well formatted, I use [[https://github.com/psf/black][black]]. Feel free to install
+it in your virtual environment or directly on your system.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package blacken
+  ;;   :delight
+  ;;   :hook (python-mode . blacken-mode)
+  ;;   :custom (blacken-line-length 79))
+
+#+end_src
+
+To sort my Python imports, [[https://github.com/paetzke/py-isort.el][py-isort]] does a good job. Also, do not forget to
+install in your virtual environment or directly on your system.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package py-isort
+  ;;   :hook ((before-save . py-isort-before-save)
+  ;;          (python-mode . pyvenv-mode)))
+
+#+end_src
+
+I use a single virtual environment for all my Python projects. The combination
+of [[https://docs.python.org/3/library/venv.html][venv]] with [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] does the job well. When I encounter a Python buffer, my
+virtual environment activates and stays activated even after I finish working in
+Python. A better behavior would be to define a function through a
+=kill-buffer-hook= that would call the =pyvenv-deactivate= command when all Python
+buffers are closed.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package pyvenv
+  ;;   :after python
+  ;;   :custom
+  ;;   (pyvenv-default-virtual-env-name (expand-file-name (format "%s/myenv/" xdg-data)))
+  ;;   (pyvenv-workon (expand-file-name (format "%s/myenv/" xdg-data)))
+  ;;   :config (pyvenv-tracking-mode))
+
+#+end_src
+
+Finally, to better manage the different versions of Python through projects, I
+use [[https://github.com/pyenv/pyenv][pyenv]] through [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode]]-mode. To use it, make sure you have =pyenv= installed
+on your system.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package pyenv-mode
+  ;;   :hook ((python-mode . pyenv-mode)
+  ;;          (projectile-switch-project . projectile-pyenv-mode-set))
+  ;;   :custom (pyenv-mode-set "3.8.5")
+  ;;   :preface
+  ;;   (defun projectile-pyenv-mode-set ()
+  ;;     "Set pyenv version matching project name."
+  ;;     (let ((project (projectile-project-name)))
+  ;;       (if (member project (pyenv-mode-versions))
+  ;;           (pyenv-mode-set project)
+  ;;         (pyenv-mode-unset)))))
+
+#+end_src
+
+*** COMMENTED 1
+
+Packages for syntax highlighting in programming languages
+
+**** C/C++
 
 #+begin_src emacs-lisp
 
@@ -1521,7 +1878,7 @@ Fixes warning -> (Unknown notification: angular/projectLanguageService) from [[h
 
 #+end_src
 
-*** Markdown
+**** Markdown
 
 #+begin_src emacs-lisp
 
@@ -1544,7 +1901,7 @@ Fixes warning -> (Unknown notification: angular/projectLanguageService) from [[h
 
 #+end_src
 
-*** HTML
+**** HTML
 
 #+begin_src emacs-lisp
 
@@ -1563,16 +1920,18 @@ Fixes warning -> (Unknown notification: angular/projectLanguageService) from [[h
 
 #+end_src
 
-*** YAML
+**** YAML
 
 #+begin_src emacs-lisp
 
-  ;; (use-package yaml-mode
-  ;;   :mode "\\.ya?ml\\'")
+  (use-package yaml-mode
+    :delight "ψ"
+    :hook (yaml-mode . lsp-deferred)
+    :mode ("\\.\\(yaml\\|yml\\)\\'"))
 
 #+end_src
 
-*** Python
+**** Python
 
 We use =lsp-mode= and =dap-mode= to provide a more complete development environment for Python in Emacs.  Check out [[https://emacs-lsp.github.io/lsp-mode/page/lsp-pyls/][the =pyls= configuration]] in the =lsp-mode= documentation for more details.
 
@@ -1589,7 +1948,6 @@ There are a number of other language servers for Python so if you find that =pyl
 #+begin_src emacs-lisp
 
   ;; (use-package python-mode
-  ;;   :ensure t
   ;;   :hook (python-mode . lsp-deferred)
   ;;   :custom
   ;;   ;; NOTE: Set these if Python 3 is called "python3" on your system!
@@ -1613,7 +1971,7 @@ You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =
 
 #+end_src
 
-*** Meta Lisp
+**** Meta Lisp
 
 Here are packages that are useful across different Lisp and Scheme implementations:
 
@@ -1635,7 +1993,7 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+end_src
 
-*** Go
+**** Go
 
 #+begin_src emacs-lisp
 
@@ -1644,7 +2002,7 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+end_src
 
-*** Rust
+**** Rust
 
 #+begin_src emacs-lisp
 
@@ -1658,7 +2016,7 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+end_src
 
-*** Emacs Lisp
+**** Emacs Lisp
 
 #+begin_src emacs-lisp
 
@@ -1674,7 +2032,7 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+end_src
 
-*** Scheme
+**** Scheme
 
 #+begin_src emacs-lisp
 
@@ -1694,6 +2052,289 @@ Here are packages that are useful across different Lisp and Scheme implementatio
   ;;   (setq geiser-repl-default-port 44555) ; For Gambit Scheme
   ;;   (setq geiser-implementations-alist '(((regexp "\\.scm$") guile))))
 
+#+end_src
+
+*** COMMENTED 2
+**** Style Sheet
+
+GNU Emacs already has built-in packages for style sheet languages (e.g., CSS,
+LESS, and SCSS). Therefore, installing an appropriate LSP server and making sure
+that the variables are properly indented is more than enough. For the LSP
+server, I use [[https://github.com/vscode-langservers/vscode-css-languageserver][vscode-css-languageserver]] (=css-ls=) although it does not support
+the LESS language. To use it, do not forget to configure the LSP package and to
+install this LSP server through LSP mode or with your system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package css-mode
+  ;;   :straight flycheck
+  ;;   :mode "\\.css\\'"
+  ;;   :custom (css-indent-offset 2)
+  ;;   :config (flycheck-stylelintrc "~/.stylelintrc.json"))
+#+end_src
+
+**** C++
+
+When I develop in C++ with GNU Emacs, I use the [[https://github.com/MaskRay/ccls][ccls]] LSP server. To use it, do
+not forget to configure the LSP package and to install this LSP server through
+your system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package ccls
+  ;;   :after projectile
+  ;;   :hook ((c-mode c++-mode objc-mode cuda-mode) . lsp-deferred)
+  ;;   :custom
+  ;;   (ccls-args nil)
+  ;;   (ccls-executable (executable-find "ccls"))
+  ;;   (projectile-project-root-files-top-down-recurring
+  ;;    (append '("compile_commands.json" ".ccls")
+  ;;            projectile-project-root-files-top-down-recurring))
+  ;;   :config (add-to-list 'projectile-globally-ignored-directories ".ccls-cache"))
+#+end_src
+
+To allow =ccls= to know the dependencies of your =.cpp= files with your =.h=
+files, it is important to provide an =compile.commands.json= file (or a =.ccls=
+file) at the root of your project.
+
+For this, nothing could be easier. If like me you use a =CMakeLists.txt= file for
+all your C++ projects, then you just need to install the =cmake= package on your
+operating system. From then on, the =compile.commands.json= file is generated with
+the following commands:
+
+#+begin_src shell
+  cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+  ln -s Debug/compile_commands.json
+#+end_src
+
+Finally, if you follow [[https://google.github.io/styleguide/cppguide.html][Google's C/++ conventions]] like I do, the [[https://github.com/google/styleguide/blob/gh-pages/google-c-style.el][google-c-style]]
+package changes some default values to ensure that you follow these conventions
+as much as possible.
+
+#+begin_src emacs-lisp
+  ;; (use-package google-c-style
+  ;;   :hook (((c-mode c++-mode) . google-set-c-style)
+  ;;          (c-mode-common . google-make-newline-indent)))
+#+end_src
+
+**** CMake
+
+CMake is a cross-platform build system generator. For its support with GNU
+Emacs, the [[https://github.com/Kitware/CMake/blob/master/Auxiliary/cmake-mode.el][cmake-mode]] package with the installation of the [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake-language-server]]
+LSP server is sufficient. To use it, do not forget to configure the LSP package
+and to install this LSP server through LSP mode or with your system package
+manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package cmake-mode
+  ;;   :hook (cmake-mode . lsp-deferred)
+  ;;   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
+#+end_src
+
+To better manage syntax colors, especially with respect to function arguments,
+it is visually useful to install [[https://github.com/Lindydancer/cmake-font-lock][cmake-font-lock]].
+#+begin_src emacs-lisp
+  ;; (use-package cmake-font-lock
+  ;;   :hook (cmake-mode . cmake-font-lock-activate))
+#+end_src
+
+Finally, to compile with CMake in C++, I use [[https://github.com/atilaneves/cmake-ide/blob/master/cmake-ide.el][cmake-ide]], by indicating where the
+=CMakeLists.txt= file is present in the project.
+
+#+begin_src emacs-lisp
+  ;; (use-package cmake-ide
+  ;;   :after projectile
+  ;;   :init (cmake-ide-setup)
+  ;;   :hook (c++-mode . my/cmake-ide-find-project)
+  ;;   :preface
+  ;;   (defun my/cmake-ide-find-project ()
+  ;;     "Find the directory of the project for cmake-ide."
+  ;;     (with-eval-after-load 'projectile
+  ;;       (setq cmake-ide-project-dir (projectile-project-root))
+  ;;       (setq cmake-ide-build-dir (concat cmake-ide-project-dir "build")))
+  ;;     (setq cmake-ide-compile-command
+  ;;           (concat "cd " cmake-ide-build-dir " && cmake .. && make"))
+  ;;     (cmake-ide-load-db))
+
+  ;;   (defun my/switch-to-compilation-window ()
+  ;;     "Switch to the *compilation* buffer after compilation."
+  ;;     (other-window 1))
+  ;;   :bind ([remap comment-region] . cmake-ide-compile)
+  ;;   :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
+#+end_src
+
+**** CSV
+
+For my viewing pleasure, =csv-mode= provides a color syntax when editing CSV
+files.
+
+#+begin_src emacs-lisp
+  ;; (use-package csv-mode :mode ("\\.\\(csv\\|tsv\\)\\'"))
+#+end_src
+
+**** Dart and Flutter
+
+For the few times I have to develop in Dart, [[https://github.com/bradyt/dart-mode][dart-mode]] with [[https://emacs-lsp.github.io/lsp-dart/][lsp-dart]] as server
+LSP is great! To use it, do not forget to configure the LSP package and to
+install =dart= with your system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package dart-mode
+  ;;   :after projectile
+  ;;   :mode "\\.dart\\'"
+  ;;   :config
+  ;;   (add-to-list 'projectile-project-root-files-bottom-up "pubspec.yaml")
+  ;;   (add-to-list 'projectile-project-root-files-bottom-up "BUILD"))
+#+end_src
+
+To configure =lsp-dart=, nothing difficult. Remember to indicate the path to the
+Dart SDK dir. Finally, if you use Flutter, do not forget to install it too with
+your system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package lsp-dart
+  ;;   :hook (dart-mode . lsp-deferred)
+  ;;   :custom
+  ;;   (lsp-dart-dap-flutter-hot-reload-on-save t)
+  ;;   (lsp-dart-sdk-dir "/opt/flutter/bin/cache/dart-sdk/"))
+#+end_src
+
+**** EPUB
+
+Sometimes I have to read digital books in EPUB format. The [[https://github.com/wasamasa/nov.el][nov]] package allows to
+open this kind of file.
+
+#+begin_src emacs-lisp
+  ;; (use-package nov
+  ;;   :mode ("\\.epub\\'" . nov-mode)
+  ;;   :custom (nov-text-width 75))
+#+end_src
+
+**** Gnuplot
+
+Whether professionally or personally, it is often necessary to visualize your
+data in a quality graph. [[http://www.gnuplot.info/][Gnuplot]] is the perfect tool for this and the[[https://github.com/emacsorphanage/gnuplot][ gnuplot]]
+package allows to support this tool with GNU Emacs. To use gnuplot, do not
+forget to install it with your system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package gnuplot
+  ;;   :mode "\\.\\(gp\\|gpi\\|plt\\)'"
+  ;;   :bind (:map gnuplot-mode-map
+  ;;               ("C-c C-c".  gnuplot-send-buffer-to-gnuplot)))
+#+end_src
+
+**** INI
+
+To modify the INI files, you need to install the =ini-mode= package.
+
+#+begin_src emacs-lisp
+  ;; (use-package ini-mode :mode "\\.ini\\'")
+#+end_src
+
+**** Java
+
+To support Java with GNU Emacs, I use [[https://github.com/emacs-lsp/lsp-java][lsp-java]] as LSP client with [[https://projects.eclipse.org/projects/eclipse.jdt.ls][Eclipse JDT
+Language Server]] (=jdtls=) as LSP server. To use it, do not forget to configure the
+LSP package and to install this LSP server through LSP mode or with your system
+package manager. If the LSP server is not yet installed, LSP will install it in
+the =~/.emacs.d/.cache/lsp/eclipse.jdt.ls/= directory. Personally, I like to
+follow XDG conventions by moving the LSP server to a more appropriate location
+(e.g., =~/.local/lib/eclipse.jdt.ls=).
+
+#+begin_src emacs-lisp
+  ;; (use-package lsp-java
+  ;;   :hook (java-mode . lsp-deferred)
+  ;;   :custom (lsp-java-server-install-dir
+  ;;            (expand-file-name (format "%s/eclipse.jdt.ls/" xdg-lib))))
+#+end_src
+
+Most of my Java projects are made with =gradle=. From then on, [[https://github.com/jacobono/emacs-gradle-mode][gradle-mode]] with
+the configuration below allows me to compile my Java project with gradle easily.
+
+#+begin_src emacs-lisp
+  ;; (use-package gradle-mode
+  ;;   :hook (java-mode . gradle-mode)
+  ;;   :preface
+  ;;   (defun my/switch-to-compilation-window ()
+  ;;     "Switch to the *compilation* buffer after compilation."
+  ;;     (other-window 1))
+  ;;   :bind (:map gradle-mode-map
+  ;;               ("C-c C-c" . gradle-build)
+  ;;               ("C-c C-t" . gradle-test))
+  ;;   :config
+  ;;   (advice-add 'gradle-build :after #'my/switch-to-compilation-window)
+  ;;   (advice-add 'gradle-test :after #'my/switch-to-compilation-window))
+#+end_src
+
+**** Lua
+
+I rarely program in Lua, but when I do, [[https://github.com/immerrr/lua-mode][lua-mode]] with [[https://emacs-lsp.github.io/lsp-mode/page/lsp-lua-language-server/][lua-language-server]] as LSP
+server satisfies me amply. To use it, do not forget to configure the LSP package
+and to install this LSP server through LSP mode or with your system package
+manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package lua-mode :delight "Λ" :mode "\\.lua\\'")
+#+end_src
+
+**** PHP and HTML
+
+I hope to never develop in PHP again. The few times I had to do it, I use mainly
+use [[https://github.com/fxbois/web-mode][web-mode]] with [[https://github.com/bmewburn/vscode-intelephense][intelephense]] (=iph=) as LSP server for PHP and
+[[https://emacs-lsp.github.io/lsp-mode/page/lsp-html/][vscode-html-languageserver]] (=html-ls=) as LSP server for HTML. To use them, do not
+forget to configure the LSP package and to install these LSP servers through LSP
+mode or with your system package manager.
+
+*NOTE:* to deal with HTML, I rarely use =html-mode= which does not handle HTML well
+in the presence of CSS and JavaScript.
+
+#+begin_src emacs-lisp
+  ;; (use-package web-mode
+  ;;   :delight "☸"
+  ;;   :preface
+  ;;   (defun enable-minor-mode (my-pair)
+  ;;     "Enable minor mode if filename match the regexp."
+  ;;     (if (buffer-file-name)
+  ;;         (if (string-match (car my-pair) buffer-file-name)
+  ;;             (funcall (cdr my-pair)))))
+  ;;   :mode ("\\.\\(html\\|jsx\\|php\\)\\'" . web-mode)
+  ;;   :hook (web-mode . (lambda ()
+  ;;                       (enable-minor-mode
+  ;;                        '("\\.jsx?\\'" . prettier-js-mode))))
+  ;;   :custom
+  ;;   (web-mode-attr-indent-offset 2)
+  ;;   (web-mode-block-padding 2)
+  ;;   (web-mode-css-indent-offset 2)
+  ;;   (web-mode-code-indent-offset 2)
+  ;;   (web-mode-comment-style 2)
+  ;;   (web-mode-enable-current-element-highlight t)
+  ;;   (web-mode-markup-indent-offset 2))
+#+end_src
+
+**** XML
+
+To manage XML related files the =nxml-mode= package built into GNU Emacs and the
+[[https://emacs-lsp.github.io/lsp-mode/page/lsp-xml/][LemMinX]] (=xmlls=) LSP server does the job. To use it, do not forget to configure
+the LSP package and to install this LSP server through LSP mode or with your
+system package manager.
+
+#+begin_src emacs-lisp
+  ;; (use-package nxml-mode
+  ;;   :straight nil
+  ;;   :hook (nxml-mode . lsp-deferred)
+  ;;   :mode ("\\.\\(xml\\|xsd\\|wsdl\\)\\'"))
+#+end_src
+
+**** PlantUML
+
+To make my UML diagrams with [[https://plantuml.com/][PlantUML]], I use [[https://github.com/skuro/plantuml-mode][plantuml-mode]]. Make sure you
+[[https://plantuml.com/download][download the PlantUML compiled JAR]] and to indicate the path (e.g.,
+=~/.local/lib/plantuml.jar=) of this JAR file with the =plantuml-jar-path= variable.
+
+#+begin_src emacs-lisp
+  ;; (use-package plantuml-mode
+  ;;   :mode ("\\.\\(plantuml\\|puml\\)\\'")
+  ;;   :custom (plantuml-jar-path
+  ;;            (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
 #+end_src
 
 ** Emmet
@@ -1864,15 +2505,18 @@ To import postman collection
 #+end_src
 
 * ORG MODE
+
+[[https://orgmode.org/worg/][Documentation]]
+
 ** Tips
 |-------------------------+---------+--------------------------|
 | Commands                | binding | evil normal mode binding |
 |-------------------------+---------+--------------------------|
-| org-store-link          |         |                          |
-| org-insert-link         | C-c C-l |                          |
-| org-toggle-link-dislpay |         |                          |
-| org-todo                | C-c C-t | t                        |
-| org-priority            | C-c ,   |                          |
+| =org-store-link=          |         |                          |
+| =org-insert-link=         | C-c C-l |                          |
+| =org-toggle-link-dislpay= |         |                          |
+| =org-todo=                | C-c C-t | t                        |
+| =org-priority=            | C-c ,   |                          |
 |-------------------------+---------+--------------------------|
 
 | Keybinding           | Command                  | Description                  |
@@ -2293,11 +2937,13 @@ This is particularly useful if you use the org-habits module and you are late to
 
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
 #+end_src
 
 ** Evil key bindings for org mode
 
 #+begin_src emacs-lisp
+
   (use-package evil-org
     :after org
     :hook ((org-mode . evil-org-mode)
@@ -2307,11 +2953,13 @@ This is particularly useful if you use the org-habits module and you are late to
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
     )
+
 #+end_src
 
 ** Use abbreviations instead of lengthy URL.
 
 #+begin_src emacs-lisp
+
   ;; An example of how this works.
   ;; [[arch-wiki:Name_of_Page][Description]]
   ;; This overwrites the default list
@@ -2349,6 +2997,13 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 
 #+end_src
 
+** Prevent M-Ret from adding blank lines
+
+#+begin_src emacs-lisp
+  ;; (setq org-blank-before-new-entry (quote ((heading . nil)
+  ;;                                          (plain-list-item . nil))))
+#+end_src
+
 ** Auto-tangle Configuration Files
 
 This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
@@ -2367,19 +3022,11 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
-
-** Prevent M-Ret from adding blank lines
-
-#+begin_src emacs-lisp
-  ;; (setq org-blank-before-new-entry (quote ((heading . nil)
-  ;;                                          (plain-list-item . nil))))
-#+end_src
-
 ** Export to manpage format
 
 #+begin_src emacs-lisp
   ;; (use-package ox-man
-  ;;   :ensure nil)
+  ;;   :straight nil)
 #+end_src
 
 ** Drag and drop into org files
