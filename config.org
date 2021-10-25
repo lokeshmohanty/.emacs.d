@@ -4851,54 +4851,103 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 - [ ] evil-mark-replace
 - [ ] evil-exchange
 - [ ] [[https://github.com/karthink/popper][popper]] (manage popups)
-** TODO Others 
+- [ ] [[https://github.com/hpdeifel/synosaurus][Thesaurus]]
+- [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
+- [ ] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
+** BACKLOG Get Mail on the fly with imapnotify
+:LOGBOOK:
+- State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
+:END:
+- [ ] [[https://0x7b2.net/posts/2021/exploring-email-with-emacs/][Goimapnotify]]
+- [ ] [[https://tecosaur.github.io/emacs-config/config.html#mail][Tecosaur mail config]]
+** TODO Replace projectile with project.el
+:LOGBOOK:
+- State "TODO"       from              [2021-10-24 Sun 10:31]
+:END:
+** TODO Add built-in functions to my work-flow
+:LOGBOOK:
+- State "TODO"       from              [2021-10-24 Sun 10:31]
+:END:
+* REFERENCES
+** Configs
+*** REFERENCE [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/][Jonathan Bennett's Emacs.org]]
+CLOSED: [2021-10-22 Fri 11:39]
+:LOGBOOK:
+- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
+:END:
+
+*** CONSUME [[https://ogbe.net/emacs/emacs.html][Denis Ogbe's Config]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-22 Fri 11:38]
+:END:
+*** CONSUMING [[https://github.com/rememberYou/.emacs.d/blob/master/config.org][Terencio Agozzino's Config]]
+:LOGBOOK:
+- State "CONSUMING"  from "CONSUME"    [2021-10-23 Sat 17:36]
+- State "CONSUME"    from              [2021-10-23 Sat 13:56]
+:END:
+*** CONSUME [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/branch/master/emacs/.emacs.d/config/init-email.el][Jeremy Dormitzer's Mu4e Config]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-23 Sat 20:08]
+:END:
+*** CONSUME [[https://github.com/karthink/.emacs.d][Karthik's config]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-24 Sun 11:19]
+:END:
+
+*** CONSUME [[https://ogbe.net/emacs/emacs.html][Denis Ogbe's Config]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-22 Fri 11:38]
+:END:
+** Blogs
+*** REFERENCE [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.emacs.d.gnu/config.org][Distrotube's GNU Emacs]]
+CLOSED: [2021-10-22 Fri 11:40]
+:LOGBOOK:
+- State "REFERENCE"  from              [2021-10-22 Fri 11:40]
+:END:
+*** CONSUMING [[https://www.youtube.com/c/systemcrafters][System Crafters]]
+:LOGBOOK:
+- State "CONSUMING"  from              [2021-10-22 Fri 11:40]
+:END:
+**** CONSUMING [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oPH1au7H6B7bBJ4ZO7BXjSZ][Emacs from Scratch]]
+:LOGBOOK:
+- State "CONSUMING"  from "REFERENCE"  [2021-10-22 Fri 11:39]
+- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
+:END:
+**** CONSUMING [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][Emacs Mail]]
+:LOGBOOK:
+- State "CONSUMING"  from "REFERENCE"  [2021-10-22 Fri 11:39]
+- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
+:END:
+**** REFERENCE [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oNvsrtk_iZSb94krGRofFjN][Emacs IDE]]
+CLOSED: [2021-10-22 Fri 11:39]
+:LOGBOOK:
+- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
+:END:
+**** REFERENCE [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oMc34dTjyFmTUWbXTKrNfZA][Mastering Git with Magit]]
+CLOSED: [2021-10-22 Fri 11:39]
+:LOGBOOK:
+- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
+:END:
+
+*** REFERENCE [[https://www.youtube.com/playlist?list=PLhXZp00uXBk4np17N39WvB80zgxlZfVwj][Zaiste Programming: DoomCasts]]
+CLOSED: [2021-10-22 Fri 11:38]
+:LOGBOOK:
+- State "REFERENCE"  from              [2021-10-22 Fri 11:38]
+:END:
+*** CONSUME [[https://karthinks.com/software/fifteen-ways-to-use-embark/][Karthik's Blog for Embark]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-24 Sun 10:39]
+:END:
+*** CONSUME [[https://oremacs.com/][Oleh Krehel's Blog (abo-abo)]]
+:LOGBOOK:
+- State "CONSUME"    from              [2021-10-23 Sat 10:52]
+:END:
+** CONSUME Others 
+:LOGBOOK:
+- State "CONSUME"    from "TODO"       [2021-10-24 Sun 10:31]
+:END:
 - [X] [[https://github.com/daviwil/emacs-from-scratch][EFS Tutorial]]
 - [ ] [[https://cestlaz.github.io/stories/emacs/][EFS Reference]]
 - [ ] [[github.com/nloyola/.emacs.d/blob/master/config.org][Nloyola Emacs Reference]]
 - [ ] [[github.com/emacs-tw/awesome-emacs][Awesome Emacs]]
 - [ ] [[https://opensource.com/article/20/1/emacs-cheat-sheet][Extending Emacs]]
-* REFERENCES
-** REFERENCE [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.emacs.d.gnu/config.org][Distrotube's GNU Emacs]]
-CLOSED: [2021-10-22 Fri 11:40]
-:LOGBOOK:
-- State "REFERENCE"  from              [2021-10-22 Fri 11:40]
-:END:
-** CONSUMING [[https://www.youtube.com/c/systemcrafters][System Crafters]]
-:LOGBOOK:
-- State "CONSUMING"  from              [2021-10-22 Fri 11:40]
-:END:
-*** CONSUMING [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oPH1au7H6B7bBJ4ZO7BXjSZ][Emacs from Scratch]]
-:LOGBOOK:
-- State "CONSUMING"  from "REFERENCE"  [2021-10-22 Fri 11:39]
-- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
-:END:
-*** CONSUMING [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][Emacs Mail]]
-:LOGBOOK:
-- State "CONSUMING"  from "REFERENCE"  [2021-10-22 Fri 11:39]
-- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
-:END:
-*** REFERENCE [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oNvsrtk_iZSb94krGRofFjN][Emacs IDE]]
-CLOSED: [2021-10-22 Fri 11:39]
-:LOGBOOK:
-- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
-:END:
-*** REFERENCE [[https://www.youtube.com/playlist?list=PLEoMzSkcN8oMc34dTjyFmTUWbXTKrNfZA][Mastering Git with Magit]]
-CLOSED: [2021-10-22 Fri 11:39]
-:LOGBOOK:
-- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
-:END:
-** REFERENCE [[https://www.youtube.com/playlist?list=PLhXZp00uXBk4np17N39WvB80zgxlZfVwj][Zaiste Programming: DoomCasts]]
-CLOSED: [2021-10-22 Fri 11:38]
-:LOGBOOK:
-- State "REFERENCE"  from              [2021-10-22 Fri 11:38]
-:END:
-** REFERENCE [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/][Jonathan Bennett's Emacs.org]]
-CLOSED: [2021-10-22 Fri 11:39]
-:LOGBOOK:
-- State "REFERENCE"  from              [2021-10-22 Fri 11:39]
-:END:
-** CONSUME [[https://ogbe.net/emacs/emacs.html][Denis Ogbe's Config]]
-:LOGBOOK:
-- State "CONSUME"    from              [2021-10-22 Fri 11:38]
-:END:
-
