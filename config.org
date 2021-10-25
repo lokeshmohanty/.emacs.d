@@ -3147,13 +3147,16 @@ This is particularly useful if you use the org-habits module and you are late to
           ("nn" "General Note" entry 
            (file "~/Org/Notes.org")
            "* NOTE %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+          ("nv" "Vocabulary" entry 
+           (file+olp+datetree "~/Org/Notes/Vocabulary.org")
+           "\n* %<%I:%M %p>\n\n%?\n"
+           :clock-in :clock-resume :empty-lines 1)
 
           ("j" "Journal Entries")
           ("jj" "Journal" entry
            (file+olp+datetree "~/Org/Journal.org")
            "\n* %<%I:%M %p> - %? :journal:\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
+           :clock-in :clock-resume :empty-lines 1)
 
           ("h" "Habit Entries")
           ("hd" "Daily Habit" entry
@@ -3340,7 +3343,6 @@ This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (b
 | =C-c n g= | org-roam-graph                 |                                           |
 
 | =C-c n i= | org-roam-node-insert      |
-| =C-M-i=   | completion-at-point       |
 | =C-c n I= | org-roam-insert-immediate |
 
 | =org-id-get-create=  | Add header as a node                      |
@@ -3404,7 +3406,7 @@ This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (b
                                                  ;; (my/org-roam-filter-by-tag "Project")
                                                  (lambda (node)
                                                    (member "Project" (org-roam-node-tags node))))
-                       :templates (list dw/org-roam-project-template)))
+                       :templates (list my/org-roam-project-template)))
 
   ;; add roam files with tag projects to agenda files
   (defun my/org-roam-refresh-agenda-list ()
@@ -3500,7 +3502,7 @@ This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (b
             ("C-c n I" . org-roam-insert-immediate))
            )
     :config 
-    ;; (org-roam-setup)
+    ;; (org-roam-db-autosync-enable)
     (org-roam-db-autosync-mode)
 
     ;; Build the agenda list the first time for the session
