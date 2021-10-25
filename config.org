@@ -3196,15 +3196,15 @@ This is particularly useful if you use the org-habits module and you are late to
 
 #+begin_src emacs-lisp
 
-  (setq org-refile-targets '(
-                             (nil :maxlevel . 1)
-                             (org-agenda-files :maxlevel . 1)
-                             ;; ("Archive.org" :maxlevel . 1)
-                             ;; ("Tasks.org" :maxlevel . 1)
-                             ))
+  ;; (setq org-refile-targets '(
+  ;;                            (nil :maxlevel . 1)
+  ;;                            (org-agenda-files :maxlevel . 1)
+  ;;                            ;; ("Archive.org" :maxlevel . 1)
+  ;;                            ;; ("Tasks.org" :maxlevel . 1)
+  ;;                            ))
 
-  ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  ;; ;; Save Org buffers after refiling!
+  ;; (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 #+end_src
 
@@ -3262,16 +3262,16 @@ your =org-modules=, install =gnupg= with your system manager package and create 
 GPG key pair with the public key specified to =org-crypt=.
 
 #+begin_src emacs-lisp
-  
-  (use-package org-crypt
-    :after org
-    :straight nil
-    :config (org-crypt-use-before-save-magic)
-    :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
 
-  (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
-  (setq epa-file-select-keys "auto")
-  
+  ;; (use-package org-crypt
+  ;;   :after org
+  ;;   :straight nil
+  ;;   :config (org-crypt-use-before-save-magic)
+  ;;   :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
+
+  ;; (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
+  ;; (setq epa-file-select-keys "auto")
+
 #+end_src
 
 ** Languages
@@ -3313,21 +3313,15 @@ files.
 Taking notes is a necessity in a world full of information. To take these notes
 and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] package is great.
 
-After using [[https://github.com/bastibe/org-journal][org-journal]], I also decided to use =org-roam= to write my journal.
-
-If you don't already do so, I advise you to start writing your journal. If you
-haven't done so yet, I suggest you start writing your journal. This journal
-would allow you, for example, to improve your mental clarity, follow your
-evolution, and facilitate your personal growth.
-
 [[https://www.orgroam.com/manual.html#The-Templating-System][org roam capture templates]]
 
 *** Configuration
 
 #+begin_src emacs-lisp
 
+  ;; (use-package org-roam)
   ;; (use-package org-roam
-  ;;   :after org
+  ;;   ;; :after org
   ;;   :init
   ;;   ;; Hide update warning message
   ;;   (setq org-roam-v2-ack t)
@@ -3338,8 +3332,8 @@ evolution, and facilitate your personal growth.
   ;;   (org-roam-dailies-directory "~/Org/Journal/")
   ;;   ;; (org-roam-directory "~/.personal/notes")
   ;;   ;; (org-roam-dailies-directory "journal/")
-  ;;   (org-roam-completion-everywhere t)
-  ;;   (org-roam-graph-viewer "/usr/bin/qutebrowser")
+  ;;   ;; (org-roam-completion-everywhere t)
+  ;;   ;; (org-roam-graph-viewer "/usr/bin/qutebrowser")
   ;;   (org-roam-capture-templates
   ;;    '(("d" "default" plain "%?"
   ;;       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
@@ -3372,7 +3366,15 @@ evolution, and facilitate your personal growth.
   ;;                              ,my/daily-note-header
   ;;                              ("Meetings"))
   ;;       :empty-lines 1)))
-
+  ;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+  ;;          ("C-c n f" . org-roam-node-find)
+  ;;          ;; ("C-c n d" . dw/org-roam-jump-menu/body)
+  ;;          ("C-c n c" . org-roam-dailies-capture-today)
+  ;;          ;; ("C-c n t" . dw/org-roam-capture-task)
+  ;;          ("C-c n g" . org-roam-graph)
+  ;;          :map org-mode-map
+  ;;          (("C-c n i" . org-roam-node-insert)
+  ;;           ("C-c n I" . org-roam-insert-immediate)))
   ;;   :config 
   ;;   (org-roam-setup)
   ;;   ;; (org-roam-db-autosync-mode)
