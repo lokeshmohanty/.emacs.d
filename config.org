@@ -2726,31 +2726,13 @@ Allow priorities from A to E.
           (sequence "VISIT(v!)" "|" "VISITED(V!)")  ;; physically
           (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
           ))
-  ;; )
-#+end_src
-
-** Journal
-[[https://github.com/bastibe/org-journal][Documentation]]
-
-Currently using org-capture for journaling
-#+begin_src emacs-lisp
-
-  ;; (use-package org-journal
-  ;;   :defer t
-  ;;   :init
-  ;;   ;; Change default prefix key; needs to be set before loading org-journal
-  ;;   (setq org-journal-prefix-key "C-c j ")
-  ;;   :config
-  ;;   (setq org-journal-dir "~/Org/journal/"
-  ;; 	org-journal-date-format "%A, %d %B %Y"))
-
-  ;; (setq org-journal-date-format "%B %d, %Y (%A) ")
-  ;; (setq org-journal-file-format "%Y-%m-%d.org")
+          
 #+end_src
 
 ** Agenda
      
 #+begin_src emacs-lisp
+          
   (setq org-agenda-files '(
                            "~/Org/Agenda.org"
                            "~/Org/Tasks.org"
@@ -3067,17 +3049,261 @@ This is particularly useful if you use the org-habits module and you are late to
           ("stack-exchange" . "https://emacs.stackexchange.com/a/")
           ("github"         . "https://github.com/")
           ("wiki"           . "https://en.wikipedia.org/wiki/")))
+  )    
+
 #+end_src
 
-** Toc
-It helps to have an up-to-date table of contents in org files without
-exporting. Use :TOC: to create the table.
+** Update Table of Contents on Save
+
+If like me you want to automatically update the tables of contents of your =.org=
+files, [[https://github.com/snosov1/toc-org][toc-org]] is the ideal package. To automate these tables of contents, you
+only need to use the =:TOC:= tag in the first heading of these tables of contents.
 
 #+begin_src emacs-lisp
-  (use-package toc-org :commands toc-org-enable :init (add-hook
-                                                       'org-mode-hook 'toc-org-enable)) 
+
+  (use-package toc-org
+    :after org
+    :hook (org-mode . toc-org-enable))
+
 #+end_src
 
+** Encryption / Decryption
+
+To encrypt and decrypt GPG files with =org-mode=, you need to add =org-crypt= in
+your =org-modules=, install =gnupg= with your system manager package and create a
+GPG key pair with the public key specified to =org-crypt=.
+
+#+begin_src emacs-lisp
+  
+  (use-package org-crypt
+    :after org
+    :straight nil
+    :config (org-crypt-use-before-save-magic)
+    :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
+
+  (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
+  (setq epa-file-select-keys "auto")
+  
+#+end_src
+
+** Languages
+
+Let's specify languages extra to Org Mode to compile them directly into =.org=
+files.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package jupyter :straight nil :after org)
+  (use-package python :straight nil :after org)
+  (use-package ob-C :straight nil :after org)
+  (use-package ob-css :straight nil :after org)
+  (use-package ob-dot :straight nil :after org)
+  ;; (use-package ob-ein :straight nil :after org)
+  (use-package ob-emacs-lisp :straight nil :after org)
+  (use-package ob-gnuplot :straight nil :after org)
+  (use-package ob-java :straight nil :after org)
+  (use-package ob-js :straight nil :after org)
+  (use-package ob-latex
+    :straight nil
+    :after org
+    :custom (org-latex-compiler "xelatex"))
+  (use-package ob-ledger :straight nil :after org)
+  (use-package ob-makefile :straight nil :after org)
+  (use-package ob-org :straight nil :after org)
+  ;; (use-package ob-plantuml
+  ;;   :straight nil
+  ;;   :after org
+  ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
+  (use-package ob-python :straight nil :after org)
+  (use-package ob-shell :straight nil :after org)
+  (use-package ob-sql :straight nil :after org)
+
+#+end_src
+
+** Roam
+
+Taking notes is a necessity in a world full of information. To take these notes
+and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] package is great.
+
+After using [[https://github.com/bastibe/org-journal][org-journal]], I also decided to use =org-roam= to write my journal.
+
+If you don't already do so, I advise you to start writing your journal. If you
+haven't done so yet, I suggest you start writing your journal. This journal
+would allow you, for example, to improve your mental clarity, follow your
+evolution, and facilitate your personal growth.
+
+[[https://www.orgroam.com/manual.html#The-Templating-System][org roam capture templates]]
+
+*** Configuration
+
+#+begin_src emacs-lisp
+
+  ;; (use-package org-roam
+  ;;   :after org
+  ;;   :init
+  ;;   ;; Hide update warning message
+  ;;   (setq org-roam-v2-ack t)
+  ;;   (setq my/daily-note-filename "%<%Y-%m-%d>.org.gpg"
+  ;;         my/daily-note-header "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+  ;;   :custom
+  ;;   (org-roam-directory "~/Org/Roam/")
+  ;;   (org-roam-dailies-directory "~/Org/Journal/")
+  ;;   ;; (org-roam-directory "~/.personal/notes")
+  ;;   ;; (org-roam-dailies-directory "journal/")
+  ;;   (org-roam-completion-everywhere t)
+  ;;   (org-roam-graph-viewer "/usr/bin/qutebrowser")
+  ;;   (org-roam-capture-templates
+  ;;    '(("d" "default" plain "%?"
+  ;;       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+  ;;                          "#+title: ${title}\n")
+  ;;       :unnarrowed t)))
+  ;;   (org-roam-dailies-capture-templates
+  ;;    `(("d" "default" plain
+  ;;       "* %?"
+  ;;       :if-new (file+head ,my/daily-note-filename
+  ;;                          ,my/daily-note-header)
+  ;;       :empty-lines 1)
+
+  ;;      ("t" "task" entry
+  ;;       "* TODO %?\n  %U\n  %a\n  %i"
+  ;;       :if-new (file+head+olp ,my/daily-note-filename
+  ;;                              ,my/daily-note-header
+  ;;                              ("Tasks"))
+  ;;       :empty-lines 1)
+
+  ;;      ("j" "journal" plain
+  ;;       "** %<%I:%M %p>  :journal:\n\n%?\n\n"
+  ;;       :if-new (file+head+olp ,my/daily-note-filename
+  ;;                              ,my/daily-note-header
+  ;;                              ("Journal"))
+  ;;       :empty-lines 1)
+
+  ;;      ("m" "meeting" entry
+  ;;       "** %<%I:%M %p> - %^{Meeting Title}  :meeting:\n\n%?\n\n"
+  ;;       :if-new (file+head+olp ,my/daily-note-filename
+  ;;                              ,my/daily-note-header
+  ;;                              ("Meetings"))
+  ;;       :empty-lines 1)))
+
+  ;;   :config 
+  ;;   (org-roam-setup)
+  ;;   ;; (org-roam-db-autosync-mode)
+
+  ;;   ;; Build the agenda list the first time for the session
+  ;;   ;; (my/org-roam-refresh-agenda-list)
+  ;;   )
+
+#+end_src
+
+*** Custom Functions
+
+#+begin_src emacs-lisp
+
+  ;; (defvar dw/org-roam-project-template
+  ;;   '("p" "project" plain "** TODO %?"
+  ;;     :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+  ;;                            "#+title: ${title}\n#+category: ${title}\n#+filetags: Project\n"
+  ;;                            ("Tasks"))))
+
+  ;; (defun my/org-roam-filter-by-tag (tag-name)
+  ;;   (lambda (node)
+  ;;     (member tag-name (org-roam-node-tags node))))
+
+  ;; (defun my/org-roam-list-notes-by-tag (tag-name)
+  ;;   (mapcar #'org-roam-node-file
+  ;;           (seq-filter
+  ;;            (my/org-roam-filter-by-tag tag-name)
+  ;;            (org-roam-node-list))))
+
+  ;; (defun org-roam-node-insert-immediate (arg &rest args)
+  ;;   (interactive "P")
+  ;;   (let ((args (push arg args))
+  ;;         (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+  ;;                                                   '(:immediate-finish t)))))
+  ;;     (apply #'org-roam-node-insert args)))
+
+  ;; (defun dw/org-roam-goto-month ()
+  ;;   (interactive)
+  ;;   (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y-%B")) '(4))
+  ;;                      :node (org-roam-node-create)
+  ;;                      :templates '(("m" "month" plain "\n* Goals\n\n%?* Summary\n\n"
+  ;;                                    :if-new (file+head "%<%Y-%B>.org"
+  ;;                                                       "#+title: %<%Y-%B>\n#+filetags: Project\n")
+  ;;                                    :unnarrowed t))))
+
+  ;; (defun dw/org-roam-goto-year ()
+  ;;   (interactive)
+  ;;   (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y")) '(4))
+  ;;                      :node (org-roam-node-create)
+  ;;                      :templates '(("y" "year" plain "\n* Goals\n\n%?* Summary\n\n"
+  ;;                                    :if-new (file+head "%<%Y>.org"
+  ;;                                                       "#+title: %<%Y>\n#+filetags: Project\n")
+  ;;                                    :unnarrowed t))))
+
+  ;; (defun dw/org-roam-capture-task ()
+  ;;   (interactive)
+  ;;   ;; Add the project file to the agenda after capture is finished
+  ;;   (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;;   ;; Capture the new task, creating the project file if necessary
+  ;;   (org-roam-capture- :node (org-roam-node-read
+  ;;                             nil
+  ;;                             (my/org-roam-filter-by-tag "Project"))
+  ;;                      :templates (list dw/org-roam-project-template)))
+
+  ;; (defun my/org-roam-refresh-agenda-list ()
+  ;;   (interactive)
+  ;;   (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
+
+  ;; (defhydra my/org-roam-jump-menu (:hint nil)
+  ;;   "
+  ;; ^Dailies^        ^Capture^       ^Jump^
+  ;; ^^^^^^^^-------------------------------------------------
+  ;; _t_: today       _T_: today       _m_: current month
+  ;; _r_: tomorrow    _R_: tomorrow    _e_: current year
+  ;; _y_: yesterday   _Y_: yesterday   ^ ^
+  ;; _d_: date        ^ ^              ^ ^
+  ;; "
+  ;;   ("t" org-roam-dailies-goto-today)
+  ;;   ("r" org-roam-dailies-goto-tomorrow)
+  ;;   ("y" org-roam-dailies-goto-yesterday)
+  ;;   ("d" org-roam-dailies-goto-date)
+  ;;   ("T" org-roam-dailies-capture-today)
+  ;;   ("R" org-roam-dailies-capture-tomorrow)
+  ;;   ("Y" org-roam-dailies-capture-yesterday)
+  ;;   ("m" dw/org-roam-goto-month)
+  ;;   ("e" dw/org-roam-goto-year)
+  ;;   ("c" nil "cancel"))
+
+#+end_src
+
+** Wild Notifier
+
+Finally, I use [[https://github.com/akhramov/org-wild-notifier.el][org-wild-notifier]] to get notifications about TODO items in
+=org-agenda=.
+
+#+begin_src emacs-lisp
+
+  (use-package org-wild-notifier
+    :after org
+    :custom
+    (alert-default-style 'libnotify)
+    (org-wild-notifier-notification-title "Agenda Reminder")
+    :config (org-wild-notifier-mode))
+#+end_src
+
+** Bullets
+
+#+begin_src emacs-lisp
+
+  ;; (use-package org-habit)
+  (use-package org-bullets
+    :hook (org-mode . org-bullets-mode)
+    ;; ("◉" "○" "●" "►" "▸")
+    :custom (org-bullets-bullet-list '("●")))
+  ;; (add-hook 'org-mode-hook 'org-bullets-mode)
+
+#+end_src
 
 ** Configure Babel Languages
 
