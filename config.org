@@ -638,16 +638,21 @@ Setup evil mode to use vim like keybindings
 
 #+begin_src emacs-lisp
 
-    (use-package helpful
-      ;; :custom
-      ;; (counsel-describe-function-function #'helpful-callable)
-      ;; (counsel-describe-variable-function #'helpful-variable)
-      :bind
-      ([remap describe-function] . helpful-function)
-      ([remap describe-symbol] . helpful-symbol)
-      ([remap describe-variable] . helpful-variable)
-      ([remap describe-command] . helpful-command)
-      ([remap describe-key] . helpful-key))
+  (use-package helpful
+    :commands (helpful-at-point
+              helpful-callable
+              helpful-command
+              helpful-function
+              helpful-key
+              helpful-macro
+              helpful-variable)
+    :bind
+    ([remap display-local-help] . helpful-at-point)
+    ([remap describe-function] . helpful-callable)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-symbol] . helpful-symbol)
+    ([remap describe-key] . helpful-key)
+    ([remap describe-command] . helpful-command))
 
 #+end_src
 
@@ -656,19 +661,13 @@ Setup evil mode to use vim like keybindings
 Minor mode for Emacs that displays the key bindings following your currently entered incomplete command (a prefix) in a popup.
 
 #+begin_src emacs-lisp
-  (use-package which-key
-    ;; :defer 0
-    ;; :diminish which-key-mode
-    :config
-    (which-key-mode)
-    ;; (setq which-key-idle-delay 0.7)
-    )
 
-  ;; (use-package which-key
-  ;;   :init (which-key-mode)
-  ;;   :diminish which-key-mode
-  ;;   :config
-  ;;   (setq which-key-idle-delay 0.3))
+  (use-package which-key
+    :defer 0.2
+    :delight
+    :custom (which-key-idle-delay 0.5)
+    :config (which-key-mode))
+
 #+end_src
 
 * MODES
@@ -683,12 +682,13 @@ Distraction free writing mode
 ** Yasnippet global mode
 
 #+begin_src emacs-lisp
- 
+
   (use-package yasnippet
     ;; :hook (prog-mode . yas-minor-mode)
     :config
     ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
     (yas-global-mode 1)   ;; enables yasnippet globally
+    ;; (define-key org-mode-map (kbd "C-<tab>") 'yas-expand)
     ;; enable yasnippet as a non-global minor mode
     ;; (yas-reload-all)
     ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
