@@ -773,12 +773,12 @@ Check show paren mode [[stack-exchange:52209][fix]].
   ;;   (evil-window-decrease-width 50)
   ;; )
 
-  (with-eval-after-load 'dired
-    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
-    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-find-file))
+  ;; (with-eval-after-load 'dired
+  ;;   (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+  ;;   (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-find-file))
 
   ;; Get file icons in dired
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+  ;; (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
   ;; (dw/leader-key-def
   ;;   "d"   '(:ignore t :which-key "dired")
