@@ -1280,17 +1280,41 @@ Useful commands: flymake-show-diagnostics-buffer (show error messages on the fly
 Try these commands with =M-x=:
 
 - =lsp-treemacs-symbols= - Show a tree view of the symbols in the current file
+- =lsp-treemacs-errors-list= - Show a tree view for the diagnostic messages in the project
+  - =lsp-treemacs-quick-fix= or press =x= when you are in Error List view - offer quickfixes for the error at point.
 - =lsp-treemacs-references= - Show a tree view for the references of the symbol under the cursor
-- =lsp-treemacs-error-list= - Show a tree view for the diagnostic messages in the project
+- =lsp-treemacs-implementations= - Show a tree view for the references of the symbol under the cursor
+- =lsp-treemacs-call-hierarchy=
+  - Use =C-u M-x lsp-treemacs-call-hierarchy= to display outgoing call hierarchy.
+- =lsp-treemacs-type-hierarchy=
 
   This package is built on the [[https://github.com/Alexander-Miller/treemacs][treemacs]] package which might be of some interest to you if you like to have a file browser at the left side of your screen in your editor.
 
   #+begin_src emacs-lisp
 
     (use-package lsp-treemacs
-      :after lsp)
+      :after (lsp treemacs)
+      :config
+      (lsp-treemacs-sync-mode 1))
 
   #+end_src
+
+*** consult-lsp
+
+- =consult-lsp-diagnostics=: Select diagnostics from current workspace. Pass prefix argument to search all workspaces
+- =consult-lsp-symbols=: Select symbols from current workspace. Pass prefix argument to search all workspaces.
+- =consult-lsp-file-symbols=: Interactively select a symbol from the current file, in a manner similar to consult-line. 
+
+#+begin_src emacs-lisp
+
+  (use-package consult-lsp
+    ;; :commands (consult-lsp-diagnostics consult-lsp-symbols)
+  )
+  
+  ;; Use the following line to replace xref-find-apropos in lsp-mode controlled buffers:
+  ;; (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+
+#+end_src
 
 ** Debugging with dap-mode
 *** Configuration
@@ -1303,6 +1327,7 @@ Dap ui -> sessions, locals, expressions, breakpoints
 #+begin_src emacs-lisp
 
   (use-package dap-mode
+    :after lsp-mode
     ;; Hide all dap-ui buffers
     :custom
     (lsp-enable-dap-auto-configure nil)
