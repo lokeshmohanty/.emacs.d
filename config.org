@@ -301,19 +301,59 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
 
 #+begin_src emacs-lisp
 
-  (my/leader-keys
-    "b"     '(:ignore t :which-key "buffer")
-    "b b"   '(ibuffer :which-key "Ibuffer")
-    ;; "b s"   '(switch-to-buffer :which-key "switch buffer")
-    "b s"   '(consult-buffer :which-key "switch buffer")
-    "b f"   '(consult-buffer-other-frame :which-key "open buffer in other frame")
-    "b w"   '(consult-buffer-other-window :which-key "open buffer in other window")
-    "b c"   '(clone-indirect-buffer-other-window :which-key "Clone buffer in other window")
-    "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-    "b n"   '(next-buffer :which-key "Next buffer")
-    "b p"   '(previous-buffer :which-key "Previous buffer")
-    "b B"   '(ibuffer-list-buffers :which-key "Ibuffer list buffers")
-    "b K"   '(kill-buffer :which-key "Kill buffer"))
+  (use-package ibuffer
+    :straight nil
+    :config
+    ;; (setq ibuffer-saved-filter-groups
+    ;;       '(("home"
+    ;;   ("emacs-config" (or (filename . ".emacs.d")
+    ;;           (filename . "emacs-config")))
+    ;;         ("martinowen.net" (filename . "martinowen.net"))
+    ;;   ("Org" (or (mode . org-mode)
+    ;;         (filename . "OrgMode")))
+    ;;         ("code" (filename . "code"))
+    ;;   ("Web Dev" (or (mode . html-mode)
+    ;;       (mode . css-mode)))
+    ;;   ("Subversion" (name . "\*svn"))
+    ;;   ("Magit" (name . "\*magit"))
+    ;;   ("ERC" (mode . erc-mode))
+    ;;   ("Help" (or (name . "\*Help\*")
+    ;;         (name . "\*Apropos\*")
+    ;;         (name . "\*info\*"))))))
+
+    (setq ibuffer-expert t)
+    (setq ibuffer-show-empty-filter-groups nil))
+
+    (use-package ibuffer-projectile
+      :after projectile)
+      
+    ;; Alternatively, use `ibuffer-projectile-generate-filter-groups' to programmatically 
+    ;; obtain a list of filter groups that you can combine with your own custom groups.
+      
+    (add-hook 'ibuffer-hook
+              (lambda ()
+                (ibuffer-projectile-set-filter-groups)
+                (unless (eq ibuffer-sorting-mode 'alphabetic)
+                  (ibuffer-do-sort-by-alphabetic))))
+
+    ;; (add-hook 'ibuffer-mode-hook
+    ;;     '(lambda ()
+    ;;            (ibuffer-auto-mode 1)
+    ;;             (ibuffer-switch-to-saved-filter-groups "home")))
+
+    (my/leader-keys
+      "b"     '(:ignore t :which-key "buffer")
+      "b b"   '(ibuffer :which-key "Ibuffer")
+      ;; "b s"   '(switch-to-buffer :which-key "switch buffer")
+      "b s"   '(consult-buffer :which-key "switch buffer")
+      "b f"   '(consult-buffer-other-frame :which-key "open buffer in other frame")
+      "b w"   '(consult-buffer-other-window :which-key "open buffer in other window")
+      "b c"   '(clone-indirect-buffer-other-window :which-key "Clone buffer in other window")
+      "b k"   '(kill-current-buffer :which-key "Kill current buffer")
+      "b n"   '(next-buffer :which-key "Next buffer")
+      "b p"   '(previous-buffer :which-key "Previous buffer")
+      "b B"   '(ibuffer-list-buffers :which-key "Ibuffer list buffers")
+      "b K"   '(kill-buffer :which-key "Kill buffer"))
 
 #+end_src
 
@@ -405,8 +445,10 @@ C-w -> Prefix for evil window commands
   (use-package ace-window
     :config
     (global-set-key (kbd "M-o") 'ace-window)
-    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-    (setq aw-dispatch-always t))
+    :custom
+    (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+    (aw-scope 'frame)
+    (aw-dispatch-always t))
 
   (use-package winner-mode
     :straight nil
