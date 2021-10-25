@@ -18,7 +18,7 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 #+end_src
 
 * PROGRAMS TO LOAD FIRST
-** Package Management with Straight
+** Package Management with Straight (moved to init.el to load before org)
 
 - Clean up unused repos with =straight-remove-unused-repos=
  
@@ -35,27 +35,27 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 
 #+begin_src emacs-lisp
 
-  (setq package-enable-at-startup nil)
+  ;; (setq package-enable-at-startup nil)
 
-  ;; Bootstrap straight.el
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
+  ;; ;; Bootstrap straight.el
+  ;; (defvar bootstrap-version)
+  ;; (let ((bootstrap-file
+  ;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+  ;;       (bootstrap-version 5))
+  ;;   (unless (file-exists-p bootstrap-file)
+  ;;     (with-current-buffer
+  ;;         (url-retrieve-synchronously
+  ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+  ;;          'silent 'inhibit-cookies)
+  ;;       (goto-char (point-max))
+  ;;       (eval-print-last-sexp)))
+  ;;   (load bootstrap-file nil 'nomessage))
 
-  ;; Always use straight to install on systems other than Linux
-  (setq straight-use-package-by-default t)
+  ;; ;; Always use straight to install on systems other than Linux
+  ;; (setq straight-use-package-by-default t)
 
-  ;; Use straight.el for use-package expressions
-  (straight-use-package 'use-package)
+  ;; ;; Use straight.el for use-package expressions
+  ;; (straight-use-package 'use-package)
 
 #+end_src
 
@@ -301,7 +301,7 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
 #+begin_src emacs-lisp
 
   (use-package ibuffer
-    :straight nil
+    :straight (:type built-in)
     :config
     ;; (setq ibuffer-saved-filter-groups
     ;;       '(("home"
@@ -450,7 +450,7 @@ C-w -> Prefix for evil window commands
     (aw-dispatch-always t))
 
   (use-package winner-mode
-    :straight nil
+    :straight (:type built-in)
     :bind (:map evil-window-map
                 ("u" . winner-undo)
                 ("C-u" . winner-redo))
@@ -741,7 +741,7 @@ Check show paren mode [[stack-exchange:52209][fix]].
 #+begin_src emacs-lisp
 
   (use-package faces
-    :straight nil
+    :straight (:type built-in)
     :custom (show-paren-delay 0)
     :config
     (set-face-background 'show-paren-match "#161719")
@@ -790,7 +790,7 @@ use, let's change some default values.
 #+begin_src emacs-lisp
 
   (use-package dired
-    :straight nil
+    :straight (:type built-in)
     :commands (dired dired-jump)
     ;; :bind (:map dired-mode-map
     ;;             ("h" . dired-up-directory)
@@ -883,7 +883,7 @@ filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][
 #+begin_src emacs-lisp
 
   (use-package dired-narrow
-    ;; :straight nil
+    ;; :straight (:type built-in)
     :bind (("C-c C-n" . dired-narrow)
            ("C-c C-f" . dired-narrow-fuzzy)))
 
@@ -894,7 +894,7 @@ filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][
 #+begin_src emacs-lisp
 
   ;; (use-package dired
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   ;; :defer 1
   ;;   ;; :commands (dired dired-jump)
   ;;   :hook
@@ -1233,7 +1233,7 @@ Extra commands for vertico
   ;; Emacs tries to complete the word by searching all open buffers
   ;; Dabbrev is in-built into emacs. It works with Corfu
   (use-package dabbrev
-    :straight nil
+    :straight (:type built-in)
     ;; Swap M-/ and C-M-/
     :bind (("M-/" . dabbrev-completion)
            ("C-M-/" . dabbrev-expand))
@@ -1243,7 +1243,7 @@ Extra commands for vertico
 
   ;; A few more useful configurations...
   (use-package emacs
-    :straight nil
+    :straight (:type built-in)
     :init
     ;; TAB cycle if there are only few candidates
     (setq completion-cycle-threshold 3)
@@ -1929,7 +1929,7 @@ built-in package.
 #+begin_src emacs-lisp
 
   ;; (use-package reftex
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   :custom
   ;;   (reftex-save-parse-info t)
   ;;   (reftex-use-multiple-selection-buffers t))
@@ -1942,7 +1942,7 @@ package =bibtex= improves the visual and provides several commands.
 #+begin_src emacs-lisp
 
   ;; (use-package bibtex
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   :preface
   ;;   (defun my/bibtex-fill-column ()
   ;;     "Ensure that each entry does not exceed 120 characters."
@@ -1976,7 +1976,7 @@ LSP server does the job.
 #+begin_src emacs-lisp
 
   (use-package sql-mode
-    :straight nil
+    :straight (:type built-in)
     ;; :ensure-system-package (sqls . "yay -S sqls")
     :mode "\\.sql\\'")
 
@@ -2016,7 +2016,7 @@ automatically granted to save a shell script file that begins with a =#!= sheban
 
 #+begin_src emacs-lisp
   (use-package sh-script
-    :straight nil
+    :straight (:type built-in)
     ;; :hook (after-save . executable-make-buffer-file-executable-if-script-p)
   )
 #+end_src
@@ -2588,7 +2588,7 @@ system package manager.
 
 #+begin_src emacs-lisp
   ;; (use-package nxml-mode
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   :hook (nxml-mode . lsp-deferred)
   ;;   :mode ("\\.\\(xml\\|xsd\\|wsdl\\)\\'"))
 #+end_src
@@ -2833,40 +2833,38 @@ To import postman collection
 #+begin_src emacs-lisp
 
   (use-package org
-    :straight nil
     :config
-  (setq org-modules '(
-                      org-crypt
-                      org-agenda
-                      org-habit
-                      ;; org-bullets              ;; show bullets instead of asterisks
-                      ;; org-bookmark
-                      ;; org-eshell
-                      ;; org-irc
-                      ))
+    (setq org-modules '(
+                        org-crypt
+                        org-agenda
+                        org-habit
+                        ;; org-bookmark
+                        ;; org-eshell
+                        ;; org-irc
+                        ))
 
-  (add-hook 'org-mode-hook 'org-indent-mode)
-  (setq org-directory "~/Org/")
-  (setq org-ellipsis " ▾"
-        org-hide-emphasis-markers t     ;; hide rich text markers      
-        org-hide-block-startup nil
-        org-startup-folded t
-        org-cycle-separator-lines 2
-        org-capture-bookmark nil
+    (add-hook 'org-mode-hook 'org-indent-mode)
+    (setq org-directory "~/Org/")
+    (setq org-ellipsis " ▾"
+          org-hide-emphasis-markers t     ;; hide rich text markers      
+          org-hide-block-startup nil
+          org-startup-folded t
+          org-cycle-separator-lines 2
+          org-capture-bookmark nil
 
-        ;; Org Source indentation
-        org-src-fontify-natively t       
-        org-src-tab-acts-natively nil     ;; setting it to t cause error in yasnippet expansion
-        ;; org-edit-src-content-indentation 2
-        ;; org-src-preserve-indentation nil
-        ;; org-fontify-quote-and-verse-blocks t
-        org-confirm-babel-evaluate nil
-        )
+          ;; Org Source indentation
+          org-src-fontify-natively t       
+          org-src-tab-acts-natively nil     ;; setting it to t cause error in yasnippet expansion
+          ;; org-edit-src-content-indentation 2
+          ;; org-src-preserve-indentation nil
+          ;; org-fontify-quote-and-verse-blocks t
+          org-confirm-babel-evaluate nil
+          )
 
-  (my/leader-keys 
-    "m"      '(:ignore t :which-key "Mode Specific Bindings")
-    "m t"      '(org-toggle-link-display :which-key "Toggle the display of link")
-    )
+    (my/leader-keys 
+      "m"      '(:ignore t :which-key "Mode Specific Bindings")
+      "m t"      '(org-toggle-link-display :which-key "Toggle the display of link")
+      )
 #+end_src
 
 ** Executing Source Blocks
@@ -3265,7 +3263,7 @@ GPG key pair with the public key specified to =org-crypt=.
 
   ;; (use-package org-crypt
   ;;   :after org
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   :config (org-crypt-use-before-save-magic)
   ;;   :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
 
@@ -3282,29 +3280,29 @@ files.
 #+begin_src emacs-lisp
 
   ;; (use-package jupyter :straight nil :after org)
-  (use-package python :straight nil :after org)
-  (use-package ob-C :straight nil :after org)
-  (use-package ob-css :straight nil :after org)
-  (use-package ob-dot :straight nil :after org)
-  ;; (use-package ob-ein :straight nil :after org)
-  (use-package ob-emacs-lisp :straight nil :after org)
-  (use-package ob-gnuplot :straight nil :after org)
-  (use-package ob-java :straight nil :after org)
-  (use-package ob-js :straight nil :after org)
+  (use-package python :straight (:type built-in) :after org)
+  (use-package ob-C :straight (:type built-in) :after org)
+  (use-package ob-css :straight (:type built-in) :after org)
+  (use-package ob-dot :straight (:type built-in) :after org)
+  ;; (use-package ob-ein :straight (:type built-in) :after org)
+  (use-package ob-emacs-lisp :straight (:type built-in) :after org)
+  (use-package ob-gnuplot :straight (:type built-in) :after org)
+  (use-package ob-java :straight (:type built-in) :after org)
+  (use-package ob-js :straight (:type built-in) :after org)
   (use-package ob-latex
-    :straight nil
+    :straight (:type built-in)
     :after org
     :custom (org-latex-compiler "xelatex"))
-  (use-package ob-ledger :straight nil :after org)
-  (use-package ob-makefile :straight nil :after org)
-  (use-package ob-org :straight nil :after org)
+  (use-package ob-ledger :straight (:type built-in) :after org)
+  (use-package ob-makefile :straight (:type built-in) :after org)
+  (use-package ob-org :straight (:type built-in) :after org)
   ;; (use-package ob-plantuml
-  ;;   :straight nil
+  ;;   :straight (:type built-in)
   ;;   :after org
   ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
-  (use-package ob-python :straight nil :after org)
-  (use-package ob-shell :straight nil :after org)
-  (use-package ob-sql :straight nil :after org)
+  (use-package ob-python :straight (:type built-in) :after org)
+  (use-package ob-shell :straight (:type built-in) :after org)
+  (use-package ob-sql :straight (:type built-in) :after org)
 
 #+end_src
 
@@ -3540,7 +3538,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+begin_src emacs-lisp
   ;; (use-package ox-man
-  ;;   :straight nil)
+  ;;   :straight (:type built-in))
 #+end_src
 
 ** Drag and drop into org files
@@ -4060,7 +4058,7 @@ Many of the same keybindings work!  Marking keys work on the currently viewed me
     :init (pdf-tools-install :no-query))
     
   (use-package pdf-view
-    :straight nil
+    :straight (:type built-in)
     :after pdf-tools
     :bind (:map pdf-view-mode-map
                 ("C-s" . isearch-forward)
@@ -5044,6 +5042,7 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 - [ ] [[https://github.com/hpdeifel/synosaurus][Thesaurus]]
 - [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
 - [ ] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
+- [ ] [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html][Edebug]] (source-level debugger for emacs lisp programs)
 ** BACKLOG Get Mail on the fly with imapnotify
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
