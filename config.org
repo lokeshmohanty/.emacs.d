@@ -1190,6 +1190,18 @@ Explore *tab-to-tab-stop* and *indent-relative*
 
 #+end_src
 
+** Expand Region
+
+If you expand too far, you can contract the region by pressing - (minus key),
+or by prefixing the shortcut you defined with a negative argument: C-- C-=.
+
+#+begin_src emacs-lisp
+
+  (use-package expand-region
+    :bind ("C-=" . er/expand-region))
+
+#+end_src
+
 ** Language Server Protocol (LSP)
 *** lsp-mode
 Use Language server protocol.
