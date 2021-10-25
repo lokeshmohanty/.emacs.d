@@ -10,6 +10,9 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 
 #+begin_src emacs-lisp
 
+  ;; Required for functions that return functions ( used by custom function to filter tags in org-roam )
+  ;; -- lexical-binding: t; --
+
   ;; (setq debug-on-error t)
   ;; (setq debug-on-quit t)
 
@@ -3327,10 +3330,9 @@ files.
 
 Taking notes is a necessity in a world full of information. To take these notes
 and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] package is great.
+This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (box of paper slips in German) which is used for note taking and for personal knowledge management.
 
 [[https://www.orgroam.com/manual.html#The-Templating-System][org roam capture templates]]
-
-*** Configuration
 
 | =C-c n l= | org-roam-buffer-toggle         | show where the current node is referenced |
 | =C-c n f= | org-roam-node-find             | go to a node (create if doesn't exist)    |
@@ -3346,29 +3348,117 @@ and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] pa
 
 | *:unnarrowed t* | ensures that the full file will be displayed when captured |
 
+*** Custom Functions
+
+#+begin_src emacs-lisp
+
+  (defvar my/org-roam-project-template
+    '("p" "project" plain "** TODO %?"
+      :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                             "#+title: ${title}\n#+category: ${title}\n#+filetags: Project\n"
+                             ("Tasks"))))
+
+  (defun my/org-roam-filter-by-tag (tag-name)
+    (lambda (node)
+      (member tag-name (org-roam-node-tags node))))
+
+  (defun my/org-roam-list-notes-by-tag (tag-name)
+    (mapcar #'org-roam-node-file
+            (seq-filter
+             (my/org-roam-filter-by-tag tag-name)
+             (org-roam-node-list))))
+
+  ;; similar to org roam node insert but doesn't take you to the new node
+  (defun org-roam-node-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (push arg args))
+          (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                    '(:immediate-finish t)))))
+      (apply #'org-roam-node-insert args)))
+
+  (defun my/org-roam-goto-month ()
+    (interactive)
+    (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y-%B")) '(4))
+                       :node (org-roam-node-create)
+                       :templates '(("m" "month" plain "\n* Goals\n\n%?* Summary\n\n"
+                                     :if-new (file+head "%<%Y-%B>.org"
+                                                        "#+title: %<%Y-%B>\n#+filetags: Project\n")
+                                     :unnarrowed t))))
+
+  (defun my/org-roam-goto-year ()
+    (interactive)
+    (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y")) '(4))
+                       :node (org-roam-node-create)
+                       :templates '(("y" "year" plain "\n* Goals\n\n%?* Summary\n\n"
+                                     :if-new (file+head "%<%Y>.org"
+                                                        "#+title: %<%Y>\n#+filetags: Project\n")
+                                     :unnarrowed t))))
+
+  (defun my/org-roam-capture-task ()
+    (interactive)
+    ;; Add the project file to the agenda after capture is finished
+    (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+    ;; Capture the new task, creating the project file if necessary
+    (org-roam-capture- :node (org-roam-node-read nil
+                                                 ;; (my/org-roam-filter-by-tag "Project")
+                                                 (lambda (node)
+                                                   (member "Project" (org-roam-node-tags node))))
+                       :templates (list dw/org-roam-project-template)))
+
+  ;; add roam files with tag projects to agenda files
+  (defun my/org-roam-refresh-agenda-list ()
+    (interactive)
+    (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
+
+  (defhydra my/org-roam-jump-menu (:hint nil)
+    "
+  ^Goto^           ^Capture^       ^Jump^
+  ^^^^^^^^-------------------------------------------------
+  _t_: today       _T_: today       _m_: current month
+  _r_: tomorrow    _R_: tomorrow    _e_: current year
+  _y_: yesterday   _Y_: yesterday   ^ ^
+  _d_: date        ^ ^              ^ ^
+  "
+    ("t" org-roam-dailies-goto-today)
+    ("r" org-roam-dailies-goto-tomorrow)
+    ("y" org-roam-dailies-goto-yesterday)
+    ("d" org-roam-dailies-goto-date)
+    ("T" org-roam-dailies-capture-today)
+    ("R" org-roam-dailies-capture-tomorrow)
+    ("Y" org-roam-dailies-capture-yesterday)
+    ("m" my/org-roam-goto-month)
+    ("e" my/org-roam-goto-year)
+    ("q" nil "quit"))
+
+#+end_src
+
+*** Configuration
+
 #+begin_src emacs-lisp
 
   (use-package org-roam
-    ;; :after org
+    ;; :hook (after-init . org-roam-mode)
     :init
     ;; Hide update warning message
     (setq org-roam-v2-ack t)
-    (setq my/daily-note-filename "%<%Y-%m-%d>.org.gpg"
+    ;; (setq my/daily-note-filename "%<%Y-%m-%d>.org.gpg"
+    (setq my/daily-note-filename "%<%Y-%m-%d>.org"
           my/daily-note-header "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
     :custom
     (org-roam-directory "~/Org/Roam/")
     (org-roam-dailies-directory "~/Org/Journal/")
-    ;; (org-roam-completion-everywhere t)
+    (org-roam-completion-everywhere t)
     ;; (org-roam-graph-viewer "/usr/bin/qutebrowser")
     (org-roam-capture-templates
      '(("d" "default" plain "%?"
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org.gpg"
                            "#+title: ${title}\n")
         :unnarrowed t)))
     (org-roam-dailies-capture-templates
      `(("d" "default" plain
         "* %?"
-        :if-new (file+head ,my/daily-note-filename
+        :if-new (file+head ,my/daily-note-filename 
                            ,my/daily-note-header)
         :empty-lines 1)
 
@@ -3379,8 +3469,15 @@ and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] pa
                                ("Tasks"))
         :empty-lines 1)
 
-       ("j" "journal" plain
-        "** %<%I:%M %p> %^{Title}  :journal:\n\n%?\n\n"
+       ("l" "log" plain
+        "** %<%I:%M %p> - %?"
+        :if-new (file+head+olp ,my/daily-note-filename
+                               ,my/daily-note-header
+                               ("Log"))
+        :empty-lines 1)
+
+       ("j" "journal" entry
+        "** %<%I:%M %p> - %^{Title}  :journal:\n\n%?\n\n"
         :if-new (file+head+olp ,my/daily-note-filename
                                ,my/daily-note-header
                                ("Journal"))
@@ -3394,103 +3491,21 @@ and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] pa
         :empty-lines 1)))
     :bind (("C-c n l" . org-roam-buffer-toggle)
            ("C-c n f" . org-roam-node-find)
-           ;; ("C-c n d" . dw/org-roam-jump-menu/body)
+           ("C-c n d" . my/org-roam-jump-menu/body)
            ("C-c n c" . org-roam-dailies-capture-today)
-           ;; ("C-c n t" . dw/org-roam-capture-task)
+           ("C-c n t" . my/org-roam-capture-task)
            ("C-c n g" . org-roam-graph)
            :map org-mode-map
            (("C-c n i" . org-roam-node-insert)
-            ("C-M-i" . completion-at-point)
-            ("C-c n I" . org-roam-insert-immediate)))
+            ("C-c n I" . org-roam-insert-immediate))
+           )
     :config 
-    (org-roam-setup)
-    ;; (org-roam-db-autosync-mode)
+    ;; (org-roam-setup)
+    (org-roam-db-autosync-mode)
 
     ;; Build the agenda list the first time for the session
-    ;; (my/org-roam-refresh-agenda-list)
+    (my/org-roam-refresh-agenda-list)
     )
-
-#+end_src
-
-*** Custom Functions
-
-#+begin_src emacs-lisp
-
-  ;; (defvar dw/org-roam-project-template
-  ;;   '("p" "project" plain "** TODO %?"
-  ;;     :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
-  ;;                            "#+title: ${title}\n#+category: ${title}\n#+filetags: Project\n"
-  ;;                            ("Tasks"))))
-
-  ;; (defun my/org-roam-filter-by-tag (tag-name)
-  ;;   (lambda (node)
-  ;;     (member tag-name (org-roam-node-tags node))))
-
-  ;; (defun my/org-roam-list-notes-by-tag (tag-name)
-  ;;   (mapcar #'org-roam-node-file
-  ;;           (seq-filter
-  ;;            (my/org-roam-filter-by-tag tag-name)
-  ;;            (org-roam-node-list))))
-
-  ;; (defun org-roam-node-insert-immediate (arg &rest args)
-  ;;   (interactive "P")
-  ;;   (let ((args (push arg args))
-  ;;         (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-  ;;                                                   '(:immediate-finish t)))))
-  ;;     (apply #'org-roam-node-insert args)))
-
-  ;; (defun dw/org-roam-goto-month ()
-  ;;   (interactive)
-  ;;   (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y-%B")) '(4))
-  ;;                      :node (org-roam-node-create)
-  ;;                      :templates '(("m" "month" plain "\n* Goals\n\n%?* Summary\n\n"
-  ;;                                    :if-new (file+head "%<%Y-%B>.org"
-  ;;                                                       "#+title: %<%Y-%B>\n#+filetags: Project\n")
-  ;;                                    :unnarrowed t))))
-
-  ;; (defun dw/org-roam-goto-year ()
-  ;;   (interactive)
-  ;;   (org-roam-capture- :goto (when (org-roam-node-from-title-or-alias (format-time-string "%Y")) '(4))
-  ;;                      :node (org-roam-node-create)
-  ;;                      :templates '(("y" "year" plain "\n* Goals\n\n%?* Summary\n\n"
-  ;;                                    :if-new (file+head "%<%Y>.org"
-  ;;                                                       "#+title: %<%Y>\n#+filetags: Project\n")
-  ;;                                    :unnarrowed t))))
-
-  ;; (defun dw/org-roam-capture-task ()
-  ;;   (interactive)
-  ;;   ;; Add the project file to the agenda after capture is finished
-  ;;   (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-  ;;   ;; Capture the new task, creating the project file if necessary
-  ;;   (org-roam-capture- :node (org-roam-node-read
-  ;;                             nil
-  ;;                             (my/org-roam-filter-by-tag "Project"))
-  ;;                      :templates (list dw/org-roam-project-template)))
-
-  ;; (defun my/org-roam-refresh-agenda-list ()
-  ;;   (interactive)
-  ;;   (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
-
-  ;; (defhydra my/org-roam-jump-menu (:hint nil)
-  ;;   "
-  ;; ^Dailies^        ^Capture^       ^Jump^
-  ;; ^^^^^^^^-------------------------------------------------
-  ;; _t_: today       _T_: today       _m_: current month
-  ;; _r_: tomorrow    _R_: tomorrow    _e_: current year
-  ;; _y_: yesterday   _Y_: yesterday   ^ ^
-  ;; _d_: date        ^ ^              ^ ^
-  ;; "
-  ;;   ("t" org-roam-dailies-goto-today)
-  ;;   ("r" org-roam-dailies-goto-tomorrow)
-  ;;   ("y" org-roam-dailies-goto-yesterday)
-  ;;   ("d" org-roam-dailies-goto-date)
-  ;;   ("T" org-roam-dailies-capture-today)
-  ;;   ("R" org-roam-dailies-capture-tomorrow)
-  ;;   ("Y" org-roam-dailies-capture-yesterday)
-  ;;   ("m" dw/org-roam-goto-month)
-  ;;   ("e" dw/org-roam-goto-year)
-  ;;   ("c" nil "cancel"))
 
 #+end_src
 
@@ -4631,6 +4646,7 @@ with it.
            ("C-c s" . hydra-spelling/body)
            ("C-c t" . hydra-tex/body)
            ("C-c u" . hydra-upload/body)
+           ("C-c N" . hydra-notes/body)
            ("C-c w" . hydra-windows/body)))
 
   (use-package major-mode-hydra
