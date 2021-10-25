@@ -3255,14 +3255,14 @@ GPG key pair with the public key specified to =org-crypt=.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package org-crypt
-  ;;   :after org
-  ;;   :straight (:type built-in)
-  ;;   :config (org-crypt-use-before-save-magic)
-  ;;   :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
+  (use-package org-crypt
+    :after org
+    :straight (:type built-in)
+    :config (org-crypt-use-before-save-magic)
+    :custom (org-crypt-key "C40959B80457F5A83E886FB429D0512FC8D22444"))
 
-  ;; (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
-  ;; (setq epa-file-select-keys "auto")
+  (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
+  (setq epa-file-select-keys "auto")
 
 #+end_src
 
@@ -3357,7 +3357,7 @@ and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] pa
         :empty-lines 1)
 
        ("j" "journal" plain
-        "** %<%I:%M %p>  :journal:\n\n%?\n\n"
+        "** %<%I:%M %p> %^{Title}  :journal:\n\n%?\n\n"
         :if-new (file+head+olp ,my/daily-note-filename
                                ,my/daily-note-header
                                ("Journal"))
@@ -4498,6 +4498,8 @@ I use this nice package from [[https://gitlab.com/willvaughn][nackjicholson]] to
 I use [[https://www.passwordstore.org/][pass]] to manage all of my passwords locally.  I also use [[https://github.com/DamienCassou/auth-password-store][auth-source-pass]] as the primary =auth-source= provider so that all passwords are stored in a single place.
 
 #+begin_src emacs-lisp
+
+ (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
 
   ;; (use-package password-store
   ;;   :config
