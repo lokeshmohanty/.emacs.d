@@ -282,14 +282,15 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
     ;; general-simulate-key should not be quoted as it is supposed to be evaluated before assigning
     (my/leader-keys
       ;; "SPC" '(counsel-M-x :which-key "M-x")
-      "."    '(find-file :which-key "Find file")
+      "."    '(find-file :which-key "find file")
       "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
       "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") 
       "t"    (general-simulate-key "C-x t" :which-key "+tab")
       "f"    (general-simulate-key "C-x 5" :which-key "+frame")
-      "o"   '(:ignore t :which-key "open")
+      "o"    '(:ignore t :which-key "open")
       "oa"   '(org-agenda :which-key "org-agenda")
       "oc"   '(org-capture :which-key "org-capture")
+      "os"   '(yas-insert-snippet :which-key "insert snippet")
       "om"   '(mu4e :which-key "mu4e")
       "oe"   '(eshell :which-key "eshell")
       "ot"   '(vterm :which-key "vterm")
@@ -722,21 +723,17 @@ Distraction free writing mode
   ;; (use-package writeroom-mode)
 #+end_src
 
-** Yasnippet global mode
+* Yasnippet
 
 #+begin_src emacs-lisp
 
   (use-package yasnippet
-    ;; :hook (prog-mode . yas-minor-mode)
     :config
     ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
     (yas-global-mode 1)   ;; enables yasnippet globally
-    ;; (define-key org-mode-map (kbd "C-<tab>") 'yas-expand)
-    ;; enable yasnippet as a non-global minor mode
-    ;; (yas-reload-all)
-    ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
     )
 
+  ;; collection of common snippets
   (use-package yasnippet-snippets)
 
 #+end_src
@@ -1402,6 +1399,29 @@ With code nesting, it is important to always have a discrete visual on the inden
     :custom (highlight-indent-guides-method 'character))
 
 #+end_src
+
+*** Folding
+
+#+begin_src emacs-lisp
+
+  (use-package vimish-fold
+    :after evil)
+
+  (use-package evil-vimish-fold
+    :after vimish-fold
+    :init
+    (setq evil-vimish-fold-mode-lighter " ⮒")
+    (general-define-key
+     :states 'normal
+     :mode evil-vimish-fold-mode
+     "zF" 'vimish-fold-avy)
+    ;; (setq evil-vimish-fold-target-modes '(prog-mode conf-mode text-mode))
+    ;; :config
+    ;; (global-evil-vimish-fold-mode))
+    :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
+
+#+end_src
+
 
 ** Linter
 
