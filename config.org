@@ -251,6 +251,15 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
 
 #+end_src
 
+** Auto update buffers on file changes
+
+#+begin_src emacs-lisp
+
+  (global-auto-revert-mode)
+  
+#+end_src
+
+
 * KEY BINDINGS
 ** Helpful Default Keybindings
 | Key   | Function          |
