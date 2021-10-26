@@ -274,38 +274,48 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
 | C-g   | Kill minibuffer   |
 ** Install general.el to define keybindings
 
+Use =general-define-key= to remap/map evil keybindings
+
 #+begin_src emacs-lisp
 
-  (use-package general
-    :config
-    (general-create-definer my/leader-keys
-      :keymaps '(normal insert visual emacs)
-      :prefix "SPC"
-      :global-prefix "M-SPC")
+  ;; (general-define-key
+  ;;   :states 'normal
+  ;;   :mode evil-vimish-fold-mode
+  ;;   "zF" 'vimish-fold-avy)
 
-    (general-create-definer my/ctrl-c-keys
-      :prefix "C-c")
+#+end_src
 
-    (general-evil-setup t)
+#+begin_src emacs-lisp
+      (use-package general
+        :config
+        (general-create-definer my/leader-keys
+          :keymaps '(normal insert visual emacs)
+          :prefix "SPC"
+          :global-prefix "M-SPC")
 
-    ;; general-simulate-key should not be quoted as it is supposed to be evaluated before assigning
-    (my/leader-keys
-      ;; "SPC" '(counsel-M-x :which-key "M-x")
-      "."    '(find-file :which-key "find file")
-      "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
-      "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") 
-      "t"    (general-simulate-key "C-x t" :which-key "+tab")
-      "f"    (general-simulate-key "C-x 5" :which-key "+frame")
-      "o"    '(:ignore t :which-key "open")
-      "oa"   '(org-agenda :which-key "org-agenda")
-      "oc"   '(org-capture :which-key "org-capture")
-      "os"   '(yas-insert-snippet :which-key "insert snippet")
-      "om"   '(mu4e :which-key "mu4e")
-      "oe"   '(eshell :which-key "eshell")
-      "ot"   '(vterm :which-key "vterm")
-      "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-      "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org"))))
-    )
+        (general-create-definer my/ctrl-c-keys
+          :prefix "C-c")
+
+        (general-evil-setup t)
+
+        ;; general-simulate-key should not be quoted as it is supposed to be evaluated before assigning
+        (my/leader-keys
+          ;; "SPC" '(counsel-M-x :which-key "M-x")
+          "."    '(find-file :which-key "find file")
+          "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
+          "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") 
+          "t"    (general-simulate-key "C-x t" :which-key "+tab")
+          "f"    (general-simulate-key "C-x 5" :which-key "+frame")
+          "o"    '(:ignore t :which-key "open")
+          "oa"   '(org-agenda :which-key "org-agenda")
+          "oc"   '(org-capture :which-key "org-capture")
+          "os"   '(yas-insert-snippet :which-key "insert snippet")
+          "om"   '(mu4e :which-key "mu4e")
+          "oe"   '(eshell :which-key "eshell")
+          "ot"   '(vterm :which-key "vterm")
+          "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
+          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org"))))
+        )
 
 #+end_src
 
@@ -1416,13 +1426,11 @@ With code nesting, it is important to always have a discrete visual on the inden
     :after vimish-fold
     :init
     (setq evil-vimish-fold-mode-lighter " ⮒")
+    :config
     (general-define-key
      :states 'normal
      :mode evil-vimish-fold-mode
      "zF" 'vimish-fold-avy)
-    ;; (setq evil-vimish-fold-target-modes '(prog-mode conf-mode text-mode))
-    ;; :config
-    ;; (global-evil-vimish-fold-mode))
     :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
 #+end_src
@@ -2795,22 +2803,13 @@ window layout.
 
 #+begin_src emacs-lisp
 
-  (use-package verb)
+  (use-package verb
+    :custom
+    (verb-trim-body-end "[ \t\n\r]+")
+  )
   
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
-
-#+end_src
-
-*** Impostman
-    
-To import postman collection
-    
-#+begin_src emacs-lisp
-
-  ;; (use-package impostman
-  ;;   :straight '(impostman :host github
-  ;;                         :repo "flashcode/impostman"))
 
 #+end_src
 
