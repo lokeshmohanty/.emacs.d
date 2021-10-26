@@ -565,7 +565,11 @@ Basic Usage
     #+begin_src emacs-lisp
 
       ;; (setq tab-bar-close-button-show nil
-      ;;       tab-bar-new-button-show nil)
+      ;;       tab-bar-new-button-show nil 
+      ;;       ;; tab-bar-separator " | "
+      ;;       ;; tab-bar-button-relief 10
+      ;;       ;; tab-bar-button-margin 10
+      ;;       )
 
     #+end_src
 
@@ -649,8 +653,8 @@ Setup evil mode to use vim like keybindings
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
 
     ;; ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
-    ;; (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-    ;; (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
@@ -1315,16 +1319,34 @@ Easy switching directories. Works great when combined with embark
 
 #+begin_src emacs-lisp
 
-  (use-package avy
-    :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
-    :bind ("M-j" . avy-goto-char-timer))
+    (use-package avy
+      :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
+      ;; :general
+      ;; ("M-j" '(avy-goto-char-timer :which-key "Avy goto char timer"))
+      ;; :bind* (
+      ;;        :map isearch-mode-map
+      ;;        ("M-j" . avy-isearch)
+      ;;        :map org-mode-map
+      ;;        ("M-j" . avy-goto-char-timer)
+      ;;        )
+    )
 
-  (my/leader-keys
-    "j"   '(:ignore t :which-key "jump")
-    "jj"  '(avy-goto-char :which-key "jump to char")
-    "jw"  '(avy-goto-word-0 :which-key "jump to word")
-    "jW"  '(avy-goto-word-1 :which-key "jump to word starting with")
-    "jl"  '(avy-goto-line :which-key "jump to line"))
+      (my/leader-keys
+        "j"   '(:ignore t :which-key "jump")
+        ;; "jj"  '(avy-goto-char :which-key "jump to char")
+        ;; "jw"  '(avy-goto-word-0 :which-key "jump to word")
+        "jj"  '(avy-goto-char-timer :which-key "Avy goto char timer")
+        "jL"  '(avy-goto-end-of-line :which-key "Avy goto line")
+        "jw"  '(avy-goto-word-1 :which-key "jump to word starting with")
+        "jl"  '(avy-goto-line :which-key "jump to line")
+        "jm"  '(avy-move-line :which-key "Avy move line")
+        "jM"  '(avy-move-region :which-key "Avy move region")
+        "jc"  '(avy-copy-line :which-key "Avy copy line above")
+        "jC"  '(avy-copy-region :which-key "Avy copy region above")
+        "jk"  '(avy-kill-whole-line :which-key "Avy copy line as kill")
+        "jK"  '(avy-kill-region :which-key "Avy kill region")
+        "jp"  '(avy-kill-ring-save-region :which-key "Avy copy as kill")
+        )
 
 #+end_src
 
