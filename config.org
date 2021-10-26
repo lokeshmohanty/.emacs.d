@@ -3370,11 +3370,9 @@ files.
 
 ** Roam
 
-Taking notes is a necessity in a world full of information. To take these notes
-and interconnect them, the [[https://github.com/org-roam/org-roam][org-roam]] package is great.
-This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (box of paper slips in German) which is used for note taking and for personal knowledge management.
+[[https://github.com/org-roam/org-roam][org-roam]] based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (box of paper slips in German) which is used for note taking and personal knowledge management.
 
-[[https://www.orgroam.com/manual.html#The-Templating-System][org roam capture templates]]
+New node uses the default template defined in [[https://www.orgroam.com/manual.html#The-Templating-System][org-roam-capture-templates]]
 
 | =C-c n l= | org-roam-buffer-toggle         | show where the current node is referenced |
 | =C-c n f= | org-roam-node-find             | go to a node (create if doesn't exist)    |
@@ -3494,8 +3492,9 @@ This is based on [[https://en.wikipedia.org/wiki/Zettelkasten][zettelkasten]] (b
     (org-roam-capture-templates
      '(("d" "default" plain "%?"
         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org.gpg"
-                           "#+title: ${title}\n")
+                           "#+title: ${title}\n#+author: Lokesh Mohanty\n#+filetags: %^G")
         :unnarrowed t)))
+        
     (org-roam-dailies-capture-templates
      `(("d" "default" plain
         "* %?"
