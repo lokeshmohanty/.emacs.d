@@ -1316,34 +1316,30 @@ Easy switching directories. Works great when combined with embark
 
 #+begin_src emacs-lisp
 
-    (use-package avy
-      :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
-      ;; :general
-      ;; ("M-j" '(avy-goto-char-timer :which-key "Avy goto char timer"))
-      ;; :bind* (
-      ;;        :map isearch-mode-map
-      ;;        ("M-j" . avy-isearch)
-      ;;        :map org-mode-map
-      ;;        ("M-j" . avy-goto-char-timer)
-      ;;        )
+  (use-package avy
+    :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
+    :init
+    (general-define-key
+     :states 'normal
+     "F" 'avy-goto-char-timer)
     )
 
-      (my/leader-keys
-        "j"   '(:ignore t :which-key "jump")
-        ;; "jj"  '(avy-goto-char :which-key "jump to char")
-        ;; "jw"  '(avy-goto-word-0 :which-key "jump to word")
-        "jj"  '(avy-goto-char-timer :which-key "Avy goto char timer")
-        "jL"  '(avy-goto-end-of-line :which-key "Avy goto line")
-        "jw"  '(avy-goto-word-1 :which-key "jump to word starting with")
-        "jl"  '(avy-goto-line :which-key "jump to line")
-        "jm"  '(avy-move-line :which-key "Avy move line")
-        "jM"  '(avy-move-region :which-key "Avy move region")
-        "jc"  '(avy-copy-line :which-key "Avy copy line above")
-        "jC"  '(avy-copy-region :which-key "Avy copy region above")
-        "jk"  '(avy-kill-whole-line :which-key "Avy copy line as kill")
-        "jK"  '(avy-kill-region :which-key "Avy kill region")
-        "jp"  '(avy-kill-ring-save-region :which-key "Avy copy as kill")
-        )
+  (my/leader-keys
+    "j"   '(:ignore t :which-key "jump")
+    ;; "jj"  '(avy-goto-char :which-key "jump to char")
+    ;; "jw"  '(avy-goto-word-0 :which-key "jump to word")
+    "jj"  '(avy-goto-char-timer :which-key "Avy goto char timer")
+    "jL"  '(avy-goto-end-of-line :which-key "Avy goto line")
+    "jw"  '(avy-goto-word-1 :which-key "jump to word starting with")
+    "jl"  '(avy-goto-line :which-key "jump to line")
+    "jm"  '(avy-move-line :which-key "Avy move line")
+    "jM"  '(avy-move-region :which-key "Avy move region")
+    "jc"  '(avy-copy-line :which-key "Avy copy line above")
+    "jC"  '(avy-copy-region :which-key "Avy copy region above")
+    "jk"  '(avy-kill-whole-line :which-key "Avy copy line as kill")
+    "jK"  '(avy-kill-region :which-key "Avy kill region")
+    "jp"  '(avy-kill-ring-save-region :which-key "Avy copy as kill")
+    )
 
 #+end_src
 
