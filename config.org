@@ -4163,6 +4163,37 @@ Many of the same keybindings work!  Marking keys work on the currently viewed me
 
 #+end_src
 
+* BROWSER SHORTCUTS
+
+** Get wiki summary
+
+Occasionally, I would like to have a summary of a term directly on GNU Emacs,
+before that I would like to know more about this term. The [[https://github.com/jozefg/wiki-summary.el][wiki-summary]] package
+allows this behavior.
+
+#+begin_src emacs-lisp
+
+  (use-package wiki-summary
+    :commands (wiki-summary wiki-summary-insert)
+    ;; :bind ("C-c W" . wiki-summary)
+    ;; :preface
+    ;; (defun my/format-summary-in-buffer (summary)
+    ;;   "Given a summary, sticks it in the *wiki-summary* buffer and displays
+    ;;    the buffer."
+    ;;   (let ((buf (generate-new-buffer "*wiki-summary*")))
+    ;;     (with-current-buffer buf
+    ;;       (princ summary buf)
+    ;;       (fill-paragraph)
+    ;;       (goto-char (point-min))
+    ;;       (view-mode))
+    ;;     (pop-to-buffer buf)))
+    ;; :config
+    ;; (advice-add 'wiki-summary/format-summary-in-buffer
+    ;;             :override #'my/format-summary-in-buffer)
+  )
+
+#+end_src
+
 * SHARING
 ** Webpaste
 
@@ -4186,24 +4217,6 @@ The current bindings are overwritten by other binding
   (use-package imgbb
     :commands imgbb-upload
     :bind ("C-c C-p C-i" . imgbb-upload))
-
-#+end_src
-
-* WORD DICTIONARY
-
-#+begin_src emacs-lisp
-
-  (use-package define-word
-    :config
-    (setq define-word-default-service 'offline-wikitionary)
-    (setq define-word-offline-dict-directory "~/.emacs.d/dictionaries_enwiktionary"))
-    ;; (defun url-http-user-agent-string ()
-    ;; "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36 ")
-
-  ;; (my/ctrl-c-keys
-  ;;   "D"   '(define-word :which-key "search definition of a word")
-  ;;   "d"   '(define-word-at-point :which-key "search definition at point")
-  ;;   )
 
 #+end_src
 
