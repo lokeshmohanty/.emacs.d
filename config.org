@@ -4285,20 +4285,6 @@ The current bindings are overwritten by other binding
 - /help
 - NickServ, help
 
-** Tracking
-
-#+begin_src emacs-lisp
-
-  ;; (use-package tracking
-  ;;   :defer t
-  ;;   :config
-  ;;   (setq tracking-faces-priorities '(all-the-icons-pink
-  ;;                                     all-the-icons-lgreen
-  ;;                                     all-the-icons-lblue))
-  ;;   (setq tracking-frame-behavior nil))
-
-#+end_src
-
 ** Telegram
 
 #+begin_src emacs-lisp
@@ -4365,167 +4351,107 @@ The current bindings are overwritten by other binding
 
 #+end_src
 
-** CIRCE
-
-#+begin_src emacs-lisp
-
-  ;; (defun dw/on-erc-track-list-changed ()
-  ;;   (dolist (buffer erc-modified-channels-alist)
-  ;;     (tracking-add-buffer (car buffer))))
-
-  ;; (use-package erc-hl-nicks
-  ;;   :after erc)
-
-  ;; (use-package erc-image
-  ;;   :after erc)
-
-  (use-package circe
-  :commands circe
-  :preface
-  (defun my/circe-count-nicks ()
-    "Display the number of users connected on the current channel."
-    (interactive)
-    (when (eq major-mode 'circe-channel-mode)
-      (message "%i users are online on %s."
-               (length (circe-channel-nicks)) (buffer-name))))
-
-  (defun my/circe-fetch-password (&rest params)
-    "Fetch the NickServ password for an username."
-    (require 'auth-source)
-    (let ((match (car (apply 'auth-source-search params))))
-      (if match
-          (let ((secret (plist-get match :secret)))
-            (if (functionp secret)
-                (funcall secret)
-              secret))
-        (error "[✗] Password not found for %S" params))))
-
-  (defun my/circe-nickserv-password (server)
-    "Fetch the NickServ password for the Libera Chat."
-    (my/circe-fetch-password :login "lokesh1197" :machine "irc.libera.chat"))
-  :custom
-  (circe-default-part-message nil)
-  (circe-default-quit-message nil)
-  (circe-format-say (format "{nick:+%ss}: {body}" 8))
-  (circe-network-options
-   '(("Libera Chat"
-      :nick "lokesh1197"
-      :tls t
-      :port 6697
-      :server-buffer-name "⇄ Libera Chat"
-      :channels (:after-auth "#archlinux" "#bash" "#emacs" "#linux" "#python" "#qutebrowser" "#sway")
-      :nickserv-password my/circe-nickserv-password)))
-  (circe-reduce-lurker-spam t)
-  (circe-use-cycle-completion t)
-  (lui-flyspell-p t)
-  :config
-  (circe-lagmon-mode)
-  (enable-circe-color-nicks)
-  (enable-circe-display-images))
-
-  (use-package circe-notifications
-  :after circe
-  :hook (circe-server-connected . enable-circe-notifications))
-
-#+end_src
-
 ** ERC
 
 [[https://www.gnu.org/software/emacs/manual/html_node/erc/Modules.html][ERC]] is the big kahuna of Emacs IRC clients.  At first I thought it was too bulky, but after using =circe= and =rcirc= I started to appreciate some of the features it provides.  The "static center" fill mode is really awesome.
 
 #+begin_src emacs-lisp
-    (defun dw/on-erc-track-list-changed ()
-      (dolist (buffer erc-modified-channels-alist)
-        (tracking-add-buffer (car buffer))))
 
-    (use-package erc-hl-nicks
-      :after erc)
+  (defun dw/on-erc-track-list-changed ()
+    (dolist (buffer erc-modified-channels-alist)
+      (tracking-add-buffer (car buffer))))
 
-    (use-package erc-image
-      :after erc)
+  (use-package erc-hl-nicks
+    :after erc)
 
-    (use-package erc
-      :commands erc
-      :hook (erc-track-list-changed . dw/on-erc-track-list-changed)
-      :config
-      (require 'erc-desktop-notifications)
-      (setq
-          erc-nick "lokesh1197"
-          erc-user-full-name "Lokesh Mohanty"
-          erc-prompt-for-password nil
-          erc-auto-query 'bury
-          erc-join-buffer 'bury
-          erc-track-shorten-start 8
-          erc-interpret-mirc-color t
-          erc-rename-buffers t
-          erc-kill-buffer-on-part t
-          erc-track-exclude '("#twitter_daviwil")
-          erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "AWAY")
-          erc-track-enable-keybindings nil
-          erc-track-visibility nil ; Only use the selected frame for visibility
-          erc-track-exclude-server-buffer t
-          erc-fill-column 120
-          erc-fill-function 'erc-fill-static
-          erc-fill-static-center 20
-          erc-image-inline-rescale 400
-          erc-server-reconnect-timeout 10
-          erc-server-reconnect-attempts 5
-          erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs" "#guix"))
-          erc-quit-reason (lambda (s) (or s "Ejecting from cyberspace"))
-          erc-modules
-          '(autoaway autojoin button completion fill irccontrols keep-place
-              list match menu move-to-prompt netsplit networks noncommands
-              readonly ring stamp track image hl-nicks notify notifications))
 
-      (add-hook 'erc-join-hook 'bitlbee-identify)
-      (defun bitlbee-identify ()
-        "If we're on the bitlbee server, send the identify command to the &bitlbee channel."
-        (when (and (string= "127.0.0.1" erc-session-server)
-                   (string= "&bitlbee" (buffer-name)))
-          (erc-message "PRIVMSG" (format "%s identify %s"
-                                         (erc-default-target)
-                                         (password-store-get "IRC/Bitlbee"))))))
+  (use-package erc-image
+    :after erc)
 
-    (defun dw/connect-irc ()
-      (interactive)
-      (erc-tls :server "irc.libera.chat" :port 6697 :nick "lokesh1197"))
-      ;; (erc
-      ;;    :server "127.0.0.1" :port 6667
-      ;;    :nick "daviwil" :password (password-store-get "IRC/Bitlbee")))
+  (use-package erc
+    ;; :commands (erc erc-tls)
+    :hook (erc-track-list-changed . dw/on-erc-track-list-changed)
+    :config
+    ;; (require 'erc-desktop-notifications)
+    :custom
+    (erc-nick "lokesh1197")
+    (erc-user-full-name "Lokesh Mohanty")
+    (erc-prompt-for-password nil)
+    (erc-auto-query 'bury)
+    (erc-join-buffer 'bury)
+    (erc-track-shorten-start 8)
+    (erc-interpret-mirc-color t)
+    (erc-rename-buffers t)
+    (erc-kill-buffer-on-part t)
+    ;; erc-track-exclude '("#twitter_daviwil")
+    ;; (erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" "AWAY"))
+    (erc-track-enable-keybindings nil)
+    (erc-track-visibility 'selected-visible) ; Only use the selected frame for visibility
+    (erc-track-exclude-server-buffer t)
+    (erc-fill-column 120)
+    (erc-fill-function 'erc-fill-static)
+    (erc-fill-static-center 20)
+    (erc-image-inline-rescale 300)
+    (erc-server-reconnect-timeout 10)
+    (erc-server-reconnect-attempts 5)
+    (erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs" "#guix")))
+    (erc-modules 
+     '(netsplit fill button match track completion
+                readonly networks ring autojoin noncommands
+                irccontrols move-to-prompt stamp menu list autoaway
+                smiley keep-place image hl-nicks))
+    ;; (erc-quit-reason (lambda (s) (or s "Ejecting from cyberspace")))
+    )
 
-    ;; Thanks karthik!
-    (defun erc-image-create-image (file-name)
-      "Create an image suitably scaled according to the setting of
-    'ERC-IMAGE-RESCALE."
-      (let* ((positions (window-inside-absolute-pixel-edges))
-            (width (- (nth 2 positions) (nth 0 positions)))
-            (height (- (nth 3 positions) (nth 1 positions)))
-            (image (create-image file-name))
-            (dimensions (image-size image t))
-            (imagemagick-p (and (fboundp 'imagemagick-types) 'imagemagick)))
-                                            ; See if we want to rescale the image
-        (if (and erc-image-inline-rescale
-                (not (image-multi-frame-p image)))
-            ;; Rescale based on erc-image-rescale
-            (cond (;; Numeric: scale down to that size
-                  (numberp erc-image-inline-rescale)
-                  (if (> (cdr dimensions) erc-image-inline-rescale)
-                      (create-image file-name imagemagick-p nil :height erc-image-inline-rescale)
-                    image))
-                  (;; 'window: scale down to window size, if bigger
-                  (eq erc-image-inline-rescale 'window)
-                  ;; But only if the image is greater than the window size
-                  (if (or (> (car dimensions) width)
-                          (> (cdr dimensions) height))
-                      ;; Figure out in which direction we need to scale
-                      (if (> width height)
-                          (create-image file-name imagemagick-p nil :height  height)
-                        (create-image file-name imagemagick-p nil :width width))
-                    ;; Image is smaller than window, just give that back
-                    image))
-                  (t (progn (message "Error: none of the rescaling options matched") image)))
-          ;; No rescale
-          image)))
+  ;; (add-hook 'erc-join-hook 'bitlbee-identify)
+  ;; (defun bitlbee-identify ()
+  ;;   "If we're on the bitlbee server, send the identify command to the &bitlbee channel."
+  ;;   (when (and (string= "127.0.0.1" erc-session-server)
+  ;;              (string= "&bitlbee" (buffer-name)))
+  ;;     (erc-message "PRIVMSG" (format "%s identify %s"
+  ;;                                    (erc-default-target)
+  ;;                                    (password-store-get "IRC/Bitlbee")))))
+
+  (defun my/connect-irc ()
+    (interactive)
+    (erc-tls :server "irc.libera.chat" :port 6697 :nick "lokesh1197"))
+  ;; (erc
+  ;;    :server "127.0.0.1" :port 6667
+  ;;    :nick "daviwil" :password (password-store-get "IRC/Bitlbee")))
+
+  ;; Thanks karthik!
+  ;; (defun erc-image-create-image (file-name)
+  ;;   "Create an image suitably scaled according to the setting of
+  ;; 'ERC-IMAGE-RESCALE."
+  ;;   (let* ((positions (window-inside-absolute-pixel-edges))
+  ;;         (width (- (nth 2 positions) (nth 0 positions)))
+  ;;         (height (- (nth 3 positions) (nth 1 positions)))
+  ;;         (image (create-image file-name))
+  ;;         (dimensions (image-size image t))
+  ;;         (imagemagick-p (and (fboundp 'imagemagick-types) 'imagemagick)))
+  ;;                                         ; See if we want to rescale the image
+  ;;     (if (and erc-image-inline-rescale
+  ;;             (not (image-multi-frame-p image)))
+  ;;         ;; Rescale based on erc-image-rescale
+  ;;         (cond (;; Numeric: scale down to that size
+  ;;               (numberp erc-image-inline-rescale)
+  ;;               (if (> (cdr dimensions) erc-image-inline-rescale)
+  ;;                   (create-image file-name imagemagick-p nil :height erc-image-inline-rescale)
+  ;;                 image))
+  ;;               (;; 'window: scale down to window size, if bigger
+  ;;               (eq erc-image-inline-rescale 'window)
+  ;;               ;; But only if the image is greater than the window size
+  ;;               (if (or (> (car dimensions) width)
+  ;;                       (> (cdr dimensions) height))
+  ;;                   ;; Figure out in which direction we need to scale
+  ;;                   (if (> width height)
+  ;;                       (create-image file-name imagemagick-p nil :height  height)
+  ;;                     (create-image file-name imagemagick-p nil :width width))
+  ;;                 ;; Image is smaller than window, just give that back
+  ;;                 image))
+  ;;               (t (progn (message "Error: none of the rescaling options matched") image)))
+  ;;       ;; No rescale
+  ;;       image)))
 #+end_src
 
 *** Sharing Files with 0x0
@@ -4540,20 +4466,20 @@ I use this nice package from [[https://gitlab.com/willvaughn][nackjicholson]] to
 
 #+end_src
 
-*** Reference
-- https://www.gnu.org/software/emacs/manual/html_mono/erc.html
-- https://www.emacswiki.org/emacs/ErcChannelTracking
-- [[https://www.emacswiki.org/emacs/ErcFilling][Automatic window-width filling]]
-- John Wiegley's ERC config:
-  - https://github.com/jwiegley/dot-emacs/blob/master/lisp/erc-alert.el
-  - Settings: https://github.com/jwiegley/dot-emacs/blob/0f7d2c04ac38857d8e0fb036faedbf84193c8bd4/settings.el#L445
-  - Commands: https://github.com/jwiegley/dot-emacs/blob/f23993cfcb9ca90c289b4214b9bafbf46883bdb4/lisp/erc-macros.el
-
 ** Matrix
+
+[[https://github.com/alphapapa/ement.el][Ement]] is a [[https://matrix.org/][matrix]] client for Emacs.
+[[https://github.com/alphapapa/plz.el][Plz]] is an http library for Emacs with curl as its backend. It is requried for ement.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package matrix-client)
+  ;; (use-package plz
+  ;;   :straight (plz :host github
+  ;;                     :repo "alphapapa/plz.el"))
+
+  ;; (use-package ement
+  ;;   :straight (ement :host github
+  ;;                     :repo "alphapapa/ement.el"))
 
 #+end_src
 
@@ -4654,15 +4580,6 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
 
 #+begin_src emacs-lisp
   ;; (use-package flycheck-ledger :after ledger-mode)
-#+end_src
-
-* TRY
-
-#+begin_src emacs-lisp
-
-  (use-package try
-    :commands try)
-
 #+end_src
 
 * Hydra
@@ -5110,22 +5027,26 @@ Group window-related commands.
 
 * UNSET DEBUGGING
 
-Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/\][Jonathan Bennett's Emacs.org]\]][Jonathan Bennett's Emacs.org]]
+Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/][Jonathan Bennett's Emacs.org]]
 
 #+begin_src emacs-lisp
 
-  ;; (setq debug-on-error nil)
-  ;; (setq debug-on-quit nil)
+  (setq debug-on-error nil)
+  (setq debug-on-quit nil)
 
-  ;; (let ((elapsed (float-time (time-subtract (current-time)
-  ;;                                           emacs-start-time))))
-  ;;   (message "Loading settings...done (%.3fs)" elapsed))
-  ;; (put 'narrow-to-region 'disabled nil)
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading settings...done (%.3fs)" elapsed))
+  (put 'narrow-to-region 'disabled nil)
 
 #+end_src
 
 * TO TRY
 ** TODO Emacs Packages
+:LOGBOOK:
+- Note taken on [2021-10-27 Wed 13:46] \\
+  Weechat Not working
+:END:
 - [ ] evil-snipe
 - [ ] evil-mark-replace
 - [ ] evil-exchange
@@ -5134,6 +5055,7 @@ Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-m
 - [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
 - [ ] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
 - [ ] [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html][Edebug]] (source-level debugger for emacs lisp programs)
+- [X] [[https://github.com/the-kenny/weechat.el][Weechat]] (as an alternative to erc due to sasl)
 ** BACKLOG Get Mail on the fly with imapnotify
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
