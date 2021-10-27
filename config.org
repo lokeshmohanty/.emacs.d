@@ -6,17 +6,17 @@ CHEATSHEET: [[file:cheatsheet.pdf][./cheatsheet.pdf]]
 * INITIALIZE DEBUGGING
 
 Enable Debugging before execution of the config and disable after execution. 
-Taken from [[*[[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/\][Jonathan Bennett's Emacs.org]\]][Jonathan Bennett's Emacs.org]]
+Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/][Jonathan Bennett's Emacs.org]]
 
 #+begin_src emacs-lisp
 
   ;; Required for functions that return functions ( used by custom function to filter tags in org-roam )
   ;; -- lexical-binding: t; --
 
-  ;; (setq debug-on-error t)
-  ;; (setq debug-on-quit t)
+  (setq debug-on-error t)
+  (setq debug-on-quit t)
 
-  ;; (defconst emacs-start-time (current-time))
+  (defconst emacs-start-time (current-time))
 
 #+end_src
 
@@ -258,7 +258,6 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
   (global-auto-revert-mode)
   
 #+end_src
-
 
 * KEY BINDINGS
 ** Helpful Default Keybindings
@@ -670,7 +669,10 @@ Setup evil mode to use vim like keybindings
     ;; (setq evil-want-C-i-jump nil)
     :config
     (evil-mode)
-    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+    ;; (define-key evil-insert-state-map (kbd "C-f") 'evil-normal-state)
+    (general-define-key
+      :states '(insert visual normal)
+      "C-f" 'evil-normal-state)
 
     ;; ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
@@ -1045,16 +1047,18 @@ filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][
 ** Vertico
 #+begin_src emacs-lisp
 
-  (use-package vertico
-    :straight (:files (:defaults "extensions/*"))
-    :init (vertico-mode)
-    :bind (:map vertico-map
-                  ("C-j" . vertico-next)
-                  ("C-k" . vertico-previous)
-                  ("C-f" . vertico-exit)
-                ("C-<backspace>" . vertico-directory-up))
-    :custom (vertico-cycle t)
-    )
+    (use-package vertico
+      :straight (:files (:defaults "extensions/*"))
+      :init (vertico-mode)
+      :bind (:map vertico-map
+                    ("C-j" . vertico-next)
+                    ("C-k" . vertico-previous)
+                    ("DEL" . vertico-directory-delete-char)
+                    ("M-DEL" . vertico-directory-delete-word)
+                    ("C-<backspace>" . vertico-directory-up)
+                    ("C-f" . vertico-quick-insert))
+      :custom (vertico-cycle t)
+      )
 
 #+end_src
 
@@ -1339,7 +1343,7 @@ Easy switching directories. Works great when combined with embark
     :commands (avy-goto-char avy-goto-word-0 avy-goto-word-1 avy-goto-line)
     :init
     (general-define-key
-     :states 'normal
+     :states '(normal visual)
      "F" 'avy-goto-char-timer)
     )
 
@@ -1347,7 +1351,6 @@ Easy switching directories. Works great when combined with embark
     "j"   '(:ignore t :which-key "jump")
     ;; "jj"  '(avy-goto-char :which-key "jump to char")
     ;; "jw"  '(avy-goto-word-0 :which-key "jump to word")
-    "jj"  '(avy-goto-char-timer :which-key "Avy goto char timer")
     "jL"  '(avy-goto-end-of-line :which-key "Avy goto line")
     "jw"  '(avy-goto-word-1 :which-key "jump to word starting with")
     "jl"  '(avy-goto-line :which-key "jump to line")
@@ -3683,10 +3686,6 @@ Run *pkill mu* in case of mu lock error
     :init
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
     :config
-    ;; Load org-mode integration
-    ;; (require 'org-mu4e)
-    ;; (require 'smtpmail)
-
     ;; Refresh mail using isync every 10 minutes
     (setq mu4e-update-interval (* 10 60))
     (setq mu4e-get-mail-command "mbsync -a")
@@ -5232,3 +5231,4 @@ CLOSED: [2021-10-22 Fri 11:38]
 - [ ] [[github.com/nloyola/.emacs.d/blob/master/config.org][Nloyola Emacs Reference]]
 - [ ] [[github.com/emacs-tw/awesome-emacs][Awesome Emacs]]
 - [ ] [[https://opensource.com/article/20/1/emacs-cheat-sheet][Extending Emacs]]
+  
