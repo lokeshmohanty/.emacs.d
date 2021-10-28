@@ -304,6 +304,7 @@ Use =general-define-key= to remap/map evil keybindings
           "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
           "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") 
           "t"    (general-simulate-key "C-x t" :which-key "+tab")
+          "p"    (general-simulate-key "C-x p" :which-key "+project")
           "f"    (general-simulate-key "C-x 5" :which-key "+frame")
           "o"    '(:ignore t :which-key "open")
           "oa"   '(org-agenda :which-key "org-agenda")
@@ -502,8 +503,7 @@ C-w -> Prefix for evil window commands
 
     :custom
     (popper-window-height 15)
-    (popper-group-function #'popper-group-by-projectile)
-    ;; (popper-group-function #'popper-group-by-project)
+    (popper-group-function #'popper-group-by-project)
     (popper-reference-buffers
      '("^\\*eshell\\*"
        "^vterm"
@@ -2408,32 +2408,6 @@ Key bindings
 
 #+end_src
 
-** PROJECTILE
-
-Enable projectile mode
-#+begin_src emacs-lisp
-
-  (use-package projectile
-    ;; :diminish projectile-mode
-    :config (projectile-mode)
-    ;; (projectile-global-mode 1) ;; automatically add projects whose files are accessed
-    :init
-    ;; required to recognise subprojects as projects by projectile
-    (setq projectile-project-root-files #'( ".projectile" )
-          projectile-project-root-files-functions #'(projectile-root-top-down
-                                                     projectile-root-top-down-recurring
-                                                     projectile-root-bottom-up
-                                                     projectile-root-local))
-    ;; (setq projectile-switch-project-action #'projectile-dired)
-    ) 
-  (my/leader-keys
-    "p"   '(projectile-command-map :which-key "projectile"))
-
-#+end_src
-
-Key Bindings
-| SPC p | projectile-command-map |
-
 ** TREEMACS
 
 File tree viewer.
@@ -2449,7 +2423,6 @@ File tree viewer.
 
   ;; Add :after if needed
   (use-package treemacs-evil)
-  (use-package treemacs-projectile)
 
   ;; show hidden files
   ;; (setq-default neo-show-hidden-files t)
@@ -2518,14 +2491,6 @@ window layout.
 #+end_src
 
 ** API Management
-*** JSON mode for json formatting
-
-#+begin_src emacs-lisp
-
-  ;; (use-package json-mode)
-
-#+end_src
-
 *** Restclient
 
 #+begin_src emacs-lisp
@@ -4406,7 +4371,6 @@ with it.
            ("C-c g" . hydra-go-to-file/body)
            ("C-c m" . hydra-magit/body)
            ("C-c o" . hydra-org/body)
-           ("C-c p" . hydra-projectile/body)
            ("C-c s" . hydra-spelling/body)
            ("C-c t" . hydra-tex/body)
            ("C-c u" . hydra-upload/body)
@@ -4698,30 +4662,6 @@ Group Org commands.
 
 #+end_src
 
-** Hydra / Projectile
-
-#+begin_src emacs-lisp
-
-  (pretty-hydra-define hydra-projectile
-    (:hint nil :color teal :quit-key "q" :title (with-faicon "rocket" "Projectile" 1 -0.05))
-    ("Buffers"
-     (("b" projectile-switch-to-buffer "list")
-      ("k" projectile-kill-buffers "kill all")
-      ("S" projectile-save-project-buffers "save all"))
-     "Find"
-     (("d" projectile-find-dir "directory")
-      ("D" projectile-dired "root")
-      ("f" projectile-find-file "file")
-      ("p" consult-projectile "project"))
-     "Other"
-     (("i" projectile-invalidate-cache "reset cache"))
-     "Search"
-     (("r" projectile-replace "replace")
-      ("R" projectile-replace-regexp "regexp replace")
-      ("s" counsel-ripgrep "search"))))
-      
-#+end_src
-
 ** Hydra / Roam
 
 Group =org-roam= commands.
@@ -4904,12 +4844,15 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 :END:
 - [ ] [[https://0x7b2.net/posts/2021/exploring-email-with-emacs/][Goimapnotify]]
 - [ ] [[https://tecosaur.github.io/emacs-config/config.html#mail][Tecosaur mail config]]
-** TODO Replace projectile with project.el
+** DONE Replace projectile with project.el
+CLOSED: [2021-10-28 Thu 16:35]
 :LOGBOOK:
+- State "DONE"       from "TODO"       [2021-10-28 Thu 16:35]
 - State "TODO"       from              [2021-10-24 Sun 10:31]
 :END:
-** TODO Add built-in functions to my work-flow
+** BACKLOG Add built-in functions to my work-flow
 :LOGBOOK:
+- State "BACKLOG"    from "TODO"       [2021-10-28 Thu 16:35]
 - State "TODO"       from              [2021-10-24 Sun 10:31]
 :END:
 * REFERENCES
