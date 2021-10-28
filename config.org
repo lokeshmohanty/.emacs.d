@@ -1028,12 +1028,12 @@ filter with [[https://github.com/Fuco1/dired-hacks/blob/master/dired-narrow.el][
 
 #+begin_src emacs-lisp
 
-  (use-package vterm
-    :after evil-collection
-    :commands vterm
-    :config
-    (setq vterm-max-scrollback 10000)
-    (advice-add 'evil-collection-vterm-insert :before #'vterm-reset-cursor-point))
+  ;; (use-package vterm
+  ;;   :after evil-collection
+  ;;   :commands vterm
+  ;;   :config
+  ;;   (setq vterm-max-scrollback 10000)
+  ;;   (advice-add 'evil-collection-vterm-insert :before #'vterm-reset-cursor-point))
 
 #+end_src
 
