@@ -3374,15 +3374,15 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+end_src
 
 ** Drag and drop into org files
+
 #+begin_src emacs-lisp
+
   ;; Drag and drop images to org files
-  ;; (use-package org-download)
-  ;; (add-hook 'dired-mode-hook 'org-download-enable)
+  (use-package org-download)
+  (setq-default org-download-image-dir "~/Pictures/Emacs")
+  (add-hook 'dired-mode-hook 'org-download-enable)
+
 #+end_src
-
-** Related Packages
-
-- org-wild-notifier
 
 * MAIL MANAGEMENT
 ** Initialization
@@ -3993,7 +3993,6 @@ The current bindings are overwritten by other binding
           elfeed-feeds (quote
                          (("https://www.reddit.com/r/linux.rss" reddit linux)
                           ("https://www.reddit.com/r/commandline.rss" reddit commandline)
-                          ("https://www.reddit.com/r/distrotube.rss" reddit distrotube)
                           ("https://www.reddit.com/r/emacs.rss" reddit emacs)
                           ("https://www.gamingonlinux.com/article_rss.php" gaming linux)
                           ("https://hackaday.com/blog/feed/" hackaday linux)
@@ -4263,22 +4262,20 @@ I use this nice package from [[https://gitlab.com/willvaughn][nackjicholson]] to
 
 #+begin_src emacs-lisp
 
-  ;; (use-package emojify
-  ;;   :hook (after-init . global-emojify-mode))
+  (use-package emojify
+    :hook (after-init . global-emojify-mode))
 
 #+end_src
 
-* Credential Management
+* CREDENTIAL MANAGEMENT
 
 I use [[https://www.passwordstore.org/][pass]] to manage all of my passwords locally.  I also use [[https://github.com/DamienCassou/auth-password-store][auth-source-pass]] as the primary =auth-source= provider so that all passwords are stored in a single place.
 
 #+begin_src emacs-lisp
 
- (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
+  (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
 
-  ;; (use-package password-store
-  ;;   :config
-  ;;   (setq password-store-password-length 12))
+  (use-package password-store)
 
   ;; (use-package auth-source-pass
   ;;   :config
@@ -4369,7 +4366,8 @@ with it.
            ("C-c f" . hydra-flycheck/body)
            ("C-c g" . hydra-go-to-file/body)
            ("C-c m" . hydra-magit/body)
-           ("C-c o" . hydra-org/body)
+           ;; ("C-c o" . hydra-org/body)
+           ("C-c o" . hydra-org-download/body)
            ("C-c s" . hydra-spelling/body)
            ("C-c t" . hydra-tex/body)
            ("C-c u" . hydra-upload/body)
@@ -4394,6 +4392,24 @@ with it.
     (defun with-octicon (icon str &optional height v-adjust face)
       "Display an icon from the GitHub Octicons."
       (s-concat (all-the-icons-octicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str)))
+#+end_src
+
+** Hydra / Org Download
+
+#+begin_src emacs-lisp
+
+  (pretty-hydra-define hydra-org-download
+    (:hint nil :color teal :quit-key "q" :title (with-fileicon "org" "Org Download" 1 -0.05))
+    ("Action"
+     (("c" org-download-clipboard "Capture the image from the clipboard and insert the resulting file")
+      ("d" org-download-delete "Delete inline image link on current line, and the file that it points to")
+      ("d" org-download-edit "Open the image at point for editing.")
+      ("i" org-download-image "Save image at address LINK to ‘org-download--dir’.")
+      ("p" org-download-rename-at-point "Rename image at point.")
+      ("f" org-download-rename-last-file "Rename the last downloaded file saved in your computer.")
+      ("s" org-download-screenshot "Capture screenshot and insert the resulting file.")
+      ("y" org-download-yank "Call ‘org-download-image’ with current kill."))))
+
 #+end_src
 
 ** Hydra / BToggle
@@ -4607,16 +4623,16 @@ Group Org commands.
 
 #+begin_src emacs-lisp
 
-   ;; ;; Configure leader key
-   ;; (evil-leader/set-key-for-mode 'org-mode
-   ;;   "." 'hydra-org-state/body
-   ;;   "t" 'org-todo
-   ;;   "T" 'org-show-todo-tree
-   ;;   "v" 'org-mark-element
-   ;;   "a" 'org-agenda
-   ;;   "c" 'org-archive-subtree
-   ;;   "l" 'evil-org-open-links
-   ;;   "C" 'org-resolve-clocks)
+  ;; ;; Configure leader key
+  ;; (evil-leader/set-key-for-mode 'org-mode
+  ;;   "." 'hydra-org-state/body
+  ;;   "t" 'org-todo
+  ;;   "T" 'org-show-todo-tree
+  ;;   "v" 'org-mark-element
+  ;;   "a" 'org-agenda
+  ;;   "c" 'org-archive-subtree
+  ;;   "l" 'evil-org-open-links
+  ;;   "C" 'org-resolve-clocks)
 
   (pretty-hydra-define hydra-org
     (:hint nil :color teal :quit-key "q" :title (with-fileicon "org" "Org" 1 -0.05))
@@ -4633,31 +4649,31 @@ Group Org commands.
       ("s" org-store-link "store-link")
       ("t" org-show-todo-tree "todo-tree"))))
 
-   (defhydra hydra-org-state ()
-     ;; basic navigation
-     ("i" org-cycle)
-     ("I" org-shifttab)
-     ;; ("h" org-up-element)
-     ;; ("l" org-down-element)
-     ;; ("j" org-forward-element)
-     ;; ("k" org-backward-element)
-     ;; navigating links
-     ("n" org-next-link)
-     ("p" org-previous-link)
-     ("o" org-open-at-point)
-     ;; navigation blocks
-     ("N" org-next-block)
-     ("P" org-previous-block)
-     ;; updates
-     ("." org-ctrl-c-ctrl-c)
-     ("*" org-ctrl-c-star)
-     ("-" org-ctrl-c-minus)
-     ;; change todo state
-     ("H" org-shiftleft)
-     ("L" org-shiftright)
-     ("J" org-shiftdown)
-     ("K" org-shiftup)
-     ("t" org-todo))
+  (defhydra hydra-org-state ()
+    ;; basic navigation
+    ("i" org-cycle)
+    ("I" org-shifttab)
+    ;; ("h" org-up-element)
+    ;; ("l" org-down-element)
+    ;; ("j" org-forward-element)
+    ;; ("k" org-backward-element)
+    ;; navigating links
+    ("n" org-next-link)
+    ("p" org-previous-link)
+    ("o" org-open-at-point)
+    ;; navigation blocks
+    ("N" org-next-block)
+    ("P" org-previous-block)
+    ;; updates
+    ("." org-ctrl-c-ctrl-c)
+    ("*" org-ctrl-c-star)
+    ("-" org-ctrl-c-minus)
+    ;; change todo state
+    ("H" org-shiftleft)
+    ("L" org-shiftright)
+    ("J" org-shiftdown)
+    ("K" org-shiftup)
+    ("t" org-todo))
 
 #+end_src
 
