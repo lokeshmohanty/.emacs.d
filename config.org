@@ -2646,19 +2646,6 @@ system package manager.
   ;;   :mode ("\\.\\(xml\\|xsd\\|wsdl\\)\\'"))
 #+end_src
 
-**** PlantUML
-
-To make my UML diagrams with [[https://plantuml.com/][PlantUML]], I use [[https://github.com/skuro/plantuml-mode][plantuml-mode]]. Make sure you
-[[https://plantuml.com/download][download the PlantUML compiled JAR]] and to indicate the path (e.g.,
-=~/.local/lib/plantuml.jar=) of this JAR file with the =plantuml-jar-path= variable.
-
-#+begin_src emacs-lisp
-  ;; (use-package plantuml-mode
-  ;;   :mode ("\\.\\(plantuml\\|puml\\)\\'")
-  ;;   :custom (plantuml-jar-path
-  ;;            (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
-#+end_src
-
 ** Emmet
 Great for producing HTML and CSS selectors. [[https://github.com/smihica/emmet-mode][Documentation]]
 Key bindings
@@ -2787,7 +2774,7 @@ window layout.
 
 #+begin_src emacs-lisp
 
-  (use-package json-mode)
+  ;; (use-package json-mode)
 
 #+end_src
 
@@ -2819,8 +2806,6 @@ window layout.
 
 * ORG MODE
 
-[[https://orgmode.org/worg/][Documentation]]
-
 ** Tips
 |-------------------------+---------+--------------------------|
 | Commands                | binding | evil normal mode binding |
@@ -2831,6 +2816,30 @@ window layout.
 | =org-todo=                | C-c C-t | t                        |
 | =org-priority=            | C-c ,   |                          |
 |-------------------------+---------+--------------------------|
+
+| C-c C-n | next visible heading       |
+| C-c C-p | prev visible heading       |
+| C-c C-f | next heading same level    |
+| C-c C-b | prev heading same level    |
+| C-c C-u | backward to higher heading |
+
+| C-c C-w | refile region           |
+| C-c ^   | sort same level entries |
+| C-c *   | turn a normal line into a headline |
+
+| C-x n s | narrow buffer to current subtree |
+| C-x n b | narrow buffer to current block   |
+| C-x n w | widen buffer to remove narrowing |
+
+| C-<RET>   | insert new heading     |
+| C-S-<RET> | inert new todo heading |
+
+| M-<LEFT>    | promote heading   |
+| M-<RIGHT>   | demote heading    |
+| M-S-<LEFT>  | promote subtree   |
+| M-S-<RIGHT> | demote subtree    |
+| M-<UP>      | move subtree up   |
+| M-<DOWN>    | move subtree down |
 
 | Keybinding           | Command                  | Description                  |
 |----------------------+--------------------------+------------------------------|
@@ -2892,9 +2901,12 @@ window layout.
     (setq org-ellipsis " ▾"
           org-hide-emphasis-markers t     ;; hide rich text markers      
           org-hide-block-startup nil
+          ;; org-hide-block-startup nil
           org-startup-folded t
           org-cycle-separator-lines 2
           org-capture-bookmark nil
+
+          org-startup-indented t
 
           ;; Org Source indentation
           org-src-fontify-natively t       
@@ -3257,15 +3269,30 @@ This is particularly useful if you use the org-habits module and you are late to
 
 #+begin_src emacs-lisp
 
-  (use-package evil-org
-    :after org
-    :hook ((org-mode . evil-org-mode)
-           (org-agenda-mode . evil-org-mode)
-           (evil-org-mode . (lambda () (evil-org-set-key-theme '(navigation todo insert textobjects additional)))))
-    :config
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys)
-    )
+  ;; (use-package evil-org
+  ;;   :after org
+  ;;   :hook (org-mode . (lambda () evil-org-mode))
+  ;;   :config
+  ;;   (require 'evil-org-agenda)
+  ;;   (evil-org-agenda-set-keys))
+
+  ;; (use-package evil-org
+  ;;   :after org
+  ;;   :hook (
+  ;;          ;; (org-mode . evil-org-mode)
+  ;;          ;; (org-agenda-mode . evil-org-mode)
+  ;;          (evil-org-mode
+  ;;           . (lambda ()
+  ;;               (evil-org-set-key-theme
+  ;;                '(navigation
+  ;;                  todo
+  ;;                  insert
+  ;;                  textobjects
+  ;;                  additional)))))
+  ;;   :config
+  ;;   (require 'evil-org-agenda)
+  ;;   (setq org-special-ctrl-a/e t)
+  ;;   (evil-org-agenda-set-keys))
 
 #+end_src
 
@@ -3956,7 +3983,9 @@ Run *pkill mu* in case of mu lock error
   ;;   "ms" 'mu4e-update-mail-and-index)
 
   ;; Start mu4e in the background so that it syncs mail periodically
-  (mu4e t))
+  ;; Commented to prevent it from starting in all emacs sessions
+  ;; (mu4e t)
+  )
 
 #+end_src
 
@@ -4165,7 +4194,6 @@ Many of the same keybindings work!  Marking keys work on the currently viewed me
 #+end_src
 
 * BROWSER SHORTCUTS
-
 ** Get wiki summary
 
 Occasionally, I would like to have a summary of a term directly on GNU Emacs,
@@ -4299,6 +4327,20 @@ The current bindings are overwritten by other binding
 - /help
 - NickServ, help
 
+** Tracking
+
+#+begin_src emacs-lisp
+
+  (use-package tracking
+    :defer t
+    :config
+    (setq tracking-faces-priorities '(all-the-icons-pink
+                                      all-the-icons-lgreen
+                                      all-the-icons-lblue))
+    (setq tracking-frame-behavior nil))
+
+#+end_src
+
 ** Telegram
 
 #+begin_src emacs-lisp
@@ -4402,7 +4444,7 @@ The current bindings are overwritten by other binding
     (erc-track-enable-keybindings nil)
     (erc-track-visibility 'selected-visible) ; Only use the selected frame for visibility
     (erc-track-exclude-server-buffer t)
-    (erc-fill-column 120)
+    ;; (erc-fill-column 120)
     (erc-fill-function 'erc-fill-static)
     (erc-fill-static-center 20)
     (erc-image-inline-rescale 300)
@@ -4854,6 +4896,17 @@ Group Org commands.
 
 #+begin_src emacs-lisp
 
+   ;; ;; Configure leader key
+   ;; (evil-leader/set-key-for-mode 'org-mode
+   ;;   "." 'hydra-org-state/body
+   ;;   "t" 'org-todo
+   ;;   "T" 'org-show-todo-tree
+   ;;   "v" 'org-mark-element
+   ;;   "a" 'org-agenda
+   ;;   "c" 'org-archive-subtree
+   ;;   "l" 'evil-org-open-links
+   ;;   "C" 'org-resolve-clocks)
+
   (pretty-hydra-define hydra-org
     (:hint nil :color teal :quit-key "q" :title (with-fileicon "org" "Org" 1 -0.05))
     ("Action"
@@ -4869,11 +4922,35 @@ Group Org commands.
       ("s" org-store-link "store-link")
       ("t" org-show-todo-tree "todo-tree"))))
 
+   (defhydra hydra-org-state ()
+     ;; basic navigation
+     ("i" org-cycle)
+     ("I" org-shifttab)
+     ;; ("h" org-up-element)
+     ;; ("l" org-down-element)
+     ;; ("j" org-forward-element)
+     ;; ("k" org-backward-element)
+     ;; navigating links
+     ("n" org-next-link)
+     ("p" org-previous-link)
+     ("o" org-open-at-point)
+     ;; navigation blocks
+     ("N" org-next-block)
+     ("P" org-previous-block)
+     ;; updates
+     ("." org-ctrl-c-ctrl-c)
+     ("*" org-ctrl-c-star)
+     ("-" org-ctrl-c-minus)
+     ;; change todo state
+     ("H" org-shiftleft)
+     ("L" org-shiftright)
+     ("J" org-shiftdown)
+     ("K" org-shiftup)
+     ("t" org-todo))
+
 #+end_src
 
 ** Hydra / Projectile
-
-Group Projectile commands.
 
 #+begin_src emacs-lisp
 
@@ -5058,6 +5135,8 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 * TO TRY
 ** TODO Emacs Packages
 :LOGBOOK:
+- Note taken on [2021-10-27 Wed 21:45] \\
+  Worf: not working
 - Note taken on [2021-10-27 Wed 13:46] \\
   Weechat Not working
 :END:
@@ -5067,9 +5146,10 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 - [ ] [[https://github.com/karthink/popper][popper]] (manage popups)
 - [ ] [[https://github.com/hpdeifel/synosaurus][Thesaurus]]
 - [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
-- [ ] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
+- [X] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
 - [ ] [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html][Edebug]] (source-level debugger for emacs lisp programs)
 - [X] [[https://github.com/the-kenny/weechat.el][Weechat]] (as an alternative to erc due to sasl)
+- [ ] [[https://github.com/alezost/guix.el][Emacs guix]] (manage guix packages from within emacs)
 ** BACKLOG Get Mail on the fly with imapnotify
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
