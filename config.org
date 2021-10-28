@@ -446,23 +446,6 @@ C-w -> Prefix for evil window commands
 
 #+begin_src emacs-lisp
 
-  (my/leader-keys
-    "w"     '(:ignore t :which-key "window")
-    "w c"   '(evil-window-delete :which-key "Close window")
-    "w n"   '(evil-window-new :which-key "New window")
-    "w s"   '(evil-window-split :which-key "Horizontal split window")
-    "w v"   '(evil-window-vsplit :which-key "Vertical split window")
-    ;; Window motions
-    "w h"   '(evil-window-left :which-key "Window left")
-    "w j"   '(evil-window-down :which-key "Window down")
-    "w k"   '(evil-window-up :which-key "Window up")
-    "w l"   '(evil-window-right :which-key "Window right")
-    "w w"   '(evil-window-next :which-key "Goto next window")
-    ;; winner mode
-    ;; "w <left>"  '(winner-undo :which-key "Winner undo")
-    ;; "w <right>" '(winner-redo :which-key "Winner redo")
-    )
-
   (use-package ace-window
     :config
     (global-set-key (kbd "M-o") 'ace-window)
@@ -479,6 +462,19 @@ C-w -> Prefix for evil window commands
     :config
     (winner-mode))
 
+  (my/leader-keys
+    "w"     '(:ignore t :which-key "window")
+    "w c"   '(evil-window-delete :which-key "Close window")
+    "w n"   '(evil-window-new :which-key "New window")
+    "w s"   '(evil-window-split :which-key "Horizontal split window")
+    "w v"   '(evil-window-vsplit :which-key "Vertical split window")
+    ;; Window motions
+    "w h"   '(evil-window-left :which-key "Window left")
+    "w j"   '(evil-window-down :which-key "Window down")
+    "w k"   '(evil-window-up :which-key "Window up")
+    "w l"   '(evil-window-right :which-key "Window right")
+    "w w"   '(evil-window-next :which-key "Goto next window")
+    )
 
 #+end_src
 
@@ -658,6 +654,7 @@ Extensible Vi layer for Emacs
 
 Setup evil mode to use vim like keybindings
 #+begin_src emacs-lisp
+
   (use-package evil
     :after general
     :init      ;; config before the package loads
@@ -666,25 +663,29 @@ Setup evil mode to use vim like keybindings
     (setq evil-vsplit-window-right t)
     (setq evil-split-window-below t)
     ;; (setq evil-want-C-u-scroll t)
-    ;; (setq evil-want-C-i-jump nil)
+    (setq evil-want-C-i-jump nil)
     :config
     (evil-mode)
-    ;; (define-key evil-insert-state-map (kbd "C-f") 'evil-normal-state)
+    (bind-keys* ("M-f" . evil-normal-state))
     (general-define-key
       :states '(insert visual normal)
-      "C-f" 'evil-normal-state)
+      "M-f" 'evil-normal-state)
 
-    ;; ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
-    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+    ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
+    ;; (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    ;; (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
+
+  ;; (with-eval-after-load 'org
+  ;;   (define-key org-mode-map (kbd "M-f") 'evil-normal-state))
 
   (use-package evil-collection
     :after evil
     :config
     (evil-collection-init))
+
 #+end_src
 
 #+begin_src emacs-lisp
