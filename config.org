@@ -2511,41 +2511,47 @@ window layout.
 #+end_src
 
 * ORG MODE
-
 ** Tips
-|-------------------------+---------+--------------------------|
-| Commands                | binding | evil normal mode binding |
-|-------------------------+---------+--------------------------|
-| =org-store-link=          |         |                          |
-| =org-insert-link=         | C-c C-l |                          |
-| =org-toggle-link-dislpay= |         |                          |
-| =org-todo=                | C-c C-t | t                        |
-| =org-priority=            | C-c ,   |                          |
-|-------------------------+---------+--------------------------|
 
-| C-c C-n | next visible heading       |
-| C-c C-p | prev visible heading       |
-| C-c C-f | next heading same level    |
-| C-c C-b | prev heading same level    |
-| C-c C-u | backward to higher heading |
+| =org-toggle-inline-image= | =C-c C-x C-v= |
+#+caption: caption for the figure
+#+name: emacs logo
+[[./emacs-dash.png]]
 
-| C-c C-w | refile region           |
-| C-c ^   | sort same level entries |
-| C-c *   | turn a normal line into a headline |
+Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
 
-| C-x n s | narrow buffer to current subtree |
-| C-x n b | narrow buffer to current block   |
-| C-x n w | widen buffer to remove narrowing |
-
-| C-<RET>   | insert new heading     |
-| C-S-<RET> | inert new todo heading |
-
-| M-<LEFT>    | promote heading   |
-| M-<RIGHT>   | demote heading    |
-| M-S-<LEFT>  | promote subtree   |
-| M-S-<RIGHT> | demote subtree    |
-| M-<UP>      | move subtree up   |
-| M-<DOWN>    | move subtree down |
+| Commands                | binding                            |
+|-------------------------+------------------------------------|
+| =org-store-link=          |                                    |
+| =org-insert-link=         | C-c C-l                            |
+| =org-toggle-link-dislpay= |                                    |
+| =org-todo=                | C-c C-t                            |
+| =org-priority=            | C-c ,                              |
+| =org-footnote-action=     | C-c C-x f                          |
+|-------------------------+------------------------------------|
+| =C-c C-n=                 | next visible heading               |
+| =C-c C-p=                 | prev visible heading               |
+| =C-c C-f=                 | next heading same level            |
+| =C-c C-b=                 | prev heading same level            |
+| =C-c C-u=                 | backward to higher heading         |
+|-------------------------+------------------------------------|
+| =C-c C-w=                 | refile region                      |
+| =C-c ^=                   | sort same level entries            |
+| =C-c *=                   | turn a normal line into a headline |
+|-------------------------+------------------------------------|
+| =C-x n s=                 | narrow buffer to current subtree   |
+| =C-x n b=                 | narrow buffer to current block     |
+| =C-x n w=                 | widen buffer to remove narrowing   |
+|-------------------------+------------------------------------|
+| C-<RET>                 | insert new heading                 |
+| C-S-<RET>               | inert new todo heading             |
+|-------------------------+------------------------------------|
+| M-<LEFT>                | promote heading                    |
+| M-<RIGHT>               | demote heading                     |
+| M-S-<LEFT>              | promote subtree                    |
+| M-S-<RIGHT>             | demote subtree                     |
+| M-<UP>                  | move subtree up                    |
+| M-<DOWN>                | move subtree down                  |
 
 | Keybinding           | Command                  | Description                  |
 |----------------------+--------------------------+------------------------------|
