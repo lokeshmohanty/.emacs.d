@@ -318,49 +318,46 @@ Use =general-define-key= to remap/map evil keybindings
 
 #+begin_src emacs-lisp
 
-  (use-package ibuffer
-    :straight (:type built-in)
-    :config
-    ;; (setq ibuffer-saved-filter-groups
-    ;;       '(("home"
-    ;;   ("emacs-config" (or (filename . ".emacs.d")
-    ;;           (filename . "emacs-config")))
-    ;;         ("martinowen.net" (filename . "martinowen.net"))
-    ;;   ("Org" (or (mode . org-mode)
-    ;;         (filename . "OrgMode")))
-    ;;         ("code" (filename . "code"))
-    ;;   ("Web Dev" (or (mode . html-mode)
-    ;;       (mode . css-mode)))
-    ;;   ("Subversion" (name . "\*svn"))
-    ;;   ("Magit" (name . "\*magit"))
-    ;;   ("ERC" (mode . erc-mode))
-    ;;   ("Help" (or (name . "\*Help\*")
-    ;;         (name . "\*Apropos\*")
-    ;;         (name . "\*info\*"))))))
+  ;; currently trying it instead of ibuffer
+  (use-package bufler
+    ;; :disabled
+    :after (evil evil-collection)
+    :bind (("C-M-j" . bufler-switch-buffer)
+          ("C-M-k" . bufler-workspace-frame-set))
+   :config
+   (evil-collection-define-key 'normal 'bufler-list-mode-map
+     (kbd "RET")   'bufler-list-buffer-switch
+     (kbd "M-RET") 'bufler-list-buffer-peek
+     "D"           'bufler-list-buffer-kill)
+    )
 
-    (setq ibuffer-expert t)
-    (setq ibuffer-show-empty-filter-groups nil))
+  ;; (use-package ibuffer
+  ;;   :straight (:type built-in)
+  ;;   :config
+  ;;   ;; (setq ibuffer-saved-filter-groups
+  ;;   ;;       '(("home"
+  ;;   ;;   ("emacs-config" (or (filename . ".emacs.d")
+  ;;   ;;           (filename . "emacs-config")))
+  ;;   ;;         ("martinowen.net" (filename . "martinowen.net"))
+  ;;   ;;   ("Org" (or (mode . org-mode)
+  ;;   ;;         (filename . "OrgMode")))
+  ;;   ;;         ("code" (filename . "code"))
+  ;;   ;;   ("Web Dev" (or (mode . html-mode)
+  ;;   ;;       (mode . css-mode)))
+  ;;   ;;   ("Subversion" (name . "\*svn"))
+  ;;   ;;   ("Magit" (name . "\*magit"))
+  ;;   ;;   ("ERC" (mode . erc-mode))
+  ;;   ;;   ("Help" (or (name . "\*Help\*")
+  ;;   ;;         (name . "\*Apropos\*")
+  ;;   ;;         (name . "\*info\*"))))))
 
-    (use-package ibuffer-projectile
-      :after projectile)
-      
-    ;; Alternatively, use `ibuffer-projectile-generate-filter-groups' to programmatically 
-    ;; obtain a list of filter groups that you can combine with your own custom groups.
-      
-    (add-hook 'ibuffer-hook
-              (lambda ()
-                (ibuffer-projectile-set-filter-groups)
-                (unless (eq ibuffer-sorting-mode 'alphabetic)
-                  (ibuffer-do-sort-by-alphabetic))))
-
-    ;; (add-hook 'ibuffer-mode-hook
-    ;;     '(lambda ()
-    ;;            (ibuffer-auto-mode 1)
-    ;;             (ibuffer-switch-to-saved-filter-groups "home")))
+  ;;   (setq ibuffer-expert t)
+  ;;   (setq ibuffer-show-empty-filter-groups nil))
 
     (my/leader-keys
       "b"     '(:ignore t :which-key "buffer")
-      "b b"   '(ibuffer :which-key "Ibuffer")
+      ;; "b b"   '(ibuffer :which-key "Ibuffer")
+      "b b"   '(bufler :which-key "buffer list")
       ;; "b s"   '(switch-to-buffer :which-key "switch buffer")
       "b s"   '(consult-buffer :which-key "switch buffer")
       "b f"   '(consult-buffer-other-frame :which-key "open buffer in other frame")
@@ -726,6 +723,7 @@ Minor mode for Emacs that displays the key bindings following your currently ent
   (use-package which-key
     :defer 0.2
     :delight
+    ;; :diminish
     :custom (which-key-idle-delay 0.5)
     :config (which-key-mode))
 
