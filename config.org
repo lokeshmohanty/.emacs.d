@@ -256,16 +256,23 @@ Icon set that can be used with dashboard, dired, ibuffer and other Emacs program
 
 * KEY BINDINGS
 ** Helpful Default Keybindings
-| Key   | Function          |
-|-------+-------------------|
-| C-h k | Describe key      |
-| C-h v | Describe variable |
-| C-h f | Describe function |
-| C-h o | Describe symbol   |
-| C-h b | Describe bindings |
-| C-h m | Describe modes    |
-| C-h P | Describe Package  |
-| C-g   | Kill minibuffer   |
+
+| Key   | Function                       |
+|-------+--------------------------------|
+| =C-h i= | User guide important modes     |
+| =C-h r= | User Manual                    |
+| =C-h a= | Apropos related to a command   |
+| =C-h d= | Apropos for a specific keyword |
+| =C-h k= | Describe key                   |
+| =C-h v= | Describe variable              |
+| =C-h f= | Describe function              |
+| =C-h o= | Describe symbol                |
+| =C-h b= | Describe bindings              |
+| =C-h m= | Describe modes                 |
+| =C-h P= | Describe Package               |
+|-------+--------------------------------|
+| =C-g=   | Kill minibuffer                |
+
 ** Install general.el to define keybindings
 
 Use =general-define-key= to remap/map evil keybindings
@@ -319,45 +326,45 @@ Use =general-define-key= to remap/map evil keybindings
 #+begin_src emacs-lisp
 
   ;; currently trying it instead of ibuffer
-  (use-package bufler
-    ;; :disabled
-    :after (evil evil-collection)
-    :bind (("C-M-j" . bufler-switch-buffer)
-          ("C-M-k" . bufler-workspace-frame-set))
-   :config
-   (evil-collection-define-key 'normal 'bufler-list-mode-map
-     (kbd "RET")   'bufler-list-buffer-switch
-     (kbd "M-RET") 'bufler-list-buffer-peek
-     "D"           'bufler-list-buffer-kill)
-    )
+  ;; (use-package bufler
+  ;;   ;; :disabled
+  ;;   :after (evil evil-collection)
+  ;;   :bind (("C-M-j" . bufler-switch-buffer)
+  ;;         ("C-M-k" . bufler-workspace-frame-set))
+  ;;  :config
+  ;;  (evil-collection-define-key 'normal 'bufler-list-mode-map
+  ;;    (kbd "RET")   'bufler-list-buffer-switch
+  ;;    (kbd "M-RET") 'bufler-list-buffer-peek
+  ;;    "D"           'bufler-list-buffer-kill)
+  ;;   )
 
-  ;; (use-package ibuffer
-  ;;   :straight (:type built-in)
-  ;;   :config
-  ;;   ;; (setq ibuffer-saved-filter-groups
-  ;;   ;;       '(("home"
-  ;;   ;;   ("emacs-config" (or (filename . ".emacs.d")
-  ;;   ;;           (filename . "emacs-config")))
-  ;;   ;;         ("martinowen.net" (filename . "martinowen.net"))
-  ;;   ;;   ("Org" (or (mode . org-mode)
-  ;;   ;;         (filename . "OrgMode")))
-  ;;   ;;         ("code" (filename . "code"))
-  ;;   ;;   ("Web Dev" (or (mode . html-mode)
-  ;;   ;;       (mode . css-mode)))
-  ;;   ;;   ("Subversion" (name . "\*svn"))
-  ;;   ;;   ("Magit" (name . "\*magit"))
-  ;;   ;;   ("ERC" (mode . erc-mode))
-  ;;   ;;   ("Help" (or (name . "\*Help\*")
-  ;;   ;;         (name . "\*Apropos\*")
-  ;;   ;;         (name . "\*info\*"))))))
-
-  ;;   (setq ibuffer-expert t)
-  ;;   (setq ibuffer-show-empty-filter-groups nil))
+  (use-package ibuffer
+    :straight (:type built-in)
+    :config
+    ;; (setq ibuffer-saved-filter-groups
+    ;;       '(("home"
+    ;;   ("emacs-config" (or (filename . ".emacs.d")
+    ;;           (filename . "emacs-config")))
+    ;;         ("martinowen.net" (filename . "martinowen.net"))
+    ;;   ("Org" (or (mode . org-mode)
+    ;;         (filename . "OrgMode")))
+    ;;         ("code" (filename . "code"))
+    ;;   ("Web Dev" (or (mode . html-mode)
+    ;;       (mode . css-mode)))
+    ;;   ("Subversion" (name . "\*svn"))
+    ;;   ("Magit" (name . "\*magit"))
+    ;;   ("ERC" (mode . erc-mode))
+    ;;   ("Help" (or (name . "\*Help\*")
+    ;;         (name . "\*Apropos\*")
+    ;;         (name . "\*info\*"))))))
+    (setq ibuffer-expert t)
+    (setq ibuffer-show-empty-filter-groups nil))
 
     (my/leader-keys
       "b"     '(:ignore t :which-key "buffer")
-      ;; "b b"   '(ibuffer :which-key "Ibuffer")
-      "b b"   '(bufler :which-key "buffer list")
+      "b b"   '(ibuffer :which-key "ibuffer")
+      "b o"   '(ibuffer-other-window :which-key "ibuffer in other window")
+      ;; "b b"   '(bufler :which-key "buffer list")
       ;; "b s"   '(switch-to-buffer :which-key "switch buffer")
       "b s"   '(consult-buffer :which-key "switch buffer")
       "b f"   '(consult-buffer-other-frame :which-key "open buffer in other frame")
@@ -499,35 +506,32 @@ C-w -> Prefix for evil window commands
     (popper-reference-buffers
      '("^\\*eshell\\*"
        "^vterm"
+       "\\*Async Shell Command\\*"
+        ;; +occur-grep-modes-list
+        ;; +man-modes-list
+        ;; messages-buffer-mode
+        ;; "^\\*Warnings\\*$"
+        ;; "^\\*Compile-Log\\*$"
+        ;; "^\\*Matlab Help\\*"
+        ;; "^\\*Messages\\*$"
+        ;; "^\\*Backtrace\\*"
+        ;; "^\\*evil-registers\\*"
+        ;; "^\\*Apropos"
+        ;; "^Calc:"
+        ;; "^\\*TeX errors\\*"
+        ;; "^\\*ielm\\*"
+        ;; "^\\*TeX Help\\*"
+        ;; "\\*Shell Command Output\\*"
+        ;; "\\*Completions\\*"
+        ;; "\\*scratch\\*"
+        ;; "[Oo]utput\\*"
+       apropos-mode
        help-mode
        helpful-mode
        compilation-mode))
     :init
-    ;; (setq popper-reference-buffers
-    ;;  (append +help-modes-list
-    ;;          +repl-modes-list
-    ;;          +occur-grep-modes-list
-    ;;          +man-modes-list
-    ;;          '(Custom-mode
-    ;;            (compilation-mode . hide)
-    ;;            messages-buffer-mode)
-    ;;          '(("^\\*Warnings\\*$" . hide)
-    ;;            ("^\\*Compile-Log\\*$" . hide)
-    ;;            "^\\*Matlab Help\\*"
-    ;;            "^\\*Messages\\*$"
-    ;;            "^\\*Backtrace\\*"
-    ;;            "^\\*evil-registers\\*"
-    ;;            "^\\*Apropos"
-    ;;            "^Calc:"
-    ;;            "^\\*TeX errors\\*"
-    ;;            "^\\*ielm\\*"
-    ;;            "^\\*TeX Help\\*"
-    ;;            "\\*Shell Command Output\\*"
-    ;;            ("\\*Async Shell Command\\*" . hide)
-    ;;            "\\*Completions\\*"
-    ;;            ;; "\\*scratch\\*"
-    ;;            "[Oo]utput\\*")))
-    (require 'popper) ;; Needed because I disabled autoloads
+    ;; Needed because I disabled autoloads
+    (require 'popper)
     (popper-mode 1))
 
 
@@ -664,10 +668,11 @@ Setup evil mode to use vim like keybindings
       "M-f" 'evil-normal-state)
 
     ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
-    ;; (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-    ;; (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'erc-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
 
   ;; (with-eval-after-load 'org
@@ -4362,7 +4367,7 @@ with it.
            ("C-c T" . hydra-tool/body)
            ("C-c b" . hydra-btoggle/body)
            ("C-c c" . hydra-clock/body)
-           ("C-c e" . hydra-circe/body)
+           ("C-c e" . hydra-erc/body)
            ("C-c f" . hydra-flycheck/body)
            ("C-c g" . hydra-go-to-file/body)
            ("C-c m" . hydra-magit/body)
