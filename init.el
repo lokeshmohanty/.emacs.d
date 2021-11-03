@@ -1,8 +1,20 @@
+;;; init.el --- Intial config for Emacs  -*- lexical-binding:t -*-
+
+;;; Commentary:
+
+;;; The intial steps of configuration are handled here
+;;; Disable package.el, and enable straight.el
+;;; Use use-package for package configuration
+;;; Require org from straight.el before it gets pulled from built-in
+;;; Convert config.org to config.el and load it
+
 ;; Use straight.el instead of package.el
 (setq package-enable-at-startup nil)
 
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
+(defvar straight-repository-branch) ;; to prevent warning from the below line
+(setq straight-repository-branch "develop")
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 5))
@@ -15,10 +27,13 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+
 ;; Always use straight to install on systems other than Linux
 (setq straight-use-package-by-default t)
 
-;; Use straight.el for use-package expressions
+
+;; (defvar straight-use-package)
+;; (defvar use-package)
 (straight-use-package 'use-package)
 
 (use-package org
