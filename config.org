@@ -494,6 +494,19 @@ C-w -> Prefix for evil window commands
 
 #+begin_src emacs-lisp
 
+  ;; Returns the parent directory containing a .project file, if any,
+  ;; to override the standard project detection logic when needed.
+  (defun my-project-override (dir)
+    (let ((override (locate-dominating-file dir ".project")))
+      (if override
+          (cons 'vc override)
+        nil)))
+
+  (use-package project
+    ;; Cannot use :hook because 'project-find-functions does not end in -hook
+    :config
+    (add-hook 'project-find-functions #'my-project-override))
+
   (use-package popper
     :straight (popper :host github
                       :repo "karthink/popper"
