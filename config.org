@@ -77,6 +77,7 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 
 ** Update path to bash environment path
 
+This sources ="~/.bashrc"= and then sets the path
 #+begin_src emacs-lisp
 
   (let ((path (shell-command-to-string "source <(grep -v bind ~/.bashrc); echo -n $PATH")))
@@ -158,6 +159,7 @@ It increases runtime performance
   ;; Disable line numbers for some modes
   (dolist (mode '(vterm-mode-hook
                   treemacs-mode-hook
+                  erc-mode-hook
                   eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
@@ -196,10 +198,13 @@ You can test themes by using the counsel-load-theme.
 #+begin_src emacs-lisp
 
   ;; Fonts
-  ;; (set-frame-font "Inconsolata 11" nil t) ;; Doesn't have italic font
-  (set-frame-font "Source Code Pro 10" nil t)
-  ;; (set-frame-font "Mononoki 12" nil t)
-  ;; (set-frame-font "Fantasque Sans 12" nil t)
+  ;; condition-case is used to ignore error if font not found
+  (condition-case nil
+    ;; (set-frame-font "Inconsolata 11" nil t) ;; Doesn't have italic font
+    (set-frame-font "Source Code Pro 10" nil t)
+    ;; (set-frame-font "Mononoki 12" nil t)
+    ;; (set-frame-font "Fantasque Sans 12" nil t)
+  (error nil))
 
   ;; Makes commented text and keywords italics.
   ;; This is working in emacsclient but not emacs.
@@ -316,7 +321,7 @@ Use =general-define-key= to remap/map evil keybindings
           "oe"   '(eshell :which-key "eshell")
           "ot"   '(vterm :which-key "vterm")
           "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org"))))
+          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config"))
         )
 
 #+end_src
@@ -505,26 +510,27 @@ C-w -> Prefix for evil window commands
     (popper-group-function #'popper-group-by-project)
     (popper-reference-buffers
      '("^\\*eshell\\*"
-       "^vterm"
        "\\*Async Shell Command\\*"
-        ;; +occur-grep-modes-list
-        ;; +man-modes-list
-        ;; messages-buffer-mode
-        ;; "^\\*Warnings\\*$"
-        ;; "^\\*Compile-Log\\*$"
-        ;; "^\\*Matlab Help\\*"
-        ;; "^\\*Messages\\*$"
-        ;; "^\\*Backtrace\\*"
-        ;; "^\\*evil-registers\\*"
-        ;; "^\\*Apropos"
-        ;; "^Calc:"
-        ;; "^\\*TeX errors\\*"
-        ;; "^\\*ielm\\*"
-        ;; "^\\*TeX Help\\*"
-        ;; "\\*Shell Command Output\\*"
-        ;; "\\*Completions\\*"
-        ;; "\\*scratch\\*"
-        ;; "[Oo]utput\\*"
+       ;; +occur-grep-modes-list
+       ;; +man-modes-list
+       ;; messages-buffer-mode
+       ;; "^\\*Warnings\\*$"
+       ;; "^\\*Compile-Log\\*$"
+       ;; "^\\*Matlab Help\\*"
+       ;; "^\\*Messages\\*$"
+       ;; "^\\*Backtrace\\*"
+       ;; "^\\*evil-registers\\*"
+       ;; "^\\*Apropos"
+       ;; "^Calc:"
+       ;; "^\\*TeX errors\\*"
+       ;; "^\\*ielm\\*"
+       ;; "^\\*TeX Help\\*"
+       ;; "\\*Shell Command Output\\*"
+       ;; "\\*Completions\\*"
+       ;; "\\*scratch\\*"
+       ;; "[Oo]utput\\*"
+       vterm-mode
+       shell-mode
        apropos-mode
        help-mode
        helpful-mode
@@ -4958,4 +4964,5 @@ CLOSED: [2021-10-22 Fri 11:38]
 - [ ] [[github.com/nloyola/.emacs.d/blob/master/config.org][Nloyola Emacs Reference]]
 - [ ] [[github.com/emacs-tw/awesome-emacs][Awesome Emacs]]
 - [ ] [[https://opensource.com/article/20/1/emacs-cheat-sheet][Extending Emacs]]
+  
   
