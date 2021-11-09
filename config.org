@@ -4612,16 +4612,26 @@ The current bindings are overwritten by other binding
 
   ;; (advice-add 'exwm-workspace-switch :before #'dw/before-exwm-workspace-switch)
 
-  ;; (use-package telega
-  ;;   :commands telega
-  ;;   :config
-  ;;   (setq telega-user-use-avatars nil
-  ;;         telega-use-tracking-for '(any pin unread)
-  ;;         telega-chat-use-markdown-formatting t
-  ;;         telega-emoji-use-images t
-  ;;         telega-completing-read-function #'ivy-completing-read
-  ;;         telega-msg-rainbow-title nil
-  ;;         telega-chat-fill-column 75))
+  (use-package telega
+    :straight nil
+    :commands telega
+    :config
+    (setq telega-user-use-avatars nil
+          telega-use-tracking-for '(any pin unread)
+          telega-chat-use-markdown-formatting t
+          telega-emoji-use-images t
+          telega-completing-read-function #'ivy-completing-read
+          telega-msg-rainbow-title nil
+          telega-chat-fill-column 75)
+  )
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  "emacs-telega"
 
 #+end_src
 
@@ -4787,7 +4797,7 @@ I use this nice package from [[https://gitlab.com/willvaughn][nackjicholson]] to
 
 #+end_src
 
-* Emoji
+* EMOJI
 
 | emojify-apropos-copy-emoji      | Copy the emoji being displayed at current line in apropos results     |
 | emojify-apropos-describe-emoji  | Copy the emoji being displayed at current line in apropos results     |
@@ -4853,6 +4863,7 @@ exist, some of which are open-source and proprietary (e.g., [[https://www.younee
 recommended format.
 
 #+begin_src emacs-lisp
+
   ;; (use-package ledger-mode
   ;;   :ensure-system-package (ledger . "yay -S --noconfirm ledger")
   ;;   :mode ("\\.\\(dat\\|ledger\\)\\'")
@@ -4925,13 +4936,13 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 - [ ] evil-snipe
 - [ ] evil-mark-replace
 - [ ] evil-exchange
-- [ ] [[https://github.com/karthink/popper][popper]] (manage popups)
+- [X] [[https://github.com/karthink/popper][popper]] (manage popups)
 - [ ] [[https://github.com/hpdeifel/synosaurus][Thesaurus]]
 - [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
 - [X] [[https://github.com/abo-abo/worf][Worf]] (vi like keybindings for speed org file management)
 - [ ] [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html][Edebug]] (source-level debugger for emacs lisp programs)
 - [X] [[https://github.com/the-kenny/weechat.el][Weechat]] (as an alternative to erc due to sasl)
-- [ ] [[https://github.com/alezost/guix.el][Emacs guix]] (manage guix packages from within emacs)
+- [X] [[https://github.com/alezost/guix.el][Emacs guix]] (manage guix packages from within emacs)
 ** BACKLOG Get Mail on the fly with imapnotify
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
