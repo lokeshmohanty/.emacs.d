@@ -4134,6 +4134,12 @@ Run *pkill mu* in case of mu lock error
 
 #+begin_src emacs-lisp
 
+  (defun my/mu4e-server ()
+    "Start a server named other for mail and chat"
+    (interactive)
+    (let ((server-name "other"))
+      (server-start)))
+
   (defun my-mu4e-choose-signature ()
     "Insert one of a number of signatures"
     (interactive)
