@@ -4283,18 +4283,20 @@ Run *pkill mu* in case of mu lock error
 *** Mu4e Alerts
 
 #+begin_src emacs-lisp
-  (use-package mu4e-alert
-    :hook ((after-init . mu4e-alert-enable-mode-line-display)
-           (after-init . mu4e-alert-enable-notifications))
-    :config 
-    ;; Show unread emails from all inboxes
-    ;; (setq mu4e-alert-interesting-mail-query my/mu4e-inbox-query)
 
-    ;; Show notifications for mails already notified
-    ;; (setq mu4e-alert-notify-repeated-mails nil)
+  ;; (use-package mu4e-alert
+  ;;   :hook ((after-init . mu4e-alert-enable-mode-line-display)
+  ;;          (after-init . mu4e-alert-enable-notifications))
+  ;;   :config 
+  ;;   ;; Show unread emails from all inboxes
+  ;;   ;; (setq mu4e-alert-interesting-mail-query my/mu4e-inbox-query)
 
-    ;; Set notify-send for alert
-    (mu4e-alert-set-default-style 'libnotify))
+  ;;   ;; Show notifications for mails already notified
+  ;;   ;; (setq mu4e-alert-notify-repeated-mails nil)
+
+  ;;   ;; Set notify-send for alert
+  ;;   (mu4e-alert-set-default-style 'libnotify)
+  ;;   (mu4e-alert-enable-notifications))
 
 #+end_src
 
