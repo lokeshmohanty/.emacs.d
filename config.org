@@ -4165,12 +4165,11 @@ Run *pkill mu* in case of mu lock error
 #+begin_src emacs-lisp
 
   ;; setup some handy shortcuts
-  ;; you can quickly switch to your Inbox -- press ``ji''
-  ;; then, when you want archive some messages, move them to
-  ;; the 'All Mail' folder by pressing ``ma''.
   (setq mu4e-maildir-shortcuts
         '(("/lokesh-gmail/Inbox"      . ?g)
           ("/lokesh-yahoo/Inbox"      . ?y)
+          ("/befreier-gmail/Inbox"    . ?b)
+          ("/ineffable-gmail/Inbox"   . ?i)
           ("/office-arc/Inbox"        . ?w)
           ("/office-arc/Sent Items"   . ?s)))
 
