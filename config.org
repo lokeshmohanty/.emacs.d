@@ -320,6 +320,7 @@ Use =general-define-key= to remap/map evil keybindings
           "om"   '(mu4e :which-key "mu4e")
           "oe"   '(eshell :which-key "eshell")
           "ot"   '(vterm :which-key "vterm")
+          "op"   '(prodigy :which-key "prodigy")
           "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
           "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config"))
         )
@@ -522,8 +523,7 @@ C-w -> Prefix for evil window commands
     (popper-window-height 15)
     (popper-group-function #'popper-group-by-project)
     (popper-reference-buffers
-     '("^\\*eshell\\*"
-       "\\*Async Shell Command\\*"
+     '("\\*Async Shell Command\\*"
        ;; +occur-grep-modes-list
        ;; +man-modes-list
        ;; messages-buffer-mode
@@ -544,6 +544,7 @@ C-w -> Prefix for evil window commands
        ;; "[Oo]utput\\*"
        vterm-mode
        shell-mode
+       eshell-mode
        apropos-mode
        help-mode
        helpful-mode
@@ -1846,6 +1847,56 @@ Easy switching directories. Works great when combined with embark
     "jK"  '(avy-kill-region :which-key "Avy kill region")
     "jp"  '(avy-kill-ring-save-region :which-key "Avy copy as kill")
     )
+
+#+end_src
+
+* PRODIGY
+
+[[https://github.com/rejeep/prodigy.el][prodigy]]
+[[https://gitlab.com/shackra/goimapnotify][goimapnotify]]
+
+#+begin_src emacs-lisp
+
+  (use-package prodigy
+    :init
+    (prodigy-define-tag
+      :name 'email
+      :ready-message "Checking Email using IMAP IDLE. Ctrl-C to shutdown.")
+    (prodigy-define-tag
+      :name 'desktop
+      :ready-message "Desktop services. Ctrl-C to shutdown.")
+    (prodigy-define-service
+      :name "lokesh-gmail-imap"
+      :command "goimapnotify"
+      :args (list "-conf" (expand-file-name "goimapnotify/lokesh-gmail.json" (getenv "XDG_CONFIG_HOME")))
+      :tags '(email)
+      :kill-signal 'sigkill)
+    (prodigy-define-service
+      :name "lokesh-yahoo-imap"
+      :command "goimapnotify"
+      :args (list "-conf" (expand-file-name "goimapnotify/lokesh-yahoo.json" (getenv "XDG_CONFIG_HOME")))
+      :tags '(email)
+      :kill-signal 'sigkill)
+    (prodigy-define-service
+      :name "office-arc-imap"
+      :command "goimapnotify"
+      :args (list "-conf" (expand-file-name "goimapnotify/office-arc.json" (getenv "XDG_CONFIG_HOME")))
+      :tags '(email)
+      :kill-signal 'sigkill)
+    (prodigy-define-service
+      :name "random-wallpaper-every-10-min"
+      :command "watch"
+      :args (list "-n" "600" "feh --randomize --bg-fill ~/Pictures/Wallpapers/*")
+      :tags '(desktop)
+      :kill-signal 'sigkill))
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  "go-gitlab.com-shackra-goimapnotify"
 
 #+end_src
 
@@ -3956,9 +4007,8 @@ Run *pkill mu* in case of mu lock error
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
     :config
     ;; Refresh mail using isync every 10 minutes
-    (setq mu4e-update-interval (* 10 60))
-    (setq mu4e-get-mail-command "mbsync -a")
-    ;; (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a")
+    (setq mu4e-update-interval (* 15 60))
+    (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a")
     (setq mu4e-maildir "~/Maildir")
 
     ;; Make sure that moving a message (like to Trash) causes the
@@ -4947,14 +4997,8 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
 :END:
-- [ ] [[https://0x7b2.net/posts/2021/exploring-email-with-emacs/][Goimapnotify]]
+- [X] [[https://0x7b2.net/posts/2021/exploring-email-with-emacs/][Goimapnotify]]
 - [ ] [[https://tecosaur.github.io/emacs-config/config.html#mail][Tecosaur mail config]]
-** DONE Replace projectile with project.el
-CLOSED: [2021-10-28 Thu 16:35]
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2021-10-28 Thu 16:35]
-- State "TODO"       from              [2021-10-24 Sun 10:31]
-:END:
 ** BACKLOG Add built-in functions to my work-flow
 :LOGBOOK:
 - State "BACKLOG"    from "TODO"       [2021-10-28 Thu 16:35]
