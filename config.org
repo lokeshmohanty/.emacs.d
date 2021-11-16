@@ -4989,58 +4989,85 @@ I use [[https://www.passwordstore.org/][pass]] to manage all of my passwords loc
 
 * Money Management
 
-Good money management is a skill to be acquired as soon as possible. Fortunately
-for us, [[https://www.ledger-cli.org/][Ledger]] allows you to have a double-entry accounting system directly from
-the UNIX command line. To use Ledger with GNU Emacs, you need to the [[https://github.com/ledger/ledger-mode][ledger-mode]]
-package. However, do not forget to install the =ledger= package with your system
-package manager.
+[[https://www.ledger-cli.org/][Ledger]] allows you to have a double-entry accounting system. It also helps in commodity tracking. [[https://github.com/ledger/ledger-mode][Ledger-mode]] package helps to edit these in emacs.
+  
+Tips from [[https://plaintextaccounting.org/][plain text accounting]]
 
-I discovered Ledger as a student and learning how to manage time and expenses at
-the same time was too much. I decided for the time being to briefly learn Ledger
-and focus more on time management. One issue I had with Ledger was the lack of
-support from my bank to export my transactions into a file type that Ledger
-could understand. Unfortunately, since I often made bank transfers, encoding
-each payment by hand was a pain. For the curious people, alternatives to Ledger
-exist, some of which are open-source and proprietary (e.g., [[https://www.youneedabudget.com/][YNAB]]).
+- Virtual transactions -> ledger within an account
+- Stock lot pricint -> designate basis or ot date
+- Command Directives -> default accounts, etc.
+- Balance assertions -> declare a balance at a date
+- Asset allocation -> see bond/equity allocation
 
-*NOTE:* by default, Ledger uses the [[ https://xkcd.com/1179/][ISO 8601]] format to write dates, which is the
-recommended format.
+- Budgeting
+- Forecasting
+- Time Keeping
+
+| C-c C-k           | copy transaction                             |
+| C-c C-b           | calc buffer (y -> yang value at top of stack |
+| C-c C-c / C-c C-e | clear transaction                            |
+| C-c C-d           | delete transaction                           |
+|-------------------+----------------------------------------------|
+| C-c C-s           | sort transactions                            |
+|                   | Mark Sort Begining                           |
+|                   | Mark Sort End                                |
+|-------------------+----------------------------------------------|
+| C-c C-f           | narrow to regex                              |
+| C-c C-g           | refresh the narrowed view                    |
+
+- =ledger-copy-transaction-insert-blank-line-after=
+  
+I use [[https://hledger.org/import-csv.html][hledger]] to import .csv files using a .csv.rules file
+*Eg*: import =backup.csv= by running =hledger -f backup.csv print=
+
 
 #+begin_src emacs-lisp
 
-  ;; (use-package ledger-mode
-  ;;   :ensure-system-package (ledger . "yay -S --noconfirm ledger")
-  ;;   :mode ("\\.\\(dat\\|ledger\\)\\'")
-  ;;   :preface
-  ;;   (defun my/ledger-save ()
-  ;;     "Clean the ledger buffer at each save."
-  ;;     (interactive)
-  ;;     (ledger-mode-clean-buffer)
-  ;;     (save-buffer))
-  ;;   :bind (:map ledger-mode-map
-  ;;               ("C-x C-s" . my/ledger-save))
-  ;;   :hook (ledger-mode . ledger-flymake-enable)
-  ;;   :custom
-  ;;   (ledger-clear-whole-transactions t)
-  ;;   (ledger-reconcile-default-commodity "EUR")
-  ;;   (ledger-reports
-  ;;    '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
-  ;;      ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
-  ;;      ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
-  ;;      ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
-  ;;      ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
-  ;;      ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
-  ;;      ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
-  ;;      ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
-  ;;      ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
-  ;;    (ledger-report-use-header-line nil)))
+  (use-package ledger-mode
+    :straight nil
+    :preface
+    (defun my/ledger-save ()
+      "Clean the ledger buffer at each save."
+      (interactive)
+      (ledger-mode-clean-buffer)
+      (save-buffer))
+    :bind (:map ledger-mode-map
+                ("C-x C-s" . my/ledger-save))
+    :hook (ledger-mode . ledger-flymake-enable)
+    :custom
+    ;; (ledger-clear-whole-transactions t)
+    (ledger-reconcile-default-commodity "INR")
+    ;; (ledger-reports
+    ;;  '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
+    ;;    ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
+    ;;    ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
+    ;;    ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
+    ;;    ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
+    ;;    ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
+    ;;    ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
+    ;;    ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
+    ;;    ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
+    ;;  (ledger-report-use-header-line nil))
+    )
+
 #+end_src
 
 Finally, to provides a =flychecker= checker for Ledger files, you can use
 [[https://github.com/purcell/flycheck-ledger][flycheck-ledger]].
 
 #+begin_src emacs-lisp
+
   ;; (use-package flycheck-ledger :after ledger-mode)
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  "ledger"
+  "emacs-ledger"
+
 #+end_src
 
 * GUIX
