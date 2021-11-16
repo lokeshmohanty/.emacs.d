@@ -5080,6 +5080,18 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
 
 #+end_src
 
+* CUSTOM MACROS
+
+- =name-last-kbd-macro=
+- =insert-last-kbd-macro=
+
+#+begin_src emacs-lisp
+
+  (load-file (expand-file-name
+              "temporary.el" user-emacs-directory))
+
+#+end_src
+
 * UNSET DEBUGGING
 
 Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-2019/][Jonathan Bennett's Emacs.org]]
