@@ -2509,11 +2509,11 @@ _d_: date        ^ ^              ^ ^
   ;;             :override #'my/format-summary-in-buffer)
 )
 
-(use-package thesaurus
-  :custom
-  (thesaurus-prompt-mechanism 'dropdown-list)
-  :config
-  (setq thesaurus-bhl-api-key "8bf382e14f4a876ceebc0a6a93cfe499"))
+;; (use-package thesaurus
+;;   :custom
+;;   (thesaurus-prompt-mechanism 'dropdown-list)
+;;   :config
+;;   (setq thesaurus-bhl-api-key "8bf382e14f4a876ceebc0a6a93cfe499"))
 
 (use-package powerthesaurus)
 

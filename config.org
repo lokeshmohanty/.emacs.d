@@ -4608,6 +4608,20 @@ allows this behavior.
 
 #+end_src
 
+** Thesaurus
+
+#+begin_src emacs-lisp
+
+  ;; (use-package thesaurus
+  ;;   :custom
+  ;;   (thesaurus-prompt-mechanism 'dropdown-list)
+  ;;   :config
+  ;;   (setq thesaurus-bhl-api-key "8bf382e14f4a876ceebc0a6a93cfe499"))
+
+  (use-package powerthesaurus)
+
+#+end_src
+
 * SHARING
 ** Webpaste
 
