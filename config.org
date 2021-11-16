@@ -1,5 +1,6 @@
 #+TITLE: My Emacs Config
 #+AUTHOR: Lokesh Mohanty
+#+PROPERTY: header-args:emacs-lisp :tangle init.el
 
 CHEATSHEET: [[file:cheatsheet.pdf][./cheatsheet.pdf]]
 
@@ -11,17 +12,101 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 #+begin_src emacs-lisp
 
   ;; Required for functions that return functions ( used by custom function to filter tags in org-roam )
-  ;; -- lexical-binding: t; --
+  ;; -*- lexical-binding: t; -*-
 
   (setq debug-on-error t)
   (setq debug-on-quit t)
 
-  (defconst emacs-start-time (current-time))
+  ;; (defconst emacs-start-time (current-time))
 
 #+end_src
 
+* STARTUP PERFORMANCE
+** Reduce Garbage Collection Frequency
+
+Make startup faster by reducing the frequency of garbage collection and then use a hook to measure Emacs startup time.
+
+Also, turn on =lexical-binding= for the init file!
+
+#+begin_src emacs-lisp
+
+  ;; The default is 800 kilobytes.  Measured in bytes.
+  (setq gc-cons-threshold (* 50 1000 1000))
+
+  ;; Profile emacs startup
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (message "*** Emacs loaded in %s with %d garbage collections."
+                       (format "%.2f seconds"
+                               (float-time
+                                (time-subtract after-init-time before-init-time)))
+                       gcs-done)))
+
+#+end_src
+
+*** Garbage Collection
+
+Reduce the frequency of garbage collection
+
+#+begin_src emacs-lisp
+  ;; Using garbage magic hack.
+  ;; (use-package gcmh
+  ;;   :config
+  ;;   (gcmh-mode 1))
+  ;; ;; Setting garbage collection threshold
+  ;; (setq gc-cons-threshold 402653184
+  ;;       gc-cons-percentage 0.6)
+
+  ;; ;; Profile emacs startup
+  ;; (add-hook 'emacs-startup-hook
+  ;;           (lambda ()
+  ;;             (message "*** Emacs loaded in %s with %d garbage collections."
+  ;;                      (format "%.2f seconds"
+  ;;                              (float-time
+  ;;                               (time-subtract after-init-time before-init-time)))
+  ;;                      gcs-done)))
+
+  ;; Silence compiler warnings as they can be pretty disruptive (setq comp-async-report-warnings-errors nil)
+#+end_src
+
+Decrease garbase collection thresold to increase frequency but decrease the total time taken.
+It increases runtime performance
+
+#+begin_src emacs-lisp
+  ;; Make gc pauses faster by decreasing the threshold.
+  ;; (setq gc-cons-threshold (* 2 1000 1000))
+#+end_src
+
+** Native Compilation
+
+I've started experimenting with the =native-comp= branch of Emacs for increased performance.  Here are some settings to tweak the behavior slightly:
+
+#+begin_src emacs-lisp
+
+  ;; Silence compiler warnings as they can be pretty disruptive
+  ;; (setq native-comp-async-report-warnings-errors nil)
+
+  ;; ;; Set the right directory to store the native comp cache
+  ;; (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+
+#+end_src
+
+*** Native Compile
+
+#+begin_src emacs-lisp
+  ;; ;; Silence compiler warnings as they can be pretty disruptive
+  ;; ;; (setq native-comp-deferred-compilation-deny-list nil)
+  ;; (if (boundp 'comp-deferred-compilation)
+  ;;     (setq comp-deferred-compilation nil)
+  ;;   (setq native-comp-deferred-compilation nil))
+  ;; ;; In noninteractive sessions, prioritize non-byte-compiled source files to
+  ;; ;; prevent the use of stale byte-code. Otherwise, it saves us a little IO time
+  ;; ;; to skip the mtime checks on every *.elc file.
+  ;; (setq load-prefer-newer noninteractive)
+#+end_src
+
 * PROGRAMS TO LOAD FIRST
-** Package Management with Straight (moved to init.el to load before org)
+** Package Management with Straight
 
 - Clean up unused repos with =straight-remove-unused-repos=
  
@@ -40,25 +125,46 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 
   ;; (setq package-enable-at-startup nil)
 
-  ;; ;; Bootstrap straight.el
-  ;; (defvar bootstrap-version)
-  ;; (let ((bootstrap-file
-  ;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-  ;;       (bootstrap-version 5))
-  ;;   (unless (file-exists-p bootstrap-file)
-  ;;     (with-current-buffer
-  ;;         (url-retrieve-synchronously
-  ;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-  ;;          'silent 'inhibit-cookies)
-  ;;       (goto-char (point-max))
-  ;;       (eval-print-last-sexp)))
-  ;;   (load bootstrap-file nil 'nomessage))
+  ;; Bootstrap straight.el
+  (defvar bootstrap-version)
+  (setq straight-repository-branch "develop")
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 
-  ;; ;; Always use straight to install on systems other than Linux
-  ;; (setq straight-use-package-by-default t)
+  ;; Always use straight to install on systems other than Linux
+  (setq straight-use-package-by-default t)
 
-  ;; ;; Use straight.el for use-package expressions
-  ;; (straight-use-package 'use-package)
+  ;; Use straight.el for use-package expressions
+  (straight-use-package 'use-package)
+
+#+end_src
+
+** Use custom.el to for emacs custom configuration
+
+#+begin_src emacs-lisp
+
+  ;; call it early to prevent use of built-in org mode
+  (use-package org
+    :straight org-contrib)
+
+  ;; (org-babel-load-file
+  ;;  (expand-file-name
+  ;;   "config.org"
+  ;;   user-emacs-directory))
+
+  ;; Required if using package.el
+  (setq custom-file (concat user-emacs-directory "custom.el"))
+  (when (file-exists-p custom-file)
+    (load custom-file))
 
 #+end_src
 
@@ -86,53 +192,6 @@ This sources ="~/.bashrc"= and then sets the path
           (append
            (split-string-and-unquote path ":")
            exec-path)))
-#+end_src
-
-* STARTUP PERFORMANCE
-** Garbage Collection
-
-Reduce the frequency of garbage collection
-
-#+begin_src emacs-lisp
-  ;; Using garbage magic hack.
-  (use-package gcmh
-    :config
-    (gcmh-mode 1))
-  ;; Setting garbage collection threshold
-  (setq gc-cons-threshold 402653184
-        gc-cons-percentage 0.6)
-
-  ;; Profile emacs startup
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (message "*** Emacs loaded in %s with %d garbage collections."
-                       (format "%.2f seconds"
-                               (float-time
-                                (time-subtract after-init-time before-init-time)))
-                       gcs-done)))
-
-  ;; Silence compiler warnings as they can be pretty disruptive (setq comp-async-report-warnings-errors nil)
-#+end_src
-
-Decrease garbase collection thresold to increase frequency but decrease the total time taken.
-It increases runtime performance
-
-#+begin_src emacs-lisp
-  ;; Make gc pauses faster by decreasing the threshold.
-  (setq gc-cons-threshold (* 2 1000 1000))
-#+end_src
-
-** Native Compile
-
-#+begin_src emacs-lisp
-  ;; Silence compiler warnings as they can be pretty disruptive
-  (if (boundp 'comp-deferred-compilation)
-      (setq comp-deferred-compilation nil)
-    (setq native-comp-deferred-compilation nil))
-  ;; In noninteractive sessions, prioritize non-byte-compiled source files to
-  ;; prevent the use of stale byte-code. Otherwise, it saves us a little IO time
-  ;; to skip the mtime checks on every *.elc file.
-  (setq load-prefer-newer noninteractive)
 #+end_src
 
 * GRAPHICAL USER INTERFACE SETTINGS
@@ -309,7 +368,7 @@ Use =general-define-key= to remap/map evil keybindings
           ;; "SPC" '(counsel-M-x :which-key "M-x")
           "."    '(find-file :which-key "find file")
           "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
-          "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") 
+          "r"    (general-simulate-key "C-x r" :which-key "+register/bookmark") ;; run bookmark-save to save bookmarks to a file
           "t"    (general-simulate-key "C-x t" :which-key "+tab")
           "p"    (general-simulate-key "C-x p" :which-key "+project")
           "f"    (general-simulate-key "C-x 5" :which-key "+frame")
@@ -952,7 +1011,7 @@ Group Ledger commands.
   (pretty-hydra-define hydra-ledger
     (:hint nil :color teal :quit-key "q" :title (with-faicon "usd" "Ledger" 1 -0.05))
     ("Action"
-     (("b" leadger-add-transaction "add")
+     (("b" ledger-add-transaction "add")
       ("c" ledger-mode-clean-buffer "clear")
       ("i" ledger-copy-transaction-at-point "copy")
       ("s" ledger-delete-current-transaction "delete")
@@ -1835,16 +1894,21 @@ Easy switching directories. Works great when combined with embark
     )
 
   (use-package evil-snipe
-    :init
-    (general-define-key
-     :states '(normal visual)
-     "f" 'evil-snipe-f
-     ;; "F" 'evil-snipe-F
-     "t" 'evil-snipe-t
-     "T" 'evil-snipe-T)
+    ;; :init
+    ;; (general-define-key
+    ;;  :states '(normal visual)
+    ;;  "f" 'evil-snipe-f
+    ;;  ;; "F" 'evil-snipe-F
+    ;;  "t" 'evil-snipe-t
+    ;;  "T" 'evil-snipe-T)
     :custom
     (evil-snipe-scope 'whole-visible)
-    (evil-snipe-auto-scroll t))
+    (evil-snipe-auto-scroll t)
+    :config
+    (evil-snipe-mode +1)
+    (evil-snipe-override-mode 1)
+    (push 'prodigy-mode evil-snipe-disabled-modes)
+    )
 
   (use-package evil-easymotion
     :config
@@ -3068,6 +3132,9 @@ window layout.
 * ORG MODE
 ** Tips
 
+*Pomodoro*: org-timer-* -> =C-c C-x=
+(setq org-clock-sound "~/Downloads/ding.wav")
+
 For entities compeletion: =\<M-tab>=
 | =org-entities-help=          |           |
 | =org-toggle-pretty-entities= | =C-c C-x \= |
@@ -3157,6 +3224,7 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
 #+begin_src emacs-lisp
 
   (use-package org
+    ;; :straight org-contrib
     :config
     (setq org-modules '(
                         org-crypt
@@ -3187,6 +3255,7 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
           ;; org-fontify-quote-and-verse-blocks t
           org-confirm-babel-evaluate nil
           )
+  )    
 
     (my/leader-keys 
       "m"      '(:ignore t :which-key "Mode Specific Bindings")
@@ -3194,7 +3263,29 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
       )
 #+end_src
 
+** Auto tangle configuration files
+
+This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
+
+#+begin_src emacs-lisp
+
+  (defun efs/org-babel-tangle-config()
+    ;; (when (string-equal (file-name-directory (buffer-file-name))
+    ;;                     (expand-file-name user-emacs-directory))
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "config.org" user-emacs-directory))
+      ;; Dynamic scoping
+      (let ((org-confirm-babel-evalute nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+#+end_src
+
+
 ** Executing Source Blocks
+
+To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages.html][This page]] documents all of the languages that you can use with =org-babel=.
 
 #+begin_src emacs-lisp
 
@@ -3208,6 +3299,14 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
           (js         . t)
           (octave     . t)
           (sql        . t)))
+
+  ;; (with-eval-after-load 'org
+  ;;   (org-babel-do-load-languages
+  ;;       'org-babel-load-languages
+  ;;       '((emacs-lisp . t)
+  ;;       (python . t)))
+
+  ;;   (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
 #+end_src
 
@@ -3580,7 +3679,6 @@ This is particularly useful if you use the org-habits module and you are late to
           ("stack-exchange" . "https://emacs.stackexchange.com/a/")
           ("github"         . "https://github.com/")
           ("wiki"           . "https://en.wikipedia.org/wiki/")))
-  )    
 
 #+end_src
 
@@ -3860,7 +3958,8 @@ New node uses the default template defined in [[https://www.orgroam.com/manual.h
 
 #+begin_src emacs-lisp
 
-  (use-package org-ql)
+  (use-package org-ql
+    :after org)
 
 #+end_src
 
@@ -3923,45 +4022,11 @@ Finally, I use [[https://github.com/akhramov/org-wild-notifier.el][org-wild-noti
 
 #+end_src
 
-** Configure Babel Languages
-
-To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages.html][This page]] documents all of the languages that you can use with =org-babel=.
-
-#+begin_src emacs-lisp
-
-  ;; (with-eval-after-load 'org
-  ;;   (org-babel-do-load-languages
-  ;;       'org-babel-load-languages
-  ;;       '((emacs-lisp . t)
-  ;;       (python . t)))
-
-  ;;   (push '("conf-unix" . conf-unix) org-src-lang-modes))
-
-#+end_src
-
 ** Prevent M-Ret from adding blank lines
 
 #+begin_src emacs-lisp
   ;; (setq org-blank-before-new-entry (quote ((heading . nil)
   ;;                                          (plain-list-item . nil))))
-#+end_src
-
-** Auto-tangle Configuration Files
-
-This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
-
-#+begin_src emacs-lisp
-
-  ;; ;; Automatically tangle our Emacs.org config file when we save it
-  ;; (defun efs/org-babel-tangle-config ()
-  ;;   (when (string-equal (file-name-directory (buffer-file-name))
-  ;;                       (expand-file-name user-emacs-directory))
-  ;;     ;; Dynamic scoping to the rescue
-  ;;     (let ((org-confirm-babel-evaluate nil))
-  ;;       (org-babel-tangle))))
-
-  ;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-
 #+end_src
 
 ** Export to manpage format
@@ -3976,9 +4041,12 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+begin_src emacs-lisp
 
   ;; Drag and drop images to org files
-  (use-package org-download)
-  (setq-default org-download-image-dir "~/Pictures/Emacs")
-  (add-hook 'dired-mode-hook 'org-download-enable)
+  (use-package org-download
+    :after org
+    :config
+    (setq-default org-download-image-dir "~/Pictures/Emacs")
+    (add-hook 'dired-mode-hook 'org-download-enable)
+  )
 
 #+end_src
 
@@ -4340,6 +4408,7 @@ Documentation: https://github.com/jeremy-compostella/org-msg
 #+begin_src emacs-lisp
 
   (use-package org-msg
+    :after org
     :config
     (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
           org-msg-startup "hidestars indent inlineimages"
@@ -4993,10 +5062,10 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
   (setq debug-on-error nil)
   (setq debug-on-quit nil)
 
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading settings...done (%.3fs)" elapsed))
-  (put 'narrow-to-region 'disabled nil)
+  ;; (let ((elapsed (float-time (time-subtract (current-time)
+  ;;                                           emacs-start-time))))
+  ;;   (message "Loading settings...done (%.3fs)" elapsed))
+  ;; (put 'narrow-to-region 'disabled nil)
 
 #+end_src
 
@@ -5008,9 +5077,9 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 - Note taken on [2021-10-27 Wed 13:46] \\
   Weechat Not working
 :END:
-- [ ] evil-snipe
-- [ ] evil-mark-replace
-- [ ] evil-exchange
+- [X] evil-snipe
+- [X] evil-mark-replace
+- [X] evil-exchange
 - [X] [[https://github.com/karthink/popper][popper]] (manage popups)
 - [ ] [[https://github.com/hpdeifel/synosaurus][Thesaurus]]
 - [ ] [[https://www.flycheck.org/en/latest/index.html][Flycheck]]
@@ -5018,8 +5087,10 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 - [ ] [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Edebug.html][Edebug]] (source-level debugger for emacs lisp programs)
 - [X] [[https://github.com/the-kenny/weechat.el][Weechat]] (as an alternative to erc due to sasl)
 - [X] [[https://github.com/alezost/guix.el][Emacs guix]] (manage guix packages from within emacs)
-** BACKLOG Get Mail on the fly with imapnotify
+** DONE Get Mail on the fly with imapnotify
+CLOSED: [2021-11-12 Fri 18:34]
 :LOGBOOK:
+- State "DONE"       from "BACKLOG"    [2021-11-12 Fri 18:34]
 - State "BACKLOG"    from "TODO"       [2021-10-23 Sat 20:20]
 :END:
 - [X] [[https://0x7b2.net/posts/2021/exploring-email-with-emacs/][Goimapnotify]]
