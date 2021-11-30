@@ -5103,6 +5103,28 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
 
 #+end_src
 
+* EVERYWHERE
+
+[[https://github.com/tecosaur/emacs-everywhere][Everywhere]] allows to edit any text at any location from within emacs.
+
+#+begin_src emacs-lisp
+
+  (use-package emacs-everywhere)
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  "xdotool"
+  "xclip" 
+  "xdotool" 
+  "xprop" 
+  "xwininfo"
+
+#+end_src
+
 * GUIX
 
 [[https://github.com/alezost/guix.el][Guix]] documentation is helpful. Further info is available in the info manual
