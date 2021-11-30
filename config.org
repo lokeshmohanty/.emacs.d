@@ -3918,6 +3918,25 @@ New node uses the default template defined in [[https://www.orgroam.com/manual.h
 
 #+end_src
 
+** Reveal (Presentation using reveal.js)
+
+#+begin_src emacs-lisp
+
+  (use-package ox-reveal
+     :straight nil)
+  ;; (use-package org-reveal
+  ;;   :straight nil)
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  "emacs-org-reveal"
+
+#+end_src
+
 ** Ql (query language for agenda)
 
 [[https://github.com/alphapapa/org-ql][org-ql]] is great at querieng agenda lists
