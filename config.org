@@ -375,11 +375,11 @@ Use =general-define-key= to remap/map evil keybindings
           "o"    '(:ignore t :which-key "open")
           "oa"   '(org-agenda :which-key "org-agenda")
           "oc"   '(org-capture :which-key "org-capture")
-          "os"   '(yas-insert-snippet :which-key "insert snippet")
           "om"   '(mu4e :which-key "mu4e")
           "oe"   '(eshell :which-key "eshell")
-          "ot"   '(vterm :which-key "vterm")
           "op"   '(prodigy :which-key "prodigy")
+          "ot"   '(vterm :which-key "vterm")
+          "oy"   '(yas-insert-snippet :which-key "insert snippet")
           "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
           "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config"))
         )
@@ -601,6 +601,7 @@ C-w -> Prefix for evil window commands
        ;; "\\*Completions\\*"
        ;; "\\*scratch\\*"
        ;; "[Oo]utput\\*"
+       ;; special-mode
        vterm-mode
        shell-mode
        eshell-mode
@@ -1439,7 +1440,7 @@ becomes possible.
 #+begin_src emacs-lisp
 
   (use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
+    ;; :hook (dired-mode . dired-hide-dotfiles-mode)
     :general
     (:states 'normal
        :keymaps 'dired-mode-map
@@ -3282,7 +3283,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
-
 ** Executing Source Blocks
 
 To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.  [[https://orgmode.org/worg/org-contrib/babel/languages.html][This page]] documents all of the languages that you can use with =org-babel=.
@@ -3623,15 +3623,15 @@ This is particularly useful if you use the org-habits module and you are late to
 
 #+begin_src emacs-lisp
 
-  ;; (setq org-refile-targets '(
-  ;;                            (nil :maxlevel . 1)
-  ;;                            (org-agenda-files :maxlevel . 1)
-  ;;                            ;; ("Archive.org" :maxlevel . 1)
-  ;;                            ;; ("Tasks.org" :maxlevel . 1)
-  ;;                            ))
+  (setq org-refile-targets '(
+                             (nil :maxlevel . 1)
+                             (org-agenda-files :maxlevel . 1)
+                             ("Archive.org" :maxlevel . 1)
+                             ;; ("Tasks.org" :maxlevel . 1)
+                             ))
 
-  ;; ;; Save Org buffers after refiling!
-  ;; (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  ;; Save Org buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 #+end_src
 
@@ -3735,40 +3735,6 @@ GPG key pair with the public key specified to =org-crypt=.
 
   (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
   (setq epa-file-select-keys "auto")
-
-#+end_src
-
-** Languages
-
-Let's specify languages extra to Org Mode to compile them directly into =.org=
-files.
-
-#+begin_src emacs-lisp
-
-  ;; (use-package jupyter :straight nil :after org)
-  (use-package python :straight (:type built-in) :after org)
-  (use-package ob-C :straight (:type built-in) :after org)
-  (use-package ob-css :straight (:type built-in) :after org)
-  (use-package ob-dot :straight (:type built-in) :after org)
-  ;; (use-package ob-ein :straight (:type built-in) :after org)
-  (use-package ob-emacs-lisp :straight (:type built-in) :after org)
-  (use-package ob-gnuplot :straight (:type built-in) :after org)
-  (use-package ob-java :straight (:type built-in) :after org)
-  (use-package ob-js :straight (:type built-in) :after org)
-  (use-package ob-latex
-    :straight (:type built-in)
-    :after org
-    :custom (org-latex-compiler "xelatex"))
-  (use-package ob-ledger :straight (:type built-in) :after org)
-  (use-package ob-makefile :straight (:type built-in) :after org)
-  (use-package ob-org :straight (:type built-in) :after org)
-  ;; (use-package ob-plantuml
-  ;;   :straight (:type built-in)
-  ;;   :after org
-  ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
-  (use-package ob-python :straight (:type built-in) :after org)
-  (use-package ob-shell :straight (:type built-in) :after org)
-  (use-package ob-sql :straight (:type built-in) :after org)
 
 #+end_src
 
@@ -3963,6 +3929,40 @@ New node uses the default template defined in [[https://www.orgroam.com/manual.h
 
 #+end_src
 
+
+** Languages
+
+Let's specify languages extra to Org Mode to compile them directly into =.org=
+files.
+
+#+begin_src emacs-lisp
+
+  ;; ;; (use-package jupyter :straight nil :after org)
+  ;; (use-package python :straight (:type built-in) :after org)
+  ;; (use-package ob-C :straight (:type built-in) :after org)
+  ;; (use-package ob-css :straight (:type built-in) :after org)
+  ;; (use-package ob-dot :straight (:type built-in) :after org)
+  ;; ;; (use-package ob-ein :straight (:type built-in) :after org)
+  ;; (use-package ob-emacs-lisp :straight (:type built-in) :after org)
+  ;; (use-package ob-gnuplot :straight (:type built-in) :after org)
+  ;; (use-package ob-java :straight (:type built-in) :after org)
+  ;; (use-package ob-js :straight (:type built-in) :after org)
+  ;; (use-package ob-latex
+  ;;   :straight (:type built-in)
+  ;;   :after org
+  ;;   :custom (org-latex-compiler "xelatex"))
+  ;; (use-package ob-ledger :straight (:type built-in) :after org)
+  ;; (use-package ob-makefile :straight (:type built-in) :after org)
+  ;; (use-package ob-org :straight (:type built-in) :after org)
+  ;; ;; (use-package ob-plantuml
+  ;; ;;   :straight (:type built-in)
+  ;; ;;   :after org
+  ;; ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
+  ;; (use-package ob-python :straight (:type built-in) :after org)
+  ;; (use-package ob-shell :straight (:type built-in) :after org)
+  ;; (use-package ob-sql :straight (:type built-in) :after org)
+
+#+end_src
 
 ** Wild Notifier
 
