@@ -2196,14 +2196,22 @@ Try these commands with =M-x=:
 
   This package is built on the [[https://github.com/Alexander-Miller/treemacs][treemacs]] package which might be of some interest to you if you like to have a file browser at the left side of your screen in your editor.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 
-    (use-package lsp-treemacs
-      :after (lsp treemacs)
-      :config
-      (lsp-treemacs-sync-mode 1))
+  (use-package lsp-treemacs
+    :after (lsp treemacs)
+    :config
+    (lsp-treemacs-sync-mode 1))
 
-  #+end_src
+  (my/leader-keys
+    "lt"  '(:ignore t :which-key "treemacs")
+    "lte" 'lsp-treemacs-errors-list
+    "lts" 'lsp-treemacs-symbols
+    "ltf" 'lsp-treemacs-quick-fix
+    "lti" 'lsp-treemacs-implementations
+    )
+
+#+end_src
 
 *** consult-lsp
 
@@ -2216,7 +2224,14 @@ Try these commands with =M-x=:
   (use-package consult-lsp
     ;; :commands (consult-lsp-diagnostics consult-lsp-symbols)
   )
-  
+
+  (my/leader-keys
+    "lc"  '(:ignore t :which-key "consult")
+    "lcd" 'consult-lsp-diagnostics
+    "lcs" 'consult-lsp-symbols
+    "lcf" '=consult-lsp-file-symbols
+    )
+
   ;; Use the following line to replace xref-find-apropos in lsp-mode controlled buffers:
   ;; (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
 
