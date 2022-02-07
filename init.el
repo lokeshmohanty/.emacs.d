@@ -7,7 +7,8 @@
 ;; (defconst emacs-start-time (current-time))
 
 ;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
+;; (setq gc-cons-threshold (* 50 1000 1000))
+(setq gc-cons-threshold (* 100 1024 1024))
 
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
@@ -210,13 +211,16 @@
     "o"    '(:ignore t :which-key "open")
     "oa"   '(org-agenda :which-key "org-agenda")
     "oc"   '(org-capture :which-key "org-capture")
-    "os"   '(yas-insert-snippet :which-key "insert snippet")
     "om"   '(mu4e :which-key "mu4e")
     "oe"   '(eshell :which-key "eshell")
-    "ot"   '(vterm :which-key "vterm")
     "op"   '(prodigy :which-key "prodigy")
+    "ot"   '(vterm :which-key "vterm")
+    "oy"   '(yas-insert-snippet :which-key "insert snippet")
     "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-    "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config"))
+    "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config")
+
+    "zt"    '(toggle-truncate-lines :whick-key "toggle truncate lines")
+    )
   )
 
 ;; currently trying it instead of ibuffer
@@ -363,6 +367,7 @@
      ;; "\\*Completions\\*"
      ;; "\\*scratch\\*"
      ;; "[Oo]utput\\*"
+     ;; special-mode
      vterm-mode
      shell-mode
      eshell-mode
@@ -890,7 +895,7 @@
   :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package dired-hide-dotfiles
-  :hook (dired-mode . dired-hide-dotfiles-mode)
+  ;; :hook (dired-mode . dired-hide-dotfiles-mode)
   :general
   (:states 'normal
      :keymaps 'dired-mode-map
@@ -1344,6 +1349,14 @@
   :config
   (lsp-treemacs-sync-mode 1))
 
+(my/leader-keys
+  "lt"  '(:ignore t :which-key "treemacs")
+  "lte" 'lsp-treemacs-errors-list
+  "lts" 'lsp-treemacs-symbols
+  "ltf" 'lsp-treemacs-quick-fix
+  "lti" 'lsp-treemacs-implementations
+  )
+
 (use-package consult-lsp
   ;; :commands (consult-lsp-diagnostics consult-lsp-symbols)
 )
@@ -1363,9 +1376,10 @@
 
   ;; Setup debugging for node
   (require 'dap-node)
+  ;; (require 'dap-node-terminal)
   ;; (require 'dap-firefox)
   ;; (require 'dap-chrome)
-  (dap-node-setup)
+  ;; (dap-node-setup)
 
   (add-hook 'dap-stopped-hook
             (lambda (arg) (call-interactively #'dap-hydra)))
@@ -1377,16 +1391,16 @@
    "d" '(dap-hydra t :wk "debugger"))
 )
 
-(defun my/download-dap-node ()
-  "Downloads vscode-node-debug2 from github and sets it up in the right path"
-  (interactive)
-  (async-shell-command (concat "cd ~/.emacs.d/var/dap/extensions/vscode"
-                               " && aria2c https://codeload.github.com/microsoft/vscode-node-debug2/tar.gz/refs/tags/v1.43.0"
-                               " && tar -xvf vscode-node-debug2-1.43.0.tar.gz"
-                               " && mv vscode-node-debug2-1.43.0 extension"
-                               " && mv extension ms-vscode.node-debug2/"
-                               " && cd ms-vscode.node-debug2/extension"
-                               " && npm i && npm run build")))
+;; (defun my/download-dap-node ()
+;;   "Downloads vscode-node-debug2 from github and sets it up in the right path"
+;;   (interactive)
+;;   (async-shell-command (concat "cd ~/.emacs.d/var/dap/extensions/vscode"
+;;                                " && aria2c https://codeload.github.com/microsoft/vscode-node-debug2/tar.gz/refs/tags/v1.43.0"
+;;                                " && tar -xvf vscode-node-debug2-1.43.0.tar.gz"
+;;                                " && mv vscode-node-debug2-1.43.0 extension"
+;;                                " && mv extension ms-vscode.node-debug2/"
+;;                                " && cd ms-vscode.node-debug2/extension"
+;;                                " && npm i && npm run build")))
 
 (use-package js2-mode
   :mode "\\.js\\'"
@@ -1424,22 +1438,8 @@
 (use-package dockerfile-mode :delight "δ" :mode "Dockerfile\\'")
 
 (use-package json-mode
-  :delight "J"
-  :mode "\\.json\\'"
-  :hook (before-save . my/json-mode-before-save-hook)
-  :preface
-  (defun my/json-mode-before-save-hook ()
-    (when (eq major-mode 'json-mode)
-      (json-pretty-print-buffer)))
-
-  (defun my/json-array-of-numbers-on-one-line (encode array)
-    "Print the arrays of numbers in one line."
-    (let* ((json-encoding-pretty-print
-            (and json-encoding-pretty-print
-                 (not (loop for x across array always (numberp x)))))
-           (json-encoding-separator (if json-encoding-pretty-print "," ", ")))
-      (funcall encode array)))
-  :config (advice-add 'json-encode-array :around #'my/json-array-of-numbers-on-one-line))
+  ;; :mode "\\.json\\'"
+      )
 
 (use-package markdown-mode
   :delight "μ"
@@ -1530,6 +1530,48 @@
   ;; :hook (after-save . executable-make-buffer-file-executable-if-script-p)
 )
 
+(use-package dart-mode
+  :hook ((dart-mode . lsp-deferred)
+         (dart-mode . flutter-test-mode)
+  ))
+
+(use-package lsp-dart)
+
+(setq read-process-output-max (* 1024 1024)
+      company-minimum-prefix-length 1
+      lsp-lens-enable t
+      lsp-signature-auto-activate nil)
+
+(use-package flutter
+  :after dart-mode
+  :bind (:map dart-mode-map
+              ("C-M-x" . #'flutter-run-or-hot-reload))
+  ;; :custom
+  ;; (flutter-sdk-path "/Applications/flutter/")
+  )
+
+(use-package hover
+  :after dart-mode
+  :bind (:map dart-mode-map
+              ("C-M-z" . #'hover-run-or-hot-reload)
+              ("C-M-r" . #'hover-run-or-hot-restart)
+              ("C-M-p" . #'hover-take-screenshot))
+  ;; :general
+  ;; (:states 'normal
+  ;;    :keymaps 'dart-mode-map
+  ;;    "SPC m h r" 'hover-run-or-hot-reload
+  ;;    "SPC m h x" 'hover-run-or-hot-restart
+  ;;    "SPC m h p" 'hover-take-screenshot)
+  ;; :init
+  ;; (setq hover-flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
+  ;;       hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
+  ;;       hover-hot-reload-on-save t
+  ;;       hover-screenshot-path (concat (getenv "HOME") "/Pictures")
+  ;;       hover-screenshot-prefix "my-prefix-"
+  ;;       hover-observatory-uri "http://my-custom-host:50300"
+  ;;       hover-clear-buffer-on-hot-restart t)
+  )
+
 (use-package emmet-mode)
 
 (use-package treemacs)
@@ -1608,7 +1650,6 @@
                       ;; org-eshell
                       ;; org-irc
                       ))
-
   (add-hook 'org-mode-hook 'org-indent-mode)
   (setq org-directory "~/Org/")
   (setq org-ellipsis " ▾"
@@ -1656,7 +1697,8 @@
         (latex      . t)
         (js         . t)
         (octave     . t)
-        (sql        . t)))
+        (sql        . t)
+        (ditaa      . t)))
 
 ;; (with-eval-after-load 'org
 ;;   (org-babel-do-load-languages
@@ -1683,7 +1725,7 @@
                          "~/Org/Agenda.org"
                          "~/Org/Tasks.org"
                          "~/Org/Journal.org"
-                         "~/Org/Birthdays.org"
+                         "~/Org/Anniversaries.org"
                          "~/Org/Habits.org"
                          "~/Org/References.org"
                          "~/Org/Work.org"
@@ -1868,40 +1910,24 @@
          "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)
         ))
 
-;; (setq org-refile-targets '(
-;;                            (nil :maxlevel . 1)
-;;                            (org-agenda-files :maxlevel . 1)
-;;                            ;; ("Archive.org" :maxlevel . 1)
-;;                            ;; ("Tasks.org" :maxlevel . 1)
-;;                            ))
+(setq org-refile-targets '(
+                           (nil :maxlevel . 1)
+                           (org-agenda-files :maxlevel . 1)
+                           ("Archive.org" :maxlevel . 1)
+                           ;; ("Tasks.org" :maxlevel . 1)
+                           ))
 
-;; ;; Save Org buffers after refiling!
-;; (advice-add 'org-refile :after 'org-save-all-org-buffers)
+;; Save Org buffers after refiling!
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-;; (use-package evil-org
-;;   :after org
-;;   :hook (org-mode . (lambda () evil-org-mode))
-;;   :config
-;;   (require 'evil-org-agenda)
-;;   (evil-org-agenda-set-keys))
-
-;; (use-package evil-org
-;;   :after org
-;;   :hook (
-;;          ;; (org-mode . evil-org-mode)
-;;          ;; (org-agenda-mode . evil-org-mode)
-;;          (evil-org-mode
-;;           . (lambda ()
-;;               (evil-org-set-key-theme
-;;                '(navigation
-;;                  todo
-;;                  insert
-;;                  textobjects
-;;                  additional)))))
-;;   :config
-;;   (require 'evil-org-agenda)
-;;   (setq org-special-ctrl-a/e t)
-;;   (evil-org-agenda-set-keys))
+(use-package evil-org
+  :after org
+  :hook (org-mode . evil-org-mode)
+  :config
+  (evil-org-set-key-theme '(navigation todo insert textobjects additional))
+  ;; (setq org-special-ctrl-a/e t)
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 
 ;; An example of how this works.
 ;; [[arch-wiki:Name_of_Page][Description]]
@@ -1940,31 +1966,6 @@
 
 (setq epa-file-encrypt-to "lokesh1197@yahoo.com")
 (setq epa-file-select-keys "auto")
-
-;; (use-package jupyter :straight nil :after org)
-(use-package python :straight (:type built-in) :after org)
-(use-package ob-C :straight (:type built-in) :after org)
-(use-package ob-css :straight (:type built-in) :after org)
-(use-package ob-dot :straight (:type built-in) :after org)
-;; (use-package ob-ein :straight (:type built-in) :after org)
-(use-package ob-emacs-lisp :straight (:type built-in) :after org)
-(use-package ob-gnuplot :straight (:type built-in) :after org)
-(use-package ob-java :straight (:type built-in) :after org)
-(use-package ob-js :straight (:type built-in) :after org)
-(use-package ob-latex
-  :straight (:type built-in)
-  :after org
-  :custom (org-latex-compiler "xelatex"))
-(use-package ob-ledger :straight (:type built-in) :after org)
-(use-package ob-makefile :straight (:type built-in) :after org)
-(use-package ob-org :straight (:type built-in) :after org)
-;; (use-package ob-plantuml
-;;   :straight (:type built-in)
-;;   :after org
-;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
-(use-package ob-python :straight (:type built-in) :after org)
-(use-package ob-shell :straight (:type built-in) :after org)
-(use-package ob-sql :straight (:type built-in) :after org)
 
 (defvar my/org-roam-project-template
   '("p" "project" plain "** TODO %?"
@@ -2115,8 +2116,38 @@ _d_: date        ^ ^              ^ ^
   (my/org-roam-refresh-agenda-list)
   )
 
+(use-package ox-reveal
+   :straight nil)
+;; (use-package org-reveal
+;;   :straight nil)
+
 (use-package org-ql
   :after org)
+
+;; ;; (use-package jupyter :straight nil :after org)
+;; (use-package python :straight (:type built-in) :after org)
+;; (use-package ob-C :straight (:type built-in) :after org)
+;; (use-package ob-css :straight (:type built-in) :after org)
+;; (use-package ob-dot :straight (:type built-in) :after org)
+;; ;; (use-package ob-ein :straight (:type built-in) :after org)
+;; (use-package ob-emacs-lisp :straight (:type built-in) :after org)
+;; (use-package ob-gnuplot :straight (:type built-in) :after org)
+;; (use-package ob-java :straight (:type built-in) :after org)
+;; (use-package ob-js :straight (:type built-in) :after org)
+;; (use-package ob-latex
+;;   :straight (:type built-in)
+;;   :after org
+;;   :custom (org-latex-compiler "xelatex"))
+;; (use-package ob-ledger :straight (:type built-in) :after org)
+;; (use-package ob-makefile :straight (:type built-in) :after org)
+;; (use-package ob-org :straight (:type built-in) :after org)
+;; ;; (use-package ob-plantuml
+;; ;;   :straight (:type built-in)
+;; ;;   :after org
+;; ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
+;; (use-package ob-python :straight (:type built-in) :after org)
+;; (use-package ob-shell :straight (:type built-in) :after org)
+;; (use-package ob-sql :straight (:type built-in) :after org)
 
 ;; (use-package org-wild-notifier
 ;;   :after org
@@ -2176,7 +2207,7 @@ _d_: date        ^ ^              ^ ^
   :config
   ;; Refresh mail using isync every 10 minutes
   (setq mu4e-update-interval (* 15 60))
-  (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -a")
+  (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -aV")
   (setq mu4e-maildir "~/Maildir")
 
   ;; Make sure that moving a message (like to Trash) causes the
@@ -2442,9 +2473,8 @@ _d_: date        ^ ^              ^ ^
                                        (reply-to-text	. (text)))
         org-msg-convert-citation t
         org-msg-signature (concat
-                            "\nRegards,\n\n"
                             "#+begin_signature\n"
-                            "--\n"
+                            "Regards,\n"
                             "*Lokesh Mohanty*\n"
                             "#+end_signature"))
   (org-msg-mode))
@@ -2535,29 +2565,34 @@ _d_: date        ^ ^              ^ ^
   :config
   (setq elfeed-search-feed-face ":foreground #fff :weight bold"
         elfeed-feeds (quote
-                       (("https://www.reddit.com/r/linux.rss" reddit linux)
-                        ("https://www.reddit.com/r/commandline.rss" reddit commandline)
-                        ("https://www.reddit.com/r/emacs.rss" reddit emacs)
-                        ("https://www.gamingonlinux.com/article_rss.php" gaming linux)
-                        ("https://hackaday.com/blog/feed/" hackaday linux)
-                        ("https://opensource.com/feed" opensource linux)
-                        ("https://linux.softpedia.com/backend.xml" softpedia linux)
-                        ("https://itsfoss.com/feed/" itsfoss linux)
-                        ("https://www.zdnet.com/topic/linux/rss.xml" zdnet linux)
-                        ("https://www.phoronix.com/rss.php" phoronix linux)
-                        ("http://feeds.feedburner.com/d0od" omgubuntu linux)
-                        ("https://www.computerworld.com/index.rss" computerworld linux)
-                        ("https://www.networkworld.com/category/linux/index.rss" networkworld linux)
-                        ("https://www.techrepublic.com/rssfeeds/topic/open-source/" techrepublic linux)
-                        ("https://betanews.com/feed" betanews linux)
-                        ("http://lxer.com/module/newswire/headlines.rss" lxer linux)
-                        ("https://distrowatch.com/news/dwd.xml" distrowatch linux)))))
+                      (("http://nullprogram.com/feed/" nullprogram blog linux)
+                       ;; ("https://www.reddit.com/r/linux.rss" reddit linux)
+                       ;; ("https://www.reddit.com/r/commandline.rss" reddit commandline)
+                       ;; ("https://www.reddit.com/r/emacs.rss" reddit emacs)
+                       ;; ("https://www.gamingonlinux.com/article_rss.php" gaming linux)
+                       ;; ("https://hackaday.com/blog/feed/" hackaday linux)
+                       ;; ("https://opensource.com/feed" opensource linux)
+                       ;; ("https://linux.softpedia.com/backend.xml" softpedia linux)
+                       ;; ("https://itsfoss.com/feed/" itsfoss linux)
+                       ;; ("https://www.zdnet.com/topic/linux/rss.xml" zdnet linux)
+                       ;; ("https://www.phoronix.com/rss.php" phoronix linux)
+                       ;; ("http://feeds.feedburner.com/d0od" omgubuntu linux)
+                       ;; ("https://www.computerworld.com/index.rss" computerworld linux)
+                       ;; ("https://www.networkworld.com/category/linux/index.rss" networkworld linux)
+                       ;; ("https://www.techrepublic.com/rssfeeds/topic/open-source/" techrepublic linux)
+                       ;; ("https://betanews.com/feed" betanews linux)
+                       ;; ("http://lxer.com/module/newswire/headlines.rss" lxer linux)
+                       ;; ("https://distrowatch.com/news/dwd.xml" distrowatch linux)
+                       ))))
 
 (use-package elfeed-goodies
   :init
   (elfeed-goodies/setup)
   :config
   (setq elfeed-goodies/entry-pane-size 0.5))
+
+(use-package elfeed-org)
+(use-package elfeed-dashboard)
 
 (add-hook 'elfeed-show-mode-hook 'visual-line-mode)
 (evil-define-key 'normal elfeed-show-mode-map
@@ -2566,6 +2601,9 @@ _d_: date        ^ ^              ^ ^
 (evil-define-key 'normal elfeed-search-mode-map
   (kbd "C-j") 'elfeed-goodies/split-show-next
   (kbd "C-k") 'elfeed-goodies/split-show-prev)
+
+  ;; (setq httpd-port 9010)
+  ;; (elfeed-web-start)
 
 (use-package tracking
   :defer t
@@ -2734,9 +2772,16 @@ _d_: date        ^ ^              ^ ^
 (use-package elpher)
 
 (use-package emojify
-  :hook (after-init . global-emojify-mode))
+  ;; :hook (after-init . global-emojify-mode)
+)
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
+
+(defun efs/lookup-password (&rest keys)
+  (let ((result (apply #'auth-source-search keys)))
+    (if result
+        (funcall (plist-get (car result) :secret))
+      nil)))
 
 (use-package password-store)
 
@@ -2757,7 +2802,7 @@ _d_: date        ^ ^              ^ ^
   :straight nil
   :preface
   (defun my/ledger-save ()
-    "Clean the ledger buffer at each save."
+    "clean the ledger buffer at each save."
     (interactive)
     (ledger-mode-clean-buffer)
     (save-buffer))
@@ -2766,26 +2811,32 @@ _d_: date        ^ ^              ^ ^
   :hook (ledger-mode . ledger-flymake-enable)
   :custom
   ;; (ledger-clear-whole-transactions t)
-  (ledger-reconcile-default-commodity "INR")
+  (ledger-reconcile-default-commodity "inr")
   ;; (ledger-reports
   ;;  '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
   ;;    ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
-  ;;    ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
-  ;;    ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
-  ;;    ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
-  ;;    ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
+  ;;    ("budget" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
+  ;;    ("budget goals" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
+  ;;    ("budget obligations" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
+  ;;    ("budget debts" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
   ;;    ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
   ;;    ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
-  ;;    ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
+  ;;    ("income statement" "%(binary) --invert --real -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
   ;;  (ledger-report-use-header-line nil))
   )
 
 ;; (use-package flycheck-ledger :after ledger-mode)
 
+(use-package emacs-everywhere)
+
 (use-package guix)
 
 (load-file (expand-file-name
             "temporary.el" user-emacs-directory))
+
+;; (defun connect-remote ()
+;;   (interactive)
+;;   (dired "/user@192.168.1.5:/"))
 
 (setq debug-on-error nil)
 (setq debug-on-quit nil)
