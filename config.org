@@ -3061,6 +3061,28 @@ system package manager.
   ;;   :mode ("\\.\\(xml\\|xsd\\|wsdl\\)\\'"))
 #+end_src
 
+** Database Client
+
+*Example:*
+(setq conn (edbi:start))
+(edbi:connect conn '("dbi:mysql:TestDB:localhost:3306" "username" "password"))
+(edbi:finish conn)
+
+#+begin_src emacs-lisp
+
+  (use-package edbi)
+  (use-package edbi-sqlite)
+
+#+end_src
+
+*Guix Packages*
+
+#+begin_src scheme :noweb-ref packages :noweb-sep ""
+
+  ;; "emacs-edbi"
+
+#+end_src
+
 ** Emmet
 Great for producing HTML and CSS selectors. [[https://github.com/smihica/emmet-mode][Documentation]]
 Key bindings

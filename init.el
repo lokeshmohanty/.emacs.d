@@ -1296,6 +1296,44 @@
    "zF" 'vimish-fold-avy)
   :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
+(defun my/project-ripgrep-consult ()
+  "Start consult-ripgrep in the current project's root."
+  (interactive)
+  (consult-ripgrep (project-root (project-current t))))
+
+(defun my/project-run-vterm ()
+  "Invoke `vterm' in the project's root.
+  Switch to the project specific term buffer if it already exists."
+  (interactive)
+  (let* ((path (project-root (project-current t)))
+         (buffer (format "*%s %s*" "vterm" (directory-file-name path))))
+    (unless (buffer-live-p (get-buffer buffer))
+      (my/process-with-default-dir path
+                                   (vterm buffer)))
+    (popper-display-popup-at-bottom buffer)
+    (switch-to-buffer-other-window buffer)
+    ))
+
+(defmacro my/process-with-default-dir (dir &rest body)
+  "Invoke in DIR the BODY."
+  (declare (debug t) (indent 1))
+  `(let ((default-directory ,dir))
+     ,@body))
+
+;; (general-define-key
+;;   "C-x pg"  '(:ignore t :which-key "+search")
+;;   "C-x pgg" '(project-grep :which-key "grep")
+;;   "C-x pgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
+;;   "C-x pt"  '(my/project-run-vterm :which-key "vterm")
+;;   )
+
+;; (my/leader-keys
+;;   "C-x pg"  '(:ignore t :which-key "+search")
+;;   "C-x pgg" '(project-grep :which-key "grep")
+;;   "C-x pgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
+;;   "C-x pt"  '(my/project-run-vterm :which-key "vterm")
+;;   )
+
 (use-package flycheck
   :delight
   :hook (lsp-mode . flycheck-mode)
@@ -1360,6 +1398,13 @@
 (use-package consult-lsp
   ;; :commands (consult-lsp-diagnostics consult-lsp-symbols)
 )
+
+(my/leader-keys
+  "lc"  '(:ignore t :which-key "consult")
+  "lcd" 'consult-lsp-diagnostics
+  "lcs" 'consult-lsp-symbols
+  "lcf" '=consult-lsp-file-symbols
+  )
 
 ;; Use the following line to replace xref-find-apropos in lsp-mode controlled buffers:
 ;; (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
@@ -1571,6 +1616,9 @@
   ;;       hover-observatory-uri "http://my-custom-host:50300"
   ;;       hover-clear-buffer-on-hot-restart t)
   )
+
+(use-package edbi)
+(use-package edbi-sqlite)
 
 (use-package emmet-mode)
 
@@ -2802,7 +2850,7 @@ _d_: date        ^ ^              ^ ^
   :straight nil
   :preface
   (defun my/ledger-save ()
-    "clean the ledger buffer at each save."
+    "Clean the ledger buffer at each save."
     (interactive)
     (ledger-mode-clean-buffer)
     (save-buffer))
@@ -2811,17 +2859,17 @@ _d_: date        ^ ^              ^ ^
   :hook (ledger-mode . ledger-flymake-enable)
   :custom
   ;; (ledger-clear-whole-transactions t)
-  (ledger-reconcile-default-commodity "inr")
+  (ledger-reconcile-default-commodity "INR")
   ;; (ledger-reports
   ;;  '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
   ;;    ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
-  ;;    ("budget" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
-  ;;    ("budget goals" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
-  ;;    ("budget obligations" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
-  ;;    ("budget debts" "%(binary) --empty -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
+  ;;    ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
+  ;;    ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
+  ;;    ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
+  ;;    ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
   ;;    ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
   ;;    ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
-  ;;    ("income statement" "%(binary) --invert --real -s -t [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
+  ;;    ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
   ;;  (ledger-report-use-header-line nil))
   )
 
@@ -2833,10 +2881,6 @@ _d_: date        ^ ^              ^ ^
 
 (load-file (expand-file-name
             "temporary.el" user-emacs-directory))
-
-;; (defun connect-remote ()
-;;   (interactive)
-;;   (dired "/user@192.168.1.5:/"))
 
 (setq debug-on-error nil)
 (setq debug-on-quit nil)
