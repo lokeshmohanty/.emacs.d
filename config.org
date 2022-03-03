@@ -31,7 +31,8 @@ Also, turn on =lexical-binding= for the init file!
 #+begin_src emacs-lisp
 
   ;; The default is 800 kilobytes.  Measured in bytes.
-  (setq gc-cons-threshold (* 50 1000 1000))
+  ;; (setq gc-cons-threshold (* 50 1000 1000))
+  ;; (setq gc-cons-threshold (* 100 1024 1024))
 
   ;; Profile emacs startup
   (add-hook 'emacs-startup-hook
@@ -196,13 +197,14 @@ This sources ="~/.bashrc"= and then sets the path
 
 * GRAPHICAL USER INTERFACE SETTINGS
 ** Disable Menubar, Toolbars and Scrollbars
+Moved to early-init.el
 
 #+begin_src emacs-lisp
-
-  (menu-bar-mode -1)          ; Disable the menu bar
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (tooltip-mode -1)           ; Disable tooltips
+ 
+  ;; (menu-bar-mode -1)          ; Disable the menu bar
+  ;; (scroll-bar-mode -1)        ; Disable visible scrollbar
+  ;; (tool-bar-mode -1)          ; Disable the toolbar
+  ;; (tooltip-mode -1)           ; Disable tooltips
   ;; (set-fringe-mode 10)        ; Give some breathing room
 
 #+end_src
@@ -356,7 +358,7 @@ Use =general-define-key= to remap/map evil keybindings
         (general-create-definer my/leader-keys
           :keymaps '(normal insert visual emacs)
           :prefix "SPC"
-          :global-prefix "M-SPC")
+          :global-prefix "C-SPC")
 
         (general-create-definer my/ctrl-c-keys
           :prefix "C-c")
@@ -381,7 +383,10 @@ Use =general-define-key= to remap/map evil keybindings
           "ot"   '(vterm :which-key "vterm")
           "oy"   '(yas-insert-snippet :which-key "insert snippet")
           "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config"))
+          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config")
+          
+          "zt"    '(toggle-truncate-lines :whick-key "toggle truncate lines")
+          )
         )
 
 #+end_src
@@ -604,6 +609,7 @@ C-w -> Prefix for evil window commands
        ;; special-mode
        vterm-mode
        shell-mode
+       esh-mode
        eshell-mode
        apropos-mode
        help-mode
@@ -733,6 +739,12 @@ Setup evil mode to use vim like keybindings
     ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
     (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+    ;; ;; Make sure some modes start in Emacs state
+    ;; (dolist (mode '(custom-mode
+    ;;                 eshell-mode
+    ;;                 term-mode))
+    ;;   (add-to-list 'evil-emacs-state-modes mode))
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'erc-mode 'normal)
@@ -1314,6 +1326,9 @@ Check show paren mode [[stack-exchange:52209][fix]].
 
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
+
+  ;; Enable electric-pair-mode globally
+  (electric-pair-mode 1)
 
 #+end_src
 
@@ -1983,6 +1998,14 @@ Easy switching directories. Works great when combined with embark
 
 #+end_src
 
+* DOCKER
+
+#+begin_src emacs-lisp
+
+  (use-package docker)
+
+#+end_src
+
 * DEVELOPMENT
 ** Basic Config
 
@@ -2053,6 +2076,54 @@ With code nesting, it is important to always have a discrete visual on the inden
      :mode evil-vimish-fold-mode
      "zF" 'vimish-fold-avy)
     :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
+
+#+end_src
+
+** Project
+
+Referenced from [[https://github.com/bbatsov/projectile][projectile]]
+
+#+begin_src emacs-lisp
+
+  (defun my/project-ripgrep-consult ()
+    "Start consult-ripgrep in the current project's root."
+    (interactive)
+    (consult-ripgrep (project-root (project-current t))))
+
+  (defun my/project-run-vterm ()
+    "Invoke `vterm' in the project's root.
+    Switch to the project specific term buffer if it already exists."
+    (interactive)
+    (let* ((path (project-root (project-current t)))
+           (buffer (format "*%s %s*" "vterm" (directory-file-name path))))
+      (unless (buffer-live-p (get-buffer buffer))
+        (my/process-with-default-dir path
+                                     (vterm buffer)))
+      (popper-display-popup-at-bottom buffer)
+      (switch-to-buffer-other-window buffer)
+      ))
+
+  (defmacro my/process-with-default-dir (dir &rest body)
+    "Invoke in DIR the BODY."
+    (declare (debug t) (indent 1))
+    `(let ((default-directory ,dir))
+       ,@body))
+
+  ;; (general-define-key
+  ;;   ;; :states 'normal
+  ;;   ;; "C-x pg"  ':ignore t
+  ;;   ;; "C-x pgg" 'project-grep
+  ;;   ;; "C-x pgr" 'my/project-ripgrep-consult
+  ;;   ;; "C-x pt"  'my/project-run-vterm
+  ;;   )
+
+  (my/leader-keys
+    "mp"   '(:ignore t :which-key "+project")
+    "mpg"  '(:ignore t :which-key "+search")
+    "mpgg" '(project-grep :which-key "grep")
+    "mpgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
+    "mpt"  '(my/project-run-vterm :which-key "vterm")
+    )
 
 #+end_src
 
@@ -2302,7 +2373,7 @@ Debug config location -> .vscode/launch.json
       "name": "Current TS Tests File",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/.bin/jest",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["-r", "ts-node/register", "${relativeFile}"],
       "cwd": "${workspaceFolder}",
       "protocol": "inspector"
@@ -5206,6 +5277,16 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
 
 #+end_src
 
+* UUIDGEN
+
+#+begin_src emacs-lisp
+
+  (use-package uuidgen
+    :defer t)
+
+#+end_src
+
+
 * CUSTOM MACROS
 
 - =name-last-kbd-macro=
@@ -5224,13 +5305,16 @@ Taken from [[https://jonathanabennett.github.io/blog/2019/05/28/emacs.org-~-may-
 
 #+begin_src emacs-lisp
 
-  (setq debug-on-error nil)
-  (setq debug-on-quit nil)
+    (setq debug-on-error nil)
+    (setq debug-on-quit nil)
 
-  ;; (let ((elapsed (float-time (time-subtract (current-time)
-  ;;                                           emacs-start-time))))
-  ;;   (message "Loading settings...done (%.3fs)" elapsed))
-  ;; (put 'narrow-to-region 'disabled nil)
+    ;; Make GC pauses faster by decreasing the threshold.
+    (setq gc-cons-threshold (* 2 1000 1000))
+
+    ;; (let ((elapsed (float-time (time-subtract (current-time)
+    ;;                                           emacs-start-time))))
+    ;;   (message "Loading settings...done (%.3fs)" elapsed))
+    ;; (put 'narrow-to-region 'disabled nil)
 
 #+end_src
 
