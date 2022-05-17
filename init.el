@@ -8,7 +8,7 @@
 
 ;; The default is 800 kilobytes.  Measured in bytes.
 ;; (setq gc-cons-threshold (* 50 1000 1000))
-(setq gc-cons-threshold (* 100 1024 1024))
+;; (setq gc-cons-threshold (* 100 1024 1024))
 
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
@@ -108,10 +108,10 @@
          (split-string-and-unquote path ":")
          exec-path)))
 
-(menu-bar-mode -1)          ; Disable the menu bar
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
+;; (menu-bar-mode -1)          ; Disable the menu bar
+;; (scroll-bar-mode -1)        ; Disable visible scrollbar
+;; (tool-bar-mode -1)          ; Disable the toolbar
+;; (tooltip-mode -1)           ; Disable tooltips
 ;; (set-fringe-mode 10)        ; Give some breathing room
 
 (column-number-mode)
@@ -192,7 +192,7 @@
   (general-create-definer my/leader-keys
     :keymaps '(normal insert visual emacs)
     :prefix "SPC"
-    :global-prefix "M-SPC")
+    :global-prefix "C-SPC")
 
   (general-create-definer my/ctrl-c-keys
     :prefix "C-c")
@@ -370,6 +370,7 @@
      ;; special-mode
      vterm-mode
      shell-mode
+     esh-mode
      eshell-mode
      apropos-mode
      help-mode
@@ -433,6 +434,12 @@
   ;; Use visual line motions even outside of visual-line-mode buffers(replacement for gj, gk)
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  ;; ;; Make sure some modes start in Emacs state
+  ;; (dolist (mode '(custom-mode
+  ;;                 eshell-mode
+  ;;                 term-mode))
+  ;;   (add-to-list 'evil-emacs-state-modes mode))
 
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'erc-mode 'normal)
@@ -826,6 +833,9 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+;; Enable electric-pair-mode globally
+(electric-pair-mode 1)
 
 (my/leader-keys
   "d d" '(dired :which-key "Open dired")
@@ -1268,6 +1278,8 @@
     :tags '(desktop)
     :kill-signal 'sigkill))
 
+(use-package docker)
+
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
 
@@ -1321,18 +1333,20 @@
      ,@body))
 
 ;; (general-define-key
-;;   "C-x pg"  '(:ignore t :which-key "+search")
-;;   "C-x pgg" '(project-grep :which-key "grep")
-;;   "C-x pgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
-;;   "C-x pt"  '(my/project-run-vterm :which-key "vterm")
+;;   ;; :states 'normal
+;;   ;; "C-x pg"  ':ignore t
+;;   ;; "C-x pgg" 'project-grep
+;;   ;; "C-x pgr" 'my/project-ripgrep-consult
+;;   ;; "C-x pt"  'my/project-run-vterm
 ;;   )
 
-;; (my/leader-keys
-;;   "C-x pg"  '(:ignore t :which-key "+search")
-;;   "C-x pgg" '(project-grep :which-key "grep")
-;;   "C-x pgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
-;;   "C-x pt"  '(my/project-run-vterm :which-key "vterm")
-;;   )
+(my/leader-keys
+  "mp"   '(:ignore t :which-key "+project")
+  "mpg"  '(:ignore t :which-key "+search")
+  "mpgg" '(project-grep :which-key "grep")
+  "mpgr" '(my/project-ripgrep-consult :which-key "consult-ripgrep")
+  "mpt"  '(my/project-run-vterm :which-key "vterm")
+  )
 
 (use-package flycheck
   :delight
@@ -1537,7 +1551,16 @@
   :delight sql-mode "Σ"
   :hook (sql-mode . sqlind-minor-mode))
 
-(use-package haskell-mode)
+(use-package haskell-mode
+  :mode "\\.hs\\'"
+  ;; :hook ((haskell-mode . lsp-deferred))
+  )
+
+;; (require 'lsp)
+;; (require 'lsp-haskell)
+
+;; (add-hook 'haskell-mode-hook #'lsp)
+;; (add-hook 'haskell-literate-mode-hook #'lsp)
 
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
@@ -1617,6 +1640,11 @@
   ;;       hover-clear-buffer-on-hot-restart t)
   )
 
+(use-package tfsmacs)
+
+(setq tfsmacs-cmd "/home/lokesh/Repositories/Applications/TEE-CLC-14.137.0/tf")
+(setq tfsmacs-login "/login:MPTDC1-INDIA\\lokeshm,M0h@nty@345")
+
 (use-package edbi)
 (use-package edbi-sqlite)
 
@@ -1666,6 +1694,10 @@
   (interactive)
   (require 'magit-git)
   (setq-default magit-git-global-arguments (eval (car (get 'magit-git-global-arguments 'standard-value)))))
+
+(use-package forge)
+
+(setq forge-alist (append forge-alist '(("arc-bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository))))
 
 ;; (use-package perspective
 ;;   :bind
@@ -1717,8 +1749,11 @@
         ;; org-src-preserve-indentation nil
         ;; org-fontify-quote-and-verse-blocks t
         org-confirm-babel-evaluate nil
+        org-pretty-entities t        ;; set pretty entities by default
         )
 )    
+
+;; (set-default 'preview-scale-function 1.2)
 
   (my/leader-keys 
     "m"      '(:ignore t :which-key "Mode Specific Bindings")
@@ -1920,7 +1955,7 @@
         ("nv" "Vocabulary" entry 
          (file+olp+datetree "~/Org/Notes/Vocabulary.org")
          "\n* %<%I:%M %p>\n%?\n"
-         :clock-in :clock-resume :empty-lines 1)
+         :clock-in :clock-resume :empty-lines 0)
 
         ("j" "Journal Entries")
         ("jj" "Journal" entry
@@ -2879,11 +2914,17 @@ _d_: date        ^ ^              ^ ^
 
 (use-package guix)
 
+(use-package uuidgen
+  :defer t)
+
 (load-file (expand-file-name
             "temporary.el" user-emacs-directory))
 
 (setq debug-on-error nil)
 (setq debug-on-quit nil)
+
+;; Make GC pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
 
 ;; (let ((elapsed (float-time (time-subtract (current-time)
 ;;                                           emacs-start-time))))

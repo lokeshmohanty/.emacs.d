@@ -1899,6 +1899,8 @@ Easy switching directories. Works great when combined with embark
 
 * JUMPING
 
+*Narrowing*: https://emacs.stackexchange.com/a/68637
+
 #+begin_src emacs-lisp
 
   (use-package avy
@@ -2802,18 +2804,11 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 #+end_src
 
 **** Python
-
-We use =lsp-mode= and =dap-mode= to provide a more complete development environment for Python in Emacs.  Check out [[https://emacs-lsp.github.io/lsp-mode/page/lsp-pyls/][the =pyls= configuration]] in the =lsp-mode= documentation for more details.
-
-Make sure you have the =pyls= language server installed before trying =lsp-mode=!
-
-#+begin_src sh :tangle no
-
-  # pip install --user "python-language-server[all]"
-
-#+end_src
-
-There are a number of other language servers for Python so if you find that =pyls= doesn't work for you, consult the =lsp-mode= [[https://emacs-lsp.github.io/lsp-mode/page/languages/][language configuration documentation]] to try the others!
+***** Python Mode
+Python with GNU Emacs is one of the best supported languages. By using
+=python-mode= and [[https://github.com/microsoft/pyright][pyright]] as LSP server, it's fun to develop in Python. With
+=python-mode= I like to add some bindings to speed up the code code navigation in
+Python. Besides that, I use [[https://github.com/myint/autoflake][autoflake]] to remove unused imports and variables.
 
 #+begin_src emacs-lisp
 
@@ -2826,29 +2821,6 @@ There are a number of other language servers for Python so if you find that =pyl
   ;;   (dap-python-debugger 'debugpy)
   ;;   :config
   ;;   (require 'dap-python))
-
-
-#+end_src
-
-You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =pyvenv-activate= command should configure Emacs to cause =lsp-mode= and =dap-mode= to use the virtual environment when they are loaded, just select the path to your virtual environment before loading your project.
-
-#+begin_src emacs-lisp
-
-  ;; (use-package pyvenv
-  ;;   :after python-mode
-  ;;   :config
-  ;;   (pyvenv-mode 1))
-
-#+end_src
-
-**** Python 1
-
-Python with GNU Emacs is one of the best supported languages. By using
-=python-mode= and [[https://github.com/microsoft/pyright][pyright]] as LSP server, it's fun to develop in Python. With
-=python-mode= I like to add some bindings to speed up the code code navigation in
-Python. Besides that, I use [[https://github.com/myint/autoflake][autoflake]] to remove unused imports and variables.
-
-#+begin_src emacs-lisp
 
   ;; (use-package python
   ;;   :straight flycheck
@@ -2873,6 +2845,7 @@ Python. Besides that, I use [[https://github.com/myint/autoflake][autoflake]] to
 
 #+end_src
 
+***** Pyright
 I have tried several LSP servers. I have experienced that =mspyls= is faster than
 =pylsp=, but =mspyls= has a memory leakage and became depreciated in favor of
 =pyright=. To configure pyright with GNU Emacs, the [[https://github.com/emacs-lsp/lsp-pyright][lsp-pyright]] package is
@@ -2892,6 +2865,7 @@ enough.
 
 #+end_src
 
+***** Formatter
 To make sure my Python code is well formatted, I use [[https://github.com/psf/black][black]]. Feel free to install
 it in your virtual environment or directly on your system.
 
@@ -2904,6 +2878,7 @@ it in your virtual environment or directly on your system.
 
 #+end_src
 
+***** Sort Imports
 To sort my Python imports, [[https://github.com/paetzke/py-isort.el][py-isort]] does a good job. Also, do not forget to
 install in your virtual environment or directly on your system.
 
@@ -2912,6 +2887,18 @@ install in your virtual environment or directly on your system.
   ;; (use-package py-isort
   ;;   :hook ((before-save . py-isort-before-save)
   ;;          (python-mode . pyvenv-mode)))
+
+#+end_src
+
+***** Virtual Environment
+You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =pyvenv-activate= command should configure Emacs to cause =lsp-mode= and =dap-mode= to use the virtual environment when they are loaded, just select the path to your virtual environment before loading your project.
+
+#+begin_src emacs-lisp
+
+  ;; (use-package pyvenv
+  ;;   :after python
+  ;;   :config
+  ;;   (pyvenv-mode 1))
 
 #+end_src
 
@@ -2933,23 +2920,27 @@ buffers are closed.
 
 #+end_src
 
-Finally, to better manage the different versions of Python through projects, I
-use [[https://github.com/pyenv/pyenv][pyenv]] through [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode]]-mode. To use it, make sure you have =pyenv= installed
-on your system.
+***** Jupyter
+[[https://github.com/millejoh/emacs-ipython-notebook][Emacs-ipython-notebook]] is for directly editing .ipynb files. [[https://github.com/nnicandro/emacs-jupyter][Emacs-jupyter]] provides repl and org-mode source block frontends to jupyter. [[https://www.reddit.com/r/emacs/comments/i5xagf/ein_or_emacsjupyter_users_here/][Ein vs Jupyter]] has some good suggestions for handling jupyter files.
+
+EIN usage:
+- Open an ~.ipynb~ file, press ~C-c C-o~, or,
+- ~M-x ein:run~ launches a jupyter process from emacs, or,
+- ~M-x ein:login~ to a running jupyter server, or,
+- ~M-x ein:login~ to any of
+  - https://hub.data8x.berkeley.edu
+  - https://hub.data8x.berkeley.edu/user/1dcdab3
+  - https://hub.data8x.berkeley.edu/user/1dcdab3/?token=c421c68
+- ~M-x ein:stop~ prompts to halt local and remote jupyter services.
+
+Alternatively, ob-ein.
 
 #+begin_src emacs-lisp
 
-  ;; (use-package pyenv-mode
-  ;;   :hook ((python-mode . pyenv-mode)
-  ;;          (projectile-switch-project . projectile-pyenv-mode-set))
-  ;;   :custom (pyenv-mode-set "3.8.5")
-  ;;   :preface
-  ;;   (defun projectile-pyenv-mode-set ()
-  ;;     "Set pyenv version matching project name."
-  ;;     (let ((project (projectile-project-name)))
-  ;;       (if (member project (pyenv-mode-versions))
-  ;;           (pyenv-mode-set project)
-  ;;         (pyenv-mode-unset)))))
+  ;; requirements: emacs-web-socket, simple-httpd, zmq
+  ;; (use-package jupyter)
+
+  (use-package ein)
 
 #+end_src
 
@@ -3237,6 +3228,17 @@ Run *my/magit-status-bare* to use magit on dotfiles. To revert magit in order to
     (setq-default magit-git-global-arguments (eval (car (get 'magit-git-global-arguments 'standard-value)))))
 #+end_src
 
+*** Forge
+
+#+begin_src emacs-lisp
+
+  (use-package forge)
+
+  (setq forge-alist (append forge-alist '(("arc-bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository))))
+
+#+end_src
+
+
 ** PERSPECTIVE
 
 Similar to workspaces. Each perspective has its own buffer list and
@@ -3284,8 +3286,9 @@ window layout.
 (setq org-clock-sound "~/Downloads/ding.wav")
 
 For entities compeletion: =\<M-tab>=
-| =org-entities-help=          |           |
-| =org-toggle-pretty-entities= | =C-c C-x \= |
+| =org-entities-help=          |             |
+| =org-toggle-pretty-entities= | =C-c C-x \=   |
+| =org-latex-preview=          | =C-c C-x C-l= |
 
 | =org-toggle-inline-image= | =C-c C-x C-v= |
 #+caption: caption for the figure
@@ -3401,8 +3404,11 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
           ;; org-src-preserve-indentation nil
           ;; org-fontify-quote-and-verse-blocks t
           org-confirm-babel-evaluate nil
+          org-pretty-entities t        ;; set pretty entities by default
           )
   )    
+
+  ;; (set-default 'preview-scale-function 1.2)
 
     (my/leader-keys 
       "m"      '(:ignore t :which-key "Mode Specific Bindings")
@@ -3726,7 +3732,7 @@ This is particularly useful if you use the org-habits module and you are late to
           ("nv" "Vocabulary" entry 
            (file+olp+datetree "~/Org/Notes/Vocabulary.org")
            "\n* %<%I:%M %p>\n%?\n"
-           :clock-in :clock-resume :empty-lines 1)
+           :clock-in :clock-resume :empty-lines 0)
 
           ("j" "Journal Entries")
           ("jj" "Journal" entry
@@ -5162,7 +5168,7 @@ I use [[https://www.passwordstore.org/][pass]] to manage all of my passwords loc
 
 #+end_src
 
-* Money management
+* MONEY MANAGEMENT
 
 [[https://www.ledger-cli.org/][Ledger]] allows you to have a double-entry accounting system. it also helps in commodity tracking. [[https://github.com/ledger/ledger-mode][Ledger-mode]] package helps TO EDIT THESE IN EMACS.
   
@@ -5285,7 +5291,6 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
     :defer t)
 
 #+end_src
-
 
 * CUSTOM MACROS
 
