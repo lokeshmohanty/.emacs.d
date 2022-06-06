@@ -3132,8 +3132,8 @@ system package manager.
 
 #+begin_src emacs-lisp
 
-  (use-package edbi)
-  (use-package edbi-sqlite)
+  ;; (use-package edbi)
+  ;; (use-package edbi-sqlite)
 
 #+end_src
 
@@ -3404,7 +3404,7 @@ Emphasis: *bold* /italic/ _underlined_ =verbatim= ~code~ +strike-through+
           ;; org-src-preserve-indentation nil
           ;; org-fontify-quote-and-verse-blocks t
           org-confirm-babel-evaluate nil
-          org-pretty-entities t        ;; set pretty entities by default
+          ;; org-pretty-entities t        ;; set pretty entities by default
           )
   )    
 

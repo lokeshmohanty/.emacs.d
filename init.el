@@ -1640,13 +1640,8 @@
   ;;       hover-clear-buffer-on-hot-restart t)
   )
 
-(use-package tfsmacs)
-
-(setq tfsmacs-cmd "/home/lokesh/Repositories/Applications/TEE-CLC-14.137.0/tf")
-(setq tfsmacs-login "/login:MPTDC1-INDIA\\lokeshm,M0h@nty@345")
-
-(use-package edbi)
-(use-package edbi-sqlite)
+;; (use-package edbi)
+;; (use-package edbi-sqlite)
 
 (use-package emmet-mode)
 
@@ -1749,7 +1744,7 @@
         ;; org-src-preserve-indentation nil
         ;; org-fontify-quote-and-verse-blocks t
         org-confirm-babel-evaluate nil
-        org-pretty-entities t        ;; set pretty entities by default
+        ;; org-pretty-entities t        ;; set pretty entities by default
         )
 )    
 
