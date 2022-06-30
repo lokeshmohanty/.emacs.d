@@ -1,8 +1,8 @@
 ;; Required for functions that return functions ( used by custom function to filter tags in org-roam )
 ;; -*- lexical-binding: t; -*-
 
-(setq debug-on-error t)
-(setq debug-on-quit t)
+;; (setq debug-on-error t)
+;; (setq debug-on-quit t)
 
 ;; (defconst emacs-start-time (current-time))
 
@@ -978,7 +978,7 @@
 ;;  (error nil))
 
 (use-package vterm
-  :straight nil
+  ;; :straight nil
   :custom
   (vterm-shell "fish"))
 
@@ -1690,9 +1690,9 @@
   (require 'magit-git)
   (setq-default magit-git-global-arguments (eval (car (get 'magit-git-global-arguments 'standard-value)))))
 
-(use-package forge)
+;; (use-package forge)
 
-(setq forge-alist (append forge-alist '(("arc-bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository))))
+;; (setq forge-alist (append forge-alist '(("arc-bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository))))
 
 ;; (use-package perspective
 ;;   :bind
@@ -1898,6 +1898,10 @@
         ("planning" . ?p)
         ("note" . ?n)
         ("idea" . ?i)))
+
+;; (defun org-find-month-in-datetree()
+;;   (org-datetree-find-date-create (calendar-current-date))
+;;   (kill-line))
 
 (setq org-capture-templates 
       `(("t" "Tasks")
@@ -2194,8 +2198,8 @@ _d_: date        ^ ^              ^ ^
   (my/org-roam-refresh-agenda-list)
   )
 
-(use-package ox-reveal
-   :straight nil)
+(use-package ox-reveal)
+
 ;; (use-package org-reveal
 ;;   :straight nil)
 
@@ -2282,6 +2286,16 @@ _d_: date        ^ ^              ^ ^
   ;; :defer 20 ; Wait until 20 seconds after startup
   :init
   (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+  :straight
+  ;;           ;; ( :host github 
+  ;;           ;;   :repo "djcb/mu"  
+  ;;           ;;   :branch "master"
+  ;;           ;;   :files ("mu4e/*")   
+  ;;           ;;   :pre-build (("./autogen.sh") ("make"))) 
+              ( :host github :files ("build/mu4e/*.el") :repo "djcb/mu"
+            :pre-build (("./autogen.sh")
+                        ("ninja" "-C" "build")))
+  ;; :custom   (mu4e-mu-binary (expand-file-name "mu/mu" (straight--repos-dir "mu")))) 
   :config
   ;; Refresh mail using isync every 10 minutes
   (setq mu4e-update-interval (* 15 60))
@@ -2719,7 +2733,6 @@ _d_: date        ^ ^              ^ ^
 ;; (advice-add 'exwm-workspace-switch :before #'dw/before-exwm-workspace-switch)
 
 (use-package telega
-  :straight nil
   :commands telega
   :config
   (setq telega-user-use-avatars nil
@@ -2877,7 +2890,7 @@ _d_: date        ^ ^              ^ ^
 ;;   "apg" 'password-store-generate)
 
 (use-package ledger-mode
-  :straight nil
+  ;; :straight nil
   :preface
   (defun my/ledger-save ()
     "Clean the ledger buffer at each save."
@@ -2907,16 +2920,14 @@ _d_: date        ^ ^              ^ ^
 
 (use-package emacs-everywhere)
 
-(use-package guix)
-
 (use-package uuidgen
   :defer t)
 
 (load-file (expand-file-name
             "temporary.el" user-emacs-directory))
 
-(setq debug-on-error nil)
-(setq debug-on-quit nil)
+;; (setq debug-on-error nil)
+;; (setq debug-on-quit nil)
 
 ;; Make GC pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
