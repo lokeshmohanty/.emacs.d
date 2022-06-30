@@ -2300,7 +2300,7 @@ _d_: date        ^ ^              ^ ^
   ;; Refresh mail using isync every 10 minutes
   (setq mu4e-update-interval (* 15 60))
   (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -aV")
-  (setq mu4e-maildir "~/Maildir")
+  (setq mu4e-maildir "~/.local/share/mail")
 
   ;; Make sure that moving a message (like to Trash) causes the
   ;; message to get a new file name.  This helps to avoid the
@@ -2428,7 +2428,6 @@ _d_: date        ^ ^              ^ ^
                               (concat
                                "Lokesh Mohanty\n"
                                "Software Engineer\n" 
-                               "OpenSource Team\n" 
                                "ARC Document Solutions\n"))
                              ("informal" .
                               "Lokesh Mohanty\n")))))
@@ -2694,9 +2693,6 @@ _d_: date        ^ ^              ^ ^
   (kbd "C-j") 'elfeed-goodies/split-show-next
   (kbd "C-k") 'elfeed-goodies/split-show-prev)
 
-  ;; (setq httpd-port 9010)
-  ;; (elfeed-web-start)
-
 (use-package tracking
   :defer t
   :config
@@ -2923,8 +2919,8 @@ _d_: date        ^ ^              ^ ^
 (use-package uuidgen
   :defer t)
 
-(load-file (expand-file-name
-            "temporary.el" user-emacs-directory))
+(let ((file (expand-file-name "temporary.el" user-emacs-directory)))
+  (if (file-exists-p file) (load-file file)))
 
 ;; (setq debug-on-error nil)
 ;; (setq debug-on-quit nil)

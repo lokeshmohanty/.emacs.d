@@ -4217,7 +4217,7 @@ Run *mu init* to initialize mu for email addresses. Required only while changing
 
 #+begin_src shell
 
-  mu init --maildir=~/Mail --my-address=lokesh1197@gmail.com --my-address=lokesh.mohanty@e-arc.com
+  mu init --maildir=~/.local/share/mail --my-address=lokesh1197@gmail.com --my-address=lokesh.mohanty@e-arc.com
 
 #+end_src
 
@@ -4265,7 +4265,7 @@ Run *pkill mu* in case of mu lock error
     ;; Refresh mail using isync every 10 minutes
     (setq mu4e-update-interval (* 15 60))
     (setq mu4e-get-mail-command "mbsync -c ~/.config/mu4e/mbsyncrc -aV")
-    (setq mu4e-maildir "~/Maildir")
+    (setq mu4e-maildir "~/.local/share/mail")
 
     ;; Make sure that moving a message (like to Trash) causes the
     ;; message to get a new file name.  This helps to avoid the
@@ -4405,7 +4405,6 @@ Run *pkill mu* in case of mu lock error
                                 (concat
                                  "Lokesh Mohanty\n"
                                  "Software Engineer\n" 
-                                 "OpenSource Team\n" 
                                  "ARC Document Solutions\n"))
                                ("informal" .
                                 "Lokesh Mohanty\n")))))
@@ -4541,7 +4540,7 @@ Run *pkill mu* in case of mu lock error
 
 #+end_src
 
-*** Mu4e Alerts
+** Mu4e Alerts
 
 #+begin_src emacs-lisp
 
@@ -5273,8 +5272,8 @@ Finally, to provides a =flychecker= checker for Ledger files, you can use
 
 #+begin_src emacs-lisp
 
-  (load-file (expand-file-name
-              "temporary.el" user-emacs-directory))
+  (let ((file (expand-file-name "temporary.el" user-emacs-directory)))
+    (if (file-exists-p file) (load-file file)))
 
 #+end_src
 
