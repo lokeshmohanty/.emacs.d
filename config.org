@@ -382,8 +382,8 @@ Use =general-define-key= to remap/map evil keybindings
           "op"   '(prodigy :which-key "prodigy")
           "ot"   '(vterm :which-key "vterm")
           "oy"   '(yas-insert-snippet :which-key "insert snippet")
-          "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config")
+          "hrr" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+          "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.config/emacs/config.org")) :which-key "Goto emacs config")
           
           "zt"    '(toggle-truncate-lines :whick-key "toggle truncate lines")
           )
@@ -413,7 +413,7 @@ Use =general-define-key= to remap/map evil keybindings
     :config
     ;; (setq ibuffer-saved-filter-groups
     ;;       '(("home"
-    ;;   ("emacs-config" (or (filename . ".emacs.d")
+    ;;   ("emacs-config" (or (filename . ".config/emacs")
     ;;           (filename . "emacs-config")))
     ;;         ("martinowen.net" (filename . "martinowen.net"))
     ;;   ("Org" (or (mode . org-mode)
@@ -974,7 +974,7 @@ Group jump-to-files commands.
      "Config"
      (("ca" (find-file (format "%s/alacritty/alacritty.yml" xdg-config)) "alacritty")
       ("cA" (find-file (format "%s/sh/aliases" xdg-config)) "aliases")
-      ("ce" (find-file "~/.emacs.d/config.org") "emacs")
+      ("ce" (find-file "~/.config/emacs/config.org") "emacs")
       ("cE" (find-file (format "%s/sh/environ" xdg-config)) "environ")
       ("cn" (find-file (format "%s/neofetch/config.conf" xdg-config)) "neofetch")
       ("cq" (find-file (format "%s/qutebrowser/config.py" xdg-config)) "qutebrowser")
@@ -1297,7 +1297,7 @@ Distraction free writing mode
 
   (use-package yasnippet
     :config
-    ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+    ;; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
     (yas-global-mode 1)   ;; enables yasnippet globally
     )
 
@@ -1559,7 +1559,7 @@ During the filtering process, several special functions are available. You can c
     (setq dashboard-set-file-icons t)
     (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
     ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-    (setq dashboard-startup-banner "~/.emacs.d/emacs-dash.png")  ;; use custom image as banner
+    (setq dashboard-startup-banner "~/.config/emacs/emacs-dash.png")  ;; use custom image as banner
     (setq dashboard-center-content nil)
 
     :config
@@ -1581,7 +1581,7 @@ During the filtering process, several special functions are available. You can c
 
 #+begin_src emacs-lisp
   ;; (condition-case nil
-  ;; (add-to-list 'load-path "/home/lokesh/.emacs.d/straight/repos/emacs-libvterm")
+  ;; (add-to-list 'load-path "/home/lokesh/.config/emacs/straight/repos/emacs-libvterm")
   ;;   (require 'vterm)
   ;;  (error nil))
 
@@ -1776,8 +1776,8 @@ Extra commands for vertico
 #+begin_src emacs-lisp
 
   (use-package corfu
-    ;; :straight '(corfu :host github
-    ;;                   :repo "minad/corfu")
+    :straight '(corfu :host github
+                      :repo "minad/corfu")
     ;; Optional customizations
     :custom
     (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
@@ -1800,7 +1800,7 @@ Extra commands for vertico
     ;; Recommended: Enable Corfu globally.
     ;; This is recommended since dabbrev can be used globally (M-/).
     :init
-    (corfu-global-mode))
+    (global-corfu-mode))
 
   ;; Emacs tries to complete the word by searching all open buffers
   ;; Dabbrev is in-built into emacs. It works with Corfu
