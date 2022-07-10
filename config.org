@@ -2311,37 +2311,37 @@ Dap ui -> sessions, locals, expressions, breakpoints
 
 #+begin_src emacs-lisp
 
-  (use-package dap-mode
-    :after lsp-mode
-    ;; Hide all dap-ui buffers
-    :custom
-    (lsp-enable-dap-auto-configure nil)
+  ;; (use-package dap-mode
+  ;;   :after lsp-mode
+  ;;   ;; Hide all dap-ui buffers
+  ;;   :custom
+  ;;   (lsp-enable-dap-auto-configure nil)
 
-    :config
-    (dap-ui-mode 1)       ;; show basic ui
-    (dap-tooltip-mode 1)  ;; show tooltip
+  ;;   :config
+  ;;   (dap-ui-mode 1)       ;; show basic ui
+  ;;   (dap-tooltip-mode 1)  ;; show tooltip
 
-    ;; Setup debugging for node
-    (require 'dap-node)
-    ;; (require 'dap-node-terminal)
-    ;; (require 'dap-firefox)
-    ;; (require 'dap-chrome)
-    ;; (dap-node-setup)
+  ;;   ;; Setup debugging for node
+  ;;   (require 'dap-node)
+  ;;   ;; (require 'dap-node-terminal)
+  ;;   ;; (require 'dap-firefox)
+  ;;   ;; (require 'dap-chrome)
+  ;;   ;; (dap-node-setup)
 
-    (add-hook 'dap-stopped-hook
-              (lambda (arg) (call-interactively #'dap-hydra)))
+  ;;   (add-hook 'dap-stopped-hook
+  ;;             (lambda (arg) (call-interactively #'dap-hydra)))
 
-    ;; Bind `C-c l d` to `dap-hydra` for easy access
-    (general-define-key
-     :keymaps 'lsp-mode-map
-     :prefix lsp-keymap-prefix
-     "d" '(dap-hydra t :wk "debugger"))
-  )
+  ;;   ;; Bind `C-c l d` to `dap-hydra` for easy access
+  ;;   (general-define-key
+  ;;    :keymaps 'lsp-mode-map
+  ;;    :prefix lsp-keymap-prefix
+  ;;    "d" '(dap-hydra t :wk "debugger"))
+  ;; )
 
   ;; (defun my/download-dap-node ()
   ;;   "Downloads vscode-node-debug2 from github and sets it up in the right path"
   ;;   (interactive)
-  ;;   (async-shell-command (concat "cd ~/.emacs.d/var/dap/extensions/vscode"
+  ;;   (async-shell-command (concat "cd ~/.config/emacs/var/dap/extensions/vscode"
   ;;                                " && aria2c https://codeload.github.com/microsoft/vscode-node-debug2/tar.gz/refs/tags/v1.43.0"
   ;;                                " && tar -xvf vscode-node-debug2-1.43.0.tar.gz"
   ;;                                " && mv vscode-node-debug2-1.43.0 extension"
