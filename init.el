@@ -216,8 +216,8 @@
     "op"   '(prodigy :which-key "prodigy")
     "ot"   '(vterm :which-key "vterm")
     "oy"   '(yas-insert-snippet :which-key "insert snippet")
-    "hrr" '((lambda () (interactive) (load-file "~/.emacs.d/init.el")) :which-key "Reload emacs config")
-    "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/config.org")) :which-key "Goto emacs config")
+    "hrr" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+    "hpc" '(lambda () (interactive) (find-file (expand-file-name "~/.config/emacs/config.org")) :which-key "Goto emacs config")
 
     "zt"    '(toggle-truncate-lines :whick-key "toggle truncate lines")
     )
@@ -241,7 +241,7 @@
   :config
   ;; (setq ibuffer-saved-filter-groups
   ;;       '(("home"
-  ;;   ("emacs-config" (or (filename . ".emacs.d")
+  ;;   ("emacs-config" (or (filename . ".config/emacs")
   ;;           (filename . "emacs-config")))
   ;;         ("martinowen.net" (filename . "martinowen.net"))
   ;;   ("Org" (or (mode . org-mode)
@@ -598,7 +598,7 @@
    "Config"
    (("ca" (find-file (format "%s/alacritty/alacritty.yml" xdg-config)) "alacritty")
     ("cA" (find-file (format "%s/sh/aliases" xdg-config)) "aliases")
-    ("ce" (find-file "~/.emacs.d/config.org") "emacs")
+    ("ce" (find-file "~/.config/emacs/config.org") "emacs")
     ("cE" (find-file (format "%s/sh/environ" xdg-config)) "environ")
     ("cn" (find-file (format "%s/neofetch/config.conf" xdg-config)) "neofetch")
     ("cq" (find-file (format "%s/qutebrowser/config.py" xdg-config)) "qutebrowser")
@@ -812,7 +812,7 @@
 
 (use-package yasnippet
   :config
-  ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  ;; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
   (yas-global-mode 1)   ;; enables yasnippet globally
   )
 
@@ -963,7 +963,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
   ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-  (setq dashboard-startup-banner "~/.emacs.d/emacs-dash.png")  ;; use custom image as banner
+  (setq dashboard-startup-banner "~/.config/emacs/emacs-dash.png")  ;; use custom image as banner
   (setq dashboard-center-content nil)
 
   :config
@@ -973,7 +973,7 @@
 (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
 ;; (condition-case nil
-;; (add-to-list 'load-path "/home/lokesh/.emacs.d/straight/repos/emacs-libvterm")
+;; (add-to-list 'load-path "/home/lokesh/.config/emacs/straight/repos/emacs-libvterm")
 ;;   (require 'vterm)
 ;;  (error nil))
 
@@ -1103,8 +1103,8 @@
   )
 
 (use-package corfu
-  ;; :straight '(corfu :host github
-  ;;                   :repo "minad/corfu")
+  :straight '(corfu :host github
+                    :repo "minad/corfu")
   ;; Optional customizations
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
@@ -1127,7 +1127,7 @@
   ;; Recommended: Enable Corfu globally.
   ;; This is recommended since dabbrev can be used globally (M-/).
   :init
-  (corfu-global-mode))
+  (global-corfu-mode))
 
 ;; Emacs tries to complete the word by searching all open buffers
 ;; Dabbrev is in-built into emacs. It works with Corfu
@@ -1254,21 +1254,21 @@
     :name 'desktop
     :ready-message "Desktop services. Ctrl-C to shutdown.")
   (prodigy-define-service
-    :name "lokesh-gmail-imap"
+    :name "lokesh1197@gmail.com-imap"
     :command "goimapnotify"
-    :args (list "-conf" (expand-file-name "goimapnotify/lokesh-gmail.json" (getenv "XDG_CONFIG_HOME")))
+    :args (list "-conf" (expand-file-name "goimapnotify/lokesh1197@gmail.com.json" (getenv "XDG_CONFIG_HOME")))
     :tags '(email)
     :kill-signal 'sigkill)
   (prodigy-define-service
-    :name "lokesh-yahoo-imap"
+    :name "lokesh1197@yahoo.com-imap"
     :command "goimapnotify"
-    :args (list "-conf" (expand-file-name "goimapnotify/lokesh-yahoo.json" (getenv "XDG_CONFIG_HOME")))
+    :args (list "-conf" (expand-file-name "goimapnotify/lokesh1197@yahoo.com.json" (getenv "XDG_CONFIG_HOME")))
     :tags '(email)
     :kill-signal 'sigkill)
   (prodigy-define-service
-    :name "office-arc-imap"
+    :name "lokesh.mohanty@e-arc.com-imap"
     :command "goimapnotify"
-    :args (list "-conf" (expand-file-name "goimapnotify/office-arc.json" (getenv "XDG_CONFIG_HOME")))
+    :args (list "-conf" (expand-file-name "goimapnotify/lokesh.mohanty@e-arc.com.json" (getenv "XDG_CONFIG_HOME")))
     :tags '(email)
     :kill-signal 'sigkill)
   (prodigy-define-service
@@ -1423,37 +1423,37 @@
 ;; Use the following line to replace xref-find-apropos in lsp-mode controlled buffers:
 ;; (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
 
-(use-package dap-mode
-  :after lsp-mode
-  ;; Hide all dap-ui buffers
-  :custom
-  (lsp-enable-dap-auto-configure nil)
+;; (use-package dap-mode
+;;   :after lsp-mode
+;;   ;; Hide all dap-ui buffers
+;;   :custom
+;;   (lsp-enable-dap-auto-configure nil)
 
-  :config
-  (dap-ui-mode 1)       ;; show basic ui
-  (dap-tooltip-mode 1)  ;; show tooltip
+;;   :config
+;;   (dap-ui-mode 1)       ;; show basic ui
+;;   (dap-tooltip-mode 1)  ;; show tooltip
 
-  ;; Setup debugging for node
-  (require 'dap-node)
-  ;; (require 'dap-node-terminal)
-  ;; (require 'dap-firefox)
-  ;; (require 'dap-chrome)
-  ;; (dap-node-setup)
+;;   ;; Setup debugging for node
+;;   (require 'dap-node)
+;;   ;; (require 'dap-node-terminal)
+;;   ;; (require 'dap-firefox)
+;;   ;; (require 'dap-chrome)
+;;   ;; (dap-node-setup)
 
-  (add-hook 'dap-stopped-hook
-            (lambda (arg) (call-interactively #'dap-hydra)))
+;;   (add-hook 'dap-stopped-hook
+;;             (lambda (arg) (call-interactively #'dap-hydra)))
 
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  (general-define-key
-   :keymaps 'lsp-mode-map
-   :prefix lsp-keymap-prefix
-   "d" '(dap-hydra t :wk "debugger"))
-)
+;;   ;; Bind `C-c l d` to `dap-hydra` for easy access
+;;   (general-define-key
+;;    :keymaps 'lsp-mode-map
+;;    :prefix lsp-keymap-prefix
+;;    "d" '(dap-hydra t :wk "debugger"))
+;; )
 
 ;; (defun my/download-dap-node ()
 ;;   "Downloads vscode-node-debug2 from github and sets it up in the right path"
 ;;   (interactive)
-;;   (async-shell-command (concat "cd ~/.emacs.d/var/dap/extensions/vscode"
+;;   (async-shell-command (concat "cd ~/.config/emacs/var/dap/extensions/vscode"
 ;;                                " && aria2c https://codeload.github.com/microsoft/vscode-node-debug2/tar.gz/refs/tags/v1.43.0"
 ;;                                " && tar -xvf vscode-node-debug2-1.43.0.tar.gz"
 ;;                                " && mv vscode-node-debug2-1.43.0 extension"
@@ -1479,7 +1479,7 @@
   :hook ((typescript-mode . lsp-deferred))
   :mode ("\\.\\(ts\\|tsx\\)\\'")
   :custom
-  (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
+  ;; (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
   (typescript-indent-level 2)
   :config
   (flycheck-add-mode 'javascript-eslint 'typescript-mode)
@@ -1640,6 +1640,185 @@
   ;;       hover-clear-buffer-on-hot-restart t)
   )
 
+;; (use-package ccls
+;;   :hook ((c-mode c++-mode objc-mode cuda-mode) .
+;;          (lambda () (require 'ccls) (lsp))))
+
+;; (use-package lispy
+;;   :hook ((emacs-lisp-mode . lispy-mode)
+;;          (scheme-mode . lispy-mode)))
+
+;; ;; (use-package evil-lispy
+;; ;;   :hook ((lispy-mode . evil-lispy-mode)))
+
+;; (use-package lispyville
+;;   :hook ((lispy-mode . lispyville-mode))
+;;   :config
+;;   (lispyville-set-key-theme '(operators c-w additional
+;;                               additional-movement slurp/barf-cp
+;;                               prettify)))
+
+;; (use-package web-mode
+;;   :mode "(\\.\\(html?\\|ejs\\|tsx\\|jsx\\)\\'"
+;;   :config
+;;   (setq-default web-mode-code-indent-offset 2)
+;;   (setq-default web-mode-markup-indent-offset 2)
+;;   (setq-default web-mode-attribute-indent-offset 2))
+
+;; ;; 1. Start the server with `httpd-start'
+;; ;; 2. Use `impatient-mode' on any buffer
+;; (use-package impatient-mode)
+
+;; (use-package skewer-mode)
+
+;; (use-package python-mode
+;;   :hook (python-mode . lsp-deferred)
+;;   :custom
+;;   ;; NOTE: Set these if Python 3 is called "python3" on your system!
+;;   ;; (python-shell-interpreter "python3")
+;;   ;; (dap-python-executable "python3")
+;;   (dap-python-debugger 'debugpy)
+;;   :config
+;;   (require 'dap-python))
+
+;; (use-package python
+;;   :straight flycheck
+;;   :delight "π"
+;;   :preface
+;;   (defun python-remove-unused-imports()
+;;     "Remove unused imports and unused variables with autoflake."
+;;     (interactive)
+;;     (if (executable-find "autoflake")
+;;         (progn
+;;           (shell-command (format "autoflake --remove-all-unused-imports -i %s"
+;;                                  (shell-quote-argument (buffer-file-name))))
+;;           (revert-buffer t t t))
+;;       (warn "[✗] python-mode: Cannot find autoflake executable.")))
+;;   :bind (:map python-mode-map
+;;               ("M-[" . python-nav-backward-block)
+;;               ("M-]" . python-nav-forward-block)
+;;               ("M-|" . python-remove-unused-imports))
+;;   :custom
+;;   (flycheck-pylintrc "~/.pylintrc")
+;;   (flycheck-python-pylint-executable "/usr/bin/pylint"))
+
+;; (use-package lsp-pyright
+;;   :if (executable-find "pyright")
+;;   ;; To properly load `lsp-pyrigt', the `require' instruction is important.
+;;   :hook (python-mode . (lambda ()
+;;                          (require 'lsp-pyright)
+;;                          (lsp-deferred)))
+;;   :custom
+;;   (lsp-pyright-python-executable-cmd "python3")
+;;   (lsp-pyright-venv-path "~/.cache/pypoetry/virtualenvs/"))
+
+;; (use-package blacken
+;;   :delight
+;;   :hook (python-mode . blacken-mode)
+;;   :custom (blacken-line-length 79))
+
+;; (use-package py-isort
+;;   :hook ((before-save . py-isort-before-save)
+;;          (python-mode . pyvenv-mode)))
+
+;; (use-package pyvenv
+;;   :after python
+;;   :config
+;;   (pyvenv-mode 1))
+
+;; (use-package pyvenv
+;;   :after python
+;;   :custom
+;;   (pyvenv-default-virtual-env-name (expand-file-name (format "%s/myenv/" xdg-data)))
+;;   (pyvenv-workon (expand-file-name (format "%s/myenv/" xdg-data)))
+;;   :config (pyvenv-tracking-mode))
+
+;; requirements: emacs-web-socket, simple-httpd, zmq
+;; (use-package jupyter)
+
+(use-package ein)
+
+;; (use-package tex
+;;   :straight auctex
+;;   :preface
+;;   (defun my/switch-to-help-window (&optional ARG REPARSE)
+;;     "Switches to the *TeX Help* buffer after compilation."
+;;     (other-window 1))
+;;   :hook (LaTeX-mode . reftex-mode)
+;;   :bind (:map TeX-mode-map
+;;               ("C-c C-o" . TeX-recenter-output-buffer)
+;;               ("C-c C-l" . TeX-next-error)
+;;               ("M-[" . outline-previous-heading)
+;;               ("M-]" . outline-next-heading))
+;;   :custom
+;;   (TeX-auto-save t)
+;;   (TeX-byte-compile t)
+;;   (TeX-clean-confirm nil)
+;;   (TeX-master 'dwim)
+;;   (TeX-parse-self t)
+;;   (TeX-PDF-mode t)
+;;   (TeX-source-correlate-mode t)
+;;   (TeX-view-program-selection '((output-pdf "PDF Tools")))
+;;   :config
+;;   (advice-add 'TeX-next-error :after #'my/switch-to-help-window)
+;;   (advice-add 'TeX-recenter-output-buffer :after #'my/switch-to-help-window)
+;;   ;; the ":hook" doesn't work for this one... don't ask me why.
+;;   (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer))
+
+;; (setq-default TeX-engine 'xetex)
+
+(use-package lsp-latex
+  :if (executable-find "texlab")
+  ;; To properly load `lsp-latex', the `require' instruction is important.
+  :hook (LaTeX-mode . (lambda ()
+                        (require 'lsp-latex)
+                        (lsp-deferred)))
+  :custom (lsp-latex-build-on-save t))
+
+;; (use-package reftex
+;;   :straight (:type built-in)
+;;   :custom
+;;   (reftex-save-parse-info t)
+;;   (reftex-use-multiple-selection-buffers t))
+
+;; (use-package bibtex
+;;   :straight (:type built-in)
+;;   :preface
+;;   (defun my/bibtex-fill-column ()
+;;     "Ensure that each entry does not exceed 120 characters."
+;;     (setq fill-column 120))
+;;   :hook ((bibtex-mode . lsp-deferred)
+;;          (bibtex-mode . my/bibtex-fill-column)))
+
+;; (use-package go-mode
+;;   :hook (go-mode . lsp-deferred))
+
+;; (use-package rust-mode
+;;   :mode "\\.rs\\'"
+;;   :init (setq rust-format-on-save t))
+
+;; (use-package cargo
+;;   :straight t
+;;   :defer t)
+
+;; (use-package csv-mode :mode ("\\.\\(csv\\|tsv\\)\\'"))
+
+;; (use-package nov
+;;   :mode ("\\.epub\\'" . nov-mode)
+;;   :custom (nov-text-width 75))
+
+;; (use-package gnuplot
+;;   :mode "\\.\\(gp\\|gpi\\|plt\\)'"
+;;   :bind (:map gnuplot-mode-map
+;;               ("C-c C-c".  gnuplot-send-buffer-to-gnuplot)))
+
+;; (use-package lua-mode :delight "Λ" :mode "\\.lua\\'")
+
+;; (use-package nxml-mode
+;;   :straight (:type built-in)
+;;   :hook (nxml-mode . lsp-deferred)
+;;   :mode ("\\.\\(xml\\|xsd\\|wsdl\\)\\'"))
+
 ;; (use-package edbi)
 ;; (use-package edbi-sqlite)
 
@@ -1799,15 +1978,15 @@
         (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
         ))
 
-(setq org-agenda-files '(
-                         "~/Org/Agenda.org"
-                         "~/Org/Tasks.org"
-                         "~/Org/Journal.org"
-                         "~/Org/Anniversaries.org"
-                         "~/Org/Habits.org"
-                         "~/Org/References.org"
-                         "~/Org/Work.org"
-                         ))
+;; (setq org-agenda-files '(
+;;                          "~/Org/Agenda.org"
+;;                          "~/Org/Tasks.org"
+;;                          "~/Org/Journal.org"
+;;                          "~/Org/Anniversaries.org"
+;;                          "~/Org/Habits.org"
+;;                          "~/Org/References.org"
+;;                          "~/Org/Work.org"
+;;                          ))
 (setq org-agenda-start-with-log-mode t)
 (setq org-log-done 'time)
 (setq org-log-into-drawer t)
@@ -2133,7 +2312,7 @@ _d_: date        ^ ^              ^ ^
   :init
   ;; Hide update warning message
   (setq org-roam-v2-ack t)
-  (setq my/daily-note-filename "%<%Y-%m-%d>.org.gpg"
+  (setq my/daily-note-filename "%<%Y-%m-%d>.org"
         my/daily-note-header "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
   :custom
   (org-roam-directory "~/Org/Roam/")
@@ -2142,7 +2321,7 @@ _d_: date        ^ ^              ^ ^
   ;; (org-roam-graph-viewer "/usr/bin/qutebrowser")
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org.gpg"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                          "#+title: ${title}\n#+author: Lokesh Mohanty\n#+filetags: %^G")
       :unnarrowed t)))
 
@@ -2334,81 +2513,81 @@ _d_: date        ^ ^              ^ ^
       `(,(make-mu4e-context
           :name "Gmail"
           :match-func (lambda (msg) (when msg
-                                      (string-prefix-p "/lokesh-gmail" (mu4e-message-field msg :maildir))))
+                                      (string-prefix-p "/lokesh1197@gmail.com" (mu4e-message-field msg :maildir))))
           :vars '(
                   (user-full-name . "Lokesh Mohanty")
                   (user-mail-address . "lokesh1197@gmail.com")
                   (smtpmail-smtp-server . "smtp.gmail.com")
                   (smtpmail-stream-type . ssl)
                   (smtpmail-smtp-service . 465)
-                  (mu4e-sent-folder . "/lokesh-gmail/[Gmail]/Sent Mail")
-                  (mu4e-trash-folder . "/lokesh-gmail/[Gmail]/Trash")
-                  (mu4e-drafts-folder . "/lokesh-gmail/[Gmail]/Drafts")
-                  (mu4e-refile-folder . "/lokesh-gmail/[Gmail]/Archive")
+                  (mu4e-sent-folder . "/lokesh1197@gmail.com/[Gmail]/Sent Mail")
+                  (mu4e-trash-folder . "/lokesh1197@gmail.com/[Gmail]/Trash")
+                  (mu4e-drafts-folder . "/lokesh1197@gmail.com/[Gmail]/Drafts")
+                  (mu4e-refile-folder . "/lokesh1197@gmail.com/[Gmail]/Archive")
                   ;; (mu4e-sent-messages-behavior . sent)
                   ))
         ,(make-mu4e-context
           :name "Yahoo"
           :match-func (lambda (msg) 
                         (when msg
-                          (string-prefix-p "/lokesh-yahoo" (mu4e-message-field msg :maildir))))
+                          (string-prefix-p "/lokesh1197@yahoo.com" (mu4e-message-field msg :maildir))))
           :vars '(
                   (user-full-name . "Lokesh Mohanty")
                   (user-mail-address . "lokesh1197@yahoo.com")
                   (smtpmail-smtp-server . "smtp.mail.yahoo.com")
                   (smtpmail-stream-type . ssl)
                   (smtpmail-smtp-service . 465)
-                  (mu4e-sent-folder . "/lokesh-yahoo/Sent")
-                  (mu4e-trash-folder . "/lokesh-yahoo/Trash")
-                  (mu4e-drafts-folder . "/lokesh-yahoo/Drafts")
-                  (mu4e-refile-folder . "/lokesh-yahoo/Archive")
+                  (mu4e-sent-folder . "/lokesh1197@yahoo.com/Sent")
+                  (mu4e-trash-folder . "/lokesh1197@yahoo.com/Trash")
+                  (mu4e-drafts-folder . "/lokesh1197@yahoo.com/Drafts")
+                  (mu4e-refile-folder . "/lokesh1197@yahoo.com/Archive")
                   ))
         ,(make-mu4e-context
           :name "Work"
           :match-func (lambda (msg) (when msg
-                                      (string-prefix-p "/office-arc" (mu4e-message-field msg :maildir))))
+                                      (string-prefix-p "/lokesh.mohanty@e-arc.com" (mu4e-message-field msg :maildir))))
           :vars '(
                   (user-full-name . "Lokesh Mohanty")
                   (user-mail-address . "lokesh.mohanty@e-arc.com")
                   (smtpmail-smtp-server . "smtp.office365.com")
                   (smtpmail-stream-type . starttls)
                   (smtpmail-smtp-service . 587)
-                  (mu4e-sent-folder . "/office-arc/Sent Items")
-                  (mu4e-trash-folder . "/office-arc/Deleted Items")
-                  (mu4e-drafts-folder . "/office-arc/Drafts")
-                  (mu4e-refile-folder . "/office-arc/Archive")
+                  (mu4e-sent-folder . "/lokesh.mohanty@e-arc.com/Sent Items")
+                  (mu4e-trash-folder . "/lokesh.mohanty@e-arc.com/Deleted Items")
+                  (mu4e-drafts-folder . "/lokesh.mohanty@e-arc.com/Drafts")
+                  (mu4e-refile-folder . "/lokesh.mohanty@e-arc.com/Archive")
                   ))
         ,(make-mu4e-context
           :name "Befreier"
           :match-func (lambda (msg) 
                         (when msg
-                          (string-prefix-p "/befreier-gmail" (mu4e-message-field msg :maildir))))
+                          (string-prefix-p "/befreier19@gmail.com" (mu4e-message-field msg :maildir))))
           :vars '(
                   (user-full-name . "Lokesh Mohanty")
                   (user-mail-address . "befreier19@gmail.com")
                   (smtpmail-smtp-server . "smtp.gmail.com")
                   (smtpmail-stream-type . ssl)
                   (smtpmail-smtp-service . 465)
-                  (mu4e-sent-folder . "/befreier-gmail/[Gmail]/Sent Mail")
-                  (mu4e-trash-folder . "/befreier-gmail/[Gmail]/Trash")
-                  (mu4e-drafts-folder . "/befreier-gmail/[Gmail]/Drafts")
-                  (mu4e-refile-folder . "/befreier-gmail/[Gmail]/Archive")
+                  (mu4e-sent-folder . "/befreier19@gmail.com/[Gmail]/Sent Mail")
+                  (mu4e-trash-folder . "/befreier19@gmail.com/[Gmail]/Trash")
+                  (mu4e-drafts-folder . "/befreier19@gmail.com/[Gmail]/Drafts")
+                  (mu4e-refile-folder . "/befreier19@gmail.com/[Gmail]/Archive")
                   ))
         ,(make-mu4e-context
           :name "Ineffable"
           :match-func (lambda (msg) 
                         (when msg
-                          (string-prefix-p "/ineffable-gmail" (mu4e-message-field msg :maildir))))
+                          (string-prefix-p "/ineffable97@gmail.com" (mu4e-message-field msg :maildir))))
           :vars '(
                   (user-full-name . "InEffable1197")
                   (user-mail-address . "ineffable97@gmail.com")
                   (smtpmail-smtp-server . "smtp.gmail.com")
                   (smtpmail-stream-type . ssl)
                   (smtpmail-smtp-service . 465)
-                  (mu4e-sent-folder . "/ineffable-gmail/[Gmail]/Sent Mail")
-                  (mu4e-trash-folder . "/ineffable-gmail/[Gmail]/Trash")
-                  (mu4e-drafts-folder . "/ineffable-gmail/[Gmail]/Drafts")
-                  (mu4e-refile-folder . "/ineffable-gmail/[Gmail]/Archive")
+                  (mu4e-sent-folder . "/ineffable97@gmail.com/[Gmail]/Sent Mail")
+                  (mu4e-trash-folder . "/ineffable97@gmail.com/[Gmail]/Trash")
+                  (mu4e-drafts-folder . "/ineffable97@gmail.com/[Gmail]/Drafts")
+                  (mu4e-refile-folder . "/ineffable97@gmail.com/[Gmail]/Archive")
                   ))
         ))
 (setq mu4e-context-policy 'pick-first)
@@ -2438,21 +2617,21 @@ _d_: date        ^ ^              ^ ^
 
 ;; setup some handy shortcuts
 (setq mu4e-maildir-shortcuts
-      '(("/lokesh-gmail/Inbox"      . ?g)
-        ("/lokesh-yahoo/Inbox"      . ?y)
-        ("/befreier-gmail/Inbox"    . ?b)
-        ("/ineffable-gmail/Inbox"   . ?i)
-        ("/office-arc/Inbox"        . ?w)
-        ("/office-arc/Sent Items"   . ?s)))
+      '(("/lokesh1197@gmail.com/Inbox"      . ?g)
+        ("/lokesh1197@yahoo.com/Inbox"      . ?y)
+        ("/befreier19@gmail.com/Inbox"    . ?b)
+        ("/ineffable97@gmail.com/Inbox"   . ?i)
+        ("/lokesh.mohanty@e-arc.com/Inbox"        . ?w)
+        ("/lokesh.mohanty@e-arc.com/Sent Items"   . ?s)))
 
 (add-to-list 'mu4e-bookmarks
              (make-mu4e-bookmark
               :name "My Work Inbox"
-              :query "maildir:/office-arc/Inbox"
+              :query "maildir:/lokesh.mohanty@e-arc.com/Inbox"
               :key ?w)
              (make-mu4e-bookmark
               :name "My Work Inbox Unread"
-              :query "maildir:/office-arc/Inbox not flag:trashed"
+              :query "maildir:/lokesh.mohanty@e-arc.com/Inbox not flag:trashed"
               :key ?w))
 
 (add-to-list
@@ -2477,7 +2656,7 @@ _d_: date        ^ ^              ^ ^
 
 (add-to-list
  'mu4e-bookmarks
- '("(maildir:\"lokesh-gmail/[Gmail]/Sent Mail\" OR maildir:\"lokesh-yahoo/Sent Mail\" OR mailir:\"office-arc/Sent Items\") AND date:7d..now"
+ '("(maildir:\"lokesh1197@gmail.com/[Gmail]/Sent Mail\" OR maildir:\"lokesh1197@yahoo.com/Sent Mail\" OR mailir:\"lokesh.mohanty@e-arc.com/Sent Items\") AND date:7d..now"
    "Sent in last 7 days" ?s) t)
 
 ;; Prevent mu4e from permanently deleting trashed items
@@ -2513,13 +2692,13 @@ _d_: date        ^ ^              ^ ^
 ;; then, when you want archive some messages, move them to
 ;; the 'All Mail' folder by pressing ``ma''.
 (setq mu4e-maildir-shortcuts
-      '(("/lokesh-gmail/Inbox"      . ?g)
-        ("/lokesh-yahoo/Inbox"      . ?y)
-        ("/office-arc/Inbox"        . ?w)
-        ("/office-arc/Sent Items"   . ?s)))
+      '(("/lokesh1197@gmail.com/Inbox"      . ?g)
+        ("/lokesh1197@yahoo.com/Inbox"      . ?y)
+        ("/lokesh.mohanty@e-arc.com/Inbox"        . ?w)
+        ("/lokesh.mohanty@e-arc.com/Sent Items"   . ?s)))
 
 ;; (setq my/mu4e-inbox-query
-;;       "(maildir:/lokesh-gmail/Inbox OR maildir:/office-arc/Inbox) AND flag:unread")
+;;       "(maildir:/lokesh1197@gmail.com/Inbox OR maildir:/lokesh.mohanty@e-arc.com/Inbox) AND flag:unread")
 
 ;; (defun my/go-to-inbox ()
 ;;   (interactive)
