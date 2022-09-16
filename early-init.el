@@ -5,14 +5,21 @@
 ;; Reference: https://github.com/SystemCrafters/rational-emacs/blob/master/early-init.el
 
 ;;; Code:
+
+;;; Garbage Collection
 ;; Increase the GC threshold for faster startup
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 
+;;; Emacs lisp source/compiled preference
 ;; Prefer loading newest compiled .el file
-(setq load-prefer-newer noninteractive)
+(customize-set-variable 'load-prefer-newer noninteractive)
+;; (setq load-prefer-newer noninteractive)
 
-;; Native compilation settings
+;; Don't use package.el, we'll use straight.el instead
+(setq package-enable-at-startup nil)
+
+;;; Native compilation settings
 (when (featurep 'native-compile)
   ;; Silence compiler warnings as they can be pretty disruptive
   (setq native-comp-async-report-warnings-errors nil)
@@ -21,21 +28,25 @@
   (setq native-comp-deferred-compilation t)
 
   ;; Set the right directory to store the native compilation cache
+  ;; NOTE the method for setting the eln-cache directory depends on the emacs version
+  (when (fboundp 'startup-redirect-eln-cache)
+    (if (version< emacs-version "29")
+        (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
+      (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
+
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
-;; Don't use package.el, we'll use straight.el instead
-(setq package-enable-at-startup nil)
-
+;;; UI configuration
 ;; Remove some unneeded UI elements (the user can turn back on anything they wish)
 (setq inhibit-startup-message t)
 (push '(tool-bar-lines . 0) default-frame-alist) ;; disable the toolbar
 (push '(menu-bar-lines . 0) default-frame-alist) ;; disalbe the menu bar
 (push '(vertical-scroll-bars) default-frame-alist) ;; disable scroll bars
-(push '(background-color . "#232635") default-frame-alist)
-(push '(foreground-color . "#FFFFFF") default-frame-alist)
-(push '(mouse-color . "white") default-frame-alist)
+
+;; Loads a nice blue theme, avoids the white screen flash on startup.
+;; (load-theme 'deeper-blue t)
 
 ;; Make the initial buffer load faster by setting its mode to fundamental-mode
-(setq initial-major-mode 'fundamental-mode)
+(customize-set-variable 'initial-major-mode 'fundamental-mode)
 
 ;;; early-init.el ends here
