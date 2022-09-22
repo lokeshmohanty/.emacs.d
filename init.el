@@ -154,10 +154,16 @@
 
 (use-package evil-org
   :after org
-  :hook (org-mode . (lambda () evil-org-mode))
+  ;; :hook (org-mode . (lambda () evil-org-mode))
+  :hook (org-mode . evil-org-mode)
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
+
+(use-package org-roam
+  :config
+  (setq org-roam-directory (file-truename "~/Documents/Org-Roam"))
+  (org-roam-db-autosync-mode))
 
 (use-package tex
   :straight auctex
@@ -264,6 +270,15 @@
 (evil-define-key 'visual 'global
   (kbd "<leader>e") 'embrace-commander)
 
+;; org-roam keybindings
+(evil-define-key 'normal 'global
+  (kbd "<leader>nf") 'org-roam-node-find)
+(evil-define-key 'normal 'global
+  (kbd "<leader>nd") 'org-roam-dailies-goto-today)
+(evil-define-key 'normal 'global
+  (kbd "<leader>nt") 'org-roam-dailies-goto-tomorrow)
+
+;; embark keybindings
 (evil-define-key 'normal 'global
   (kbd "C-.") 'embark-act)
 (evil-define-key 'visual 'global
@@ -277,11 +292,13 @@
 (evil-define-key 'insert 'global
   (kbd "C-;") 'embark-dwim)
 
+;; marginalia keybindings
 (evil-define-key 'normal 'minibuffer-local-map
   (kbd "M-A") 'marginalia-cycle)
 (evil-define-key 'insert 'minibuffer-local-map
   (kbd "M-A") 'marginalia-cycle)
 
+;; vertico keybindings
 (evil-define-key 'insert 'vertico-map
   (kbd "C-k") 'vertico-previous)
 (evil-define-key 'insert 'vertico-map
