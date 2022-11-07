@@ -260,7 +260,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     (org-startup-folded t)
     (org-startup-indented t)
     (org-confim-babel-evaluate nil)
-    (org-pretty-entities t)		; "C-c C-x \" to toggle
+    ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
     :config
     ;; open pdfs with okular
     (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
@@ -464,6 +464,7 @@ References: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
 
 #+begin_src emacs-lisp
   (use-package cmake-mode)
+  (use-package cuda-mode)
 #+end_src
 
 ** Python
@@ -672,7 +673,8 @@ References: [[https://github.com/minad/consult][consult]]
      consult-bookmark consult-recent-file consult-xref
      consult--source-bookmark consult--source-recent-file
      consult--source-project-recent-file
-     :preview-key (kbd "M-."))
+     ;; :preview-key (kbd "M-.")
+     :preview-key '(:debounce 0.4 any))
 
     ;; Optionally configure the narrowing key.
     ;; Both < and C-+ work reasonably well.
@@ -889,14 +891,6 @@ References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 
 #+begin_src emacs-lisp
   (use-package emacs-everywhere)
-#+end_src
-
-* Pinentry
-References: [[https://elpa.gnu.org/packages/pinentry.html][pinentry]]
-
-#+begin_src emacs-lisp
-  (use-package pinentry
-    :config (pinentry-start))
 #+end_src
 
 * Spell check

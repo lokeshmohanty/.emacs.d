@@ -163,7 +163,7 @@
   (org-startup-folded t)
   (org-startup-indented t)
   (org-confim-babel-evaluate nil)
-  (org-pretty-entities t)		; "C-c C-x \" to toggle
+  ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
   :config
   ;; open pdfs with okular
   (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
@@ -323,6 +323,7 @@
   :hook (markdown-mode . evil-markdown-mode))
 
 (use-package cmake-mode)
+(use-package cuda-mode)
 
 (use-package lsp-pyright
   :after lsp-mode
@@ -473,7 +474,8 @@
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-recent-file
    consult--source-project-recent-file
-   :preview-key (kbd "M-."))
+   ;; :preview-key (kbd "M-.")
+   :preview-key '(:debounce 0.4 any))
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
@@ -641,9 +643,6 @@
 )
 
 (use-package emacs-everywhere)
-
-(use-package pinentry
-  :config (pinentry-start))
 
 (use-package hydra)
 
