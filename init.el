@@ -36,19 +36,25 @@
 (setq-default use-short-answers t                     ; Replace yes/no prompts with y/n
             confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
-(use-package doom-themes
-   :config 
-   ;; (load-theme 'doom-gruvbox-light t)
-   ;; (load-theme 'doom-gruvbox t)
-   (load-theme 'doom-one-light t)
-   (doom-themes-org-config))
-
-;; (use-package nano-theme
-;;   :straight (:type git :host github :repo "rougier/nano-theme")
-;;   :config (load-theme 'nano-dark))
+;; apply the theme after frames are created
+;; required as during daemon initialization, there are no frames
+(if (and (daemonp) (not (display-graphic-p)))
+  (use-package nano-theme
+    :straight (:type git :host github :repo "rougier/nano-theme")
+    :config
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (load-theme 'nano-dark t)))
+    (load-theme 'nano-dark t))
+  (use-package doom-themes
+    :config 
+    ;; (load-theme 'doom-gruvbox-light t)
+    ;; (load-theme 'doom-gruvbox t)
+    (load-theme 'doom-one-light t)
+    (doom-themes-org-config)))
 
 (use-package nano-modeline
-   :config (nano-modeline-mode))
+  :config (nano-modeline-mode))
 
 (setq-default
  inhibit-startup-screen t               ; Disable start-up screen

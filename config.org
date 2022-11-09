@@ -56,19 +56,26 @@ References: [[https://github.com/radian-software/straight.el][straight]], [[http
 References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
 
 #+begin_src emacs-lisp
-   (use-package doom-themes
-     :config 
-     ;; (load-theme 'doom-gruvbox-light t)
-     ;; (load-theme 'doom-gruvbox t)
-     (load-theme 'doom-one-light t)
-     (doom-themes-org-config))
 
-  ;; (use-package nano-theme
-  ;;   :straight (:type git :host github :repo "rougier/nano-theme")
-  ;;   :config (load-theme 'nano-dark))
+  ;; apply the theme after frames are created
+  ;; required as during daemon initialization, there are no frames
+  (if (and (daemonp) (not (display-graphic-p)))
+    (use-package nano-theme
+      :straight (:type git :host github :repo "rougier/nano-theme")
+      :config
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (load-theme 'nano-dark t)))
+      (load-theme 'nano-dark t))
+    (use-package doom-themes
+      :config 
+      ;; (load-theme 'doom-gruvbox-light t)
+      ;; (load-theme 'doom-gruvbox t)
+      (load-theme 'doom-one-light t)
+      (doom-themes-org-config)))
 
   (use-package nano-modeline
-     :config (nano-modeline-mode))
+    :config (nano-modeline-mode))
 
   (setq-default
    inhibit-startup-screen t               ; Disable start-up screen
