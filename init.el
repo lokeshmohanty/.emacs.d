@@ -169,7 +169,7 @@
   (org-startup-folded t)
   (org-startup-indented t)
   (org-confim-babel-evaluate nil)
-  ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
+  (org-pretty-entities t)		; "C-c C-x \" to toggle
   :config
   ;; open pdfs with okular
   (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
@@ -193,8 +193,7 @@
   (org-appear-autoentities t)
   (org-appear-autosubmarkers t)	; sub/super scripts
   (org-appear-autokeywords t)	; keywords in org-hidden-keywords
-  ;; (org-appear-delay t)
-  )
+  (org-appear-delay 1))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
