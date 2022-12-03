@@ -742,6 +742,14 @@ References: [[https://github.com/oantolin/embark][embark]]
     :custom (vterm-shell "fish"))
 #+end_src
 
+* Directory Viewer
+
+#+begin_src emacs-lisp
+  (use-package ranger
+    :config
+    (ranger-override-dired-mode t))
+#+end_src
+
 * PDF
 References: [[https://pdftools.wiki/][pdf-tools]]
 Troubleshooting:
