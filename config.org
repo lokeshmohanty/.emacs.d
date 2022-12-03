@@ -925,8 +925,42 @@ References: [[https://www.emacswiki.org/emacs/mu4e][mu4e-wiki]], [[https://githu
       (font-lock-flush (point-min) (point-max))))
 #+end_src
 
+*** Org Msg (outlook style email and replies)
+References: [[https://github.com/jeremy-compostella/org-msg][org-msg]]
+
+| C-c C-e | org-msg-preview      |
+| C-c C-k | message-kill-buffer  |
+| C-c C-s | message-goto-subject |
+| C-c C-b | org-msg-goto-body    |
+| C-c C-a | org-msg-attach       |
+| C-c C-c | org-ctrl-c-ctrl-c    |
+
+- Quotes: >, >>, >>>, ...
+
+#+begin_src emacs-lisp
+  (use-package org-msg
+    :after org
+    :config
+    (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+          org-msg-startup "hidestars indent inlineimages"
+          org-msg-greeting-fmt "\nHi%s,\n\n"
+          org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
+          org-msg-greeting-name-limit 3
+          org-msg-default-alternatives '((new		. (text html))
+                                         (reply-to-html	. (text html))
+                                         (reply-to-text	. (text)))
+          org-msg-convert-citation t
+          org-msg-signature (concat
+                              "#+begin_signature\n"
+                              "Regards,\n"
+                              "*Lokesh Mohanty*\n"
+                              "#+end_signature"))
+    (org-msg-mode))
+
+#+end_src
+
 ** Notmuch (email frontend for notmuch)
-References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]]
+References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]], [[https://git.sr.ht/~inwit/org-notmuch-hello][notmuch-dashboard]]
 
 #+begin_src emacs-lisp
   (use-package notmuch
@@ -1451,9 +1485,12 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
   ;; hydras
   (define-key Info-mode-map (kbd "?") #'hydra-info/body)
 
-  ;; evil leaer
+  ;; evil leader
   (evil-set-leader 'normal (kbd "SPC"))
   (evil-set-leader 'visual (kbd "SPC"))
+
+  (evil-define-key 'normal 'global
+    (kbd "<leader>.") 'find-file)
 
   ;; (evil-define-key 'normal 'latex-mode
   ;;   (kbd "<leader>ca") 'TeX-command-run-all)

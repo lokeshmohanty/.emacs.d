@@ -528,14 +528,18 @@
 (use-package vterm
   :custom (vterm-shell "fish"))
 
-(use-package pdf-tools)
+(use-package ranger
+  :config
+  (ranger-override-dired-mode t))
+
+;; (use-package pdf-tools)
 
 (use-package mu4e
   :straight (:host github
-             :repo "djcb/mu"
-             :branch "master"
-             :files ("build/mu4e/*")
-             :pre-build (("./autogen.sh") ("ninja" "-C" "build")))
+                   :repo "djcb/mu"
+                   :branch "master"
+                   :files ("build/mu4e/*")
+                   :pre-build (("./autogen.sh") ("ninja" "-C" "build")))
   :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
   :config
   (setq mu4e-get-mail-command "mw -Y")
@@ -544,44 +548,73 @@
   ;; use mu4e for e-mail in emacs
   (setq mail-user-agent 'mu4e-user-agent)
 
-  (defun my/make-mu4e-context (address &rest args)
-    (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
-           (context (if (plist-member args :context) (plist-get args :context) address))
-           (type (if (plist-member args :type) (plist-get args :type) 'other))
-           (dir (concat "/" context))
-           (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
-           (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
-      (make-mu4e-context
-       :name context
-       ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
-       ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
-       :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
-       :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
-       :vars
-       `((user-mail-address    . ,address)
-         (user-full-name       . ,name)
-         (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
-         (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
-         (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
-         (mu4e-refile-folder   . ,(concat prefix "/Archive"))
-         (mu4e-compose-signature . ,signature)))))
-
-  (setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com")
-                        ,(my/make-mu4e-context "lokesh1197@gmail.com" :type 'gmail)
-                        ,(my/make-mu4e-context "lokeshm@iisc.ac.in" :type 'outlook)))
-
   ;; Fixing duplicate UID errors when using mbsync and mu4e
   (setq mu4e-change-filenames-when-moving t)
 
   ;; don't keep message buffers around
   (setq message-kill-buffer-on-exit t)
+  (setq mu4e-attachment-dir "~/Downloads")
+  (setq mu4e-view-show-images t)
 
   (setq sendmail-program "/usr/bin/msmtp"
         send-mail-function 'smtpmail-send-it
         message-sendmail-f-is-evil t
         message-sendmail-extra-arguments '("--read-envelope-from")
-        message-send-mail-function 'message-send-mail-with-sendmail)
-  )
+        message-send-mail-function 'message-send-mail-with-sendmail))
+
+(defun my/make-mu4e-context (address &rest args)
+  (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
+         (context (if (plist-member args :context) (plist-get args :context) address))
+         (type (if (plist-member args :type) (plist-get args :type) 'other))
+         (dir (concat "/" address))
+         (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
+         (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
+    (make-mu4e-context
+     ;; first letter of context is used to switch contexts
+     :name context
+     ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
+     ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
+     :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
+     :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
+     :match-func (lambda (msg) (when msg (mu4e-message-contact-field-matches msg :to address)))
+     :vars
+     `((user-mail-address    . ,address)
+       (user-full-name       . ,name)
+       (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
+       (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
+       (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
+       (mu4e-refile-folder   . ,(concat prefix "/Archive"))
+       (mu4e-compose-signature . ,signature)))))
+
+(setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com" :context "home")
+                      ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
+                      ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook)))
+
+(setq mu4e-maildir-shortcuts
+      '(("/lokesh1197@gmail.com/INBOX"      . ?g)
+        ("/lokesh1197@yahoo.com/INBOX"      . ?y)
+        ("/lokeshm@iisc.ac.in/INBOX"        . ?w)
+        ("/lokeshm@iisc.ac.in/Sent Items"   . ?s)
+        ("/befreier19@gmail.com/INBOX"      . ?b)
+        ("/ineffable97@gmail.com/INBOX"     . ?i)))
+
+(add-to-list 'mu4e-bookmarks
+             '(:name "Work Inbox Unread"
+              :query "maildir:/lokesh.mohanty@e-arc.com/INBOX not flag:trashed"
+              :key ?w))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Unread bulk messages"
+              :query "flag:unread AND NOT flag:trashed"
+              ;; :query "flag:unread NOT flag:trashed AND (flag:list OR from:lokesh1197@yahoo.com)"
+              :key ?l))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Messages with attachments for me"
+              :query "mime:application/* AND NOT mime:application/pgp* AND (maildir:**/INBOX)"
+              :key ?d))
+(add-to-list 'mu4e-bookmarks
+             '(:name "Important Messages"
+              :query "flag:flagged"
+              :key ?f))
 
 ;; (use-package nano-sidebar
 ;;   :straight (:type git :host github :repo "rougier/nano-sidebar")
@@ -632,6 +665,25 @@
     (push 'display font-lock-extra-managed-props)
     (font-lock-add-keywords nil svg-font-lock-keywords)
     (font-lock-flush (point-min) (point-max))))
+
+(use-package org-msg
+  :after org
+  :config
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new		. (text html))
+                                       (reply-to-html	. (text html))
+                                       (reply-to-text	. (text)))
+        org-msg-convert-citation t
+        org-msg-signature (concat
+                            "#+begin_signature\n"
+                            "Regards,\n"
+                            "*Lokesh Mohanty*\n"
+                            "#+end_signature"))
+  (org-msg-mode))
 
 (use-package notmuch
   :custom
@@ -1084,9 +1136,12 @@ Info-mode:
 ;; hydras
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
 
-;; evil leaer
+;; evil leader
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-set-leader 'visual (kbd "SPC"))
+
+(evil-define-key 'normal 'global
+  (kbd "<leader>.") 'find-file)
 
 ;; (evil-define-key 'normal 'latex-mode
 ;;   (kbd "<leader>ca") 'TeX-command-run-all)
