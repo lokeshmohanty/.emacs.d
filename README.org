@@ -95,9 +95,9 @@ References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://gith
    inhibit-startup-message t              ; Disable startup message
    inhibit-startup-echo-area-message t    ; Disable initial echo message
    initial-scratch-message ""             ; Empty the initial *scratch* buffer
-   initial-buffer-choice t)               ; Open *scratch* buffer at init
-  (use-package nano-splash
-    :straight (:type git :host github :repo "lokesh1197/nano-splash"))
+   initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
+  ;; (use-package nano-splash
+  ;;   :straight (:type git :host github :repo "lokesh1197/nano-splash"))
 
 #+end_src
 
@@ -140,9 +140,14 @@ References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[h
 ** Font
 
 #+begin_src emacs-lisp
+  (set-face-attribute 'default nil :family "Source Code Pro" :height 140)
   (set-face-attribute 'font-lock-comment-face nil
+                      :family "Source Code Pro"
+                      :height 140
                       :slant 'italic)
-  (set-face-attribute 'font-lock-keyword-face nil
+  (set-face-attribute 'font-lock-keywod-face nil
+                      :family "Source Code Pro"
+                      :height 140
                       :slant 'italic)
 #+end_src
 

@@ -21,6 +21,13 @@
 ;; to change git protocol
 ;; (straight-vc-git-default-protocol 'ssh)
 
+;; (require 'package)
+;; (add-to-list 'package-archives
+;; 	     '("melpa" . "https://melpa.org/packages/") t)
+
+;; (package-refresh-contents)
+;; M-x package-install RET use-package RET
+
 ;; display position on modeline
 (column-number-mode)
 ;; wrap lines
@@ -48,9 +55,10 @@
     (load-theme 'nano-dark t))
   (use-package doom-themes
     :config 
-    ;; (load-theme 'doom-gruvbox-light t)
+    (load-theme 'doom-gruvbox-light t)
     ;; (load-theme 'doom-gruvbox t)
-    (load-theme 'doom-one-light t)
+    ;; (load-theme 'doom-one-light t)
+    ;; (load-theme 'doom-one t)
     (doom-themes-org-config)))
 
 (use-package nano-modeline
@@ -61,9 +69,9 @@
  inhibit-startup-message t              ; Disable startup message
  inhibit-startup-echo-area-message t    ; Disable initial echo message
  initial-scratch-message ""             ; Empty the initial *scratch* buffer
- initial-buffer-choice t)               ; Open *scratch* buffer at init
-(use-package nano-splash
-  :straight (:type git :host github :repo "lokesh1197/nano-splash"))
+ initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
+;; (use-package nano-splash
+;;   :straight (:type git :host github :repo "lokesh1197/nano-splash"))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -92,9 +100,14 @@
 ;; run the below command to install fonts
 ;; (all-the-icons-install-fonts)
 
+(set-face-attribute 'default nil :family "Source Code Pro" :height 140)
 (set-face-attribute 'font-lock-comment-face nil
+                    :family "Source Code Pro"
+                    :height 140
                     :slant 'italic)
-(set-face-attribute 'font-lock-keyword-face nil
+(set-face-attribute 'font-lock-keywod-face nil
+                    :family "Source Code Pro"
+                    :height 140
                     :slant 'italic)
 
 (use-package no-littering)
@@ -569,157 +582,6 @@
    ("M-j" . dirvish-fd-jump)))
 
 ;; (use-package pdf-tools)
-
-(use-package mu4e
-  :straight (:host github
-                   :repo "djcb/mu"
-                   :branch "master"
-                   :files ("build/mu4e/*")
-                   :pre-build (("./autogen.sh") ("ninja" "-C" "build")))
-  :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
-  :config
-  (setq mu4e-get-mail-command "mw -Y")
-  (setq mu4e-root-maildir "~/.local/share/mail")
-
-  ;; use mu4e for e-mail in emacs
-  (setq mail-user-agent 'mu4e-user-agent)
-
-  ;; Fixing duplicate UID errors when using mbsync and mu4e
-  (setq mu4e-change-filenames-when-moving t)
-
-  ;; don't keep message buffers around
-  (setq message-kill-buffer-on-exit t)
-  (setq mu4e-attachment-dir "~/Downloads")
-  (setq mu4e-view-show-images t)
-
-  (setq sendmail-program "/usr/bin/msmtp"
-        send-mail-function 'smtpmail-send-it
-        message-sendmail-f-is-evil t
-        message-sendmail-extra-arguments '("--read-envelope-from")
-        message-send-mail-function 'message-send-mail-with-sendmail))
-
-(defun my/make-mu4e-context (address &rest args)
-  (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
-         (context (if (plist-member args :context) (plist-get args :context) address))
-         (type (if (plist-member args :type) (plist-get args :type) 'other))
-         (dir (concat "/" address))
-         (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
-         (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
-    (make-mu4e-context
-     ;; first letter of context is used to switch contexts
-     :name context
-     ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
-     ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
-     :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
-     :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
-     :match-func (lambda (msg) (when msg (mu4e-message-contact-field-matches msg :to address)))
-     :vars
-     `((user-mail-address    . ,address)
-       (user-full-name       . ,name)
-       (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
-       (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
-       (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
-       (mu4e-refile-folder   . ,(concat prefix "/Archive"))
-       (mu4e-compose-signature . ,signature)))))
-
-(setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com" :context "home")
-                      ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
-                      ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook)))
-
-(setq mu4e-maildir-shortcuts
-      '(("/lokesh1197@gmail.com/INBOX"      . ?g)
-        ("/lokesh1197@yahoo.com/INBOX"      . ?y)
-        ("/lokeshm@iisc.ac.in/INBOX"        . ?w)
-        ("/lokeshm@iisc.ac.in/Sent Items"   . ?s)
-        ("/befreier19@gmail.com/INBOX"      . ?b)
-        ("/ineffable97@gmail.com/INBOX"     . ?i)))
-
-(add-to-list 'mu4e-bookmarks
-             '(:name "Work Inbox Unread"
-              :query "maildir:/lokesh.mohanty@e-arc.com/INBOX not flag:trashed"
-              :key ?w))
-(add-to-list 'mu4e-bookmarks
-             '(:name "Unread bulk messages"
-              :query "flag:unread AND NOT flag:trashed"
-              ;; :query "flag:unread NOT flag:trashed AND (flag:list OR from:lokesh1197@yahoo.com)"
-              :key ?l))
-(add-to-list 'mu4e-bookmarks
-             '(:name "Messages with attachments for me"
-              :query "mime:application/* AND NOT mime:application/pgp* AND (maildir:**/INBOX)"
-              :key ?d))
-(add-to-list 'mu4e-bookmarks
-             '(:name "Important Messages"
-              :query "flag:flagged"
-              :key ?f))
-
-;; (use-package nano-sidebar
-;;   :straight (:type git :host github :repo "rougier/nano-sidebar")
-;;   :config (require 'nano-sidebar-ibuffer))
-
-;; (use-package svg-tag-mode
-;;   :straight (:type git :host github :repo "rougier/svg-tag-mode")
-;;   :config
-;;   (setq svg-tag-tags
-;;       '((":TODO:" . ((lambda (tag) (svg-tag-make "TODO")))))))
-
-;; (use-package mu4e-thread-folding
-;;   :straight (:type git :host github :repo "rougier/mu4e-thread-folding"))
-
-(use-package mu4e-dashboard
-  :straight (:type git :host github :repo "rougier/mu4e-dashboard")
-  :after mu4e
-  :custom (mu4e-dashboard-file (expand-file-name "side-dashboard.org" user-emacs-directory)))
-
-(use-package svg-lib
-  :straight (:type git :host github :repo "rougier/svg-lib"))
-
-;; (require 'mu4e-dashboard)
-;; (require 'svg-lib)
-
-(setq mu4e-dashboard-propagate-keymap nil)
-
-(defun mu4e-dashboard ()
-  "Open the mu4e dashboard on the left side."
-
-  (interactive)
-  (with-selected-window
-      (split-window (selected-window) -34 'left)
-
-    (find-file (expand-file-name "side-dashboard.org" user-emacs-directory))
-    (mu4e-dashboard-mode)
-    (hl-line-mode)
-    (set-window-dedicated-p nil t)
-    (defvar svg-font-lock-keywords
-      `(("\\!\\([\\ 0-9]+\\)\\!"
-         (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))))
-    (defun svg-font-lock-tag (label)
-      (svg-lib-tag label nil
-                   :stroke 0 :margin 1 :font-weight 'bold
-                   :padding (max 0 (- 3 (length label)))
-                   :foreground (face-foreground 'nano-popout-i)
-                   :background (face-background 'nano-popout-i)))
-    (push 'display font-lock-extra-managed-props)
-    (font-lock-add-keywords nil svg-font-lock-keywords)
-    (font-lock-flush (point-min) (point-max))))
-
-(use-package org-msg
-  :after org
-  :config
-  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
-        org-msg-startup "hidestars indent inlineimages"
-        org-msg-greeting-fmt "\nHi%s,\n\n"
-        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
-        org-msg-greeting-name-limit 3
-        org-msg-default-alternatives '((new		. (text html))
-                                       (reply-to-html	. (text html))
-                                       (reply-to-text	. (text)))
-        org-msg-convert-citation t
-        org-msg-signature (concat
-                            "#+begin_signature\n"
-                            "Regards,\n"
-                            "*Lokesh Mohanty*\n"
-                            "#+end_signature"))
-  (org-msg-mode))
 
 (use-package notmuch
   :custom
