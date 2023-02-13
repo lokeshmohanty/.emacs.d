@@ -40,7 +40,7 @@
 (global-display-line-numbers-mode 1)
 ;; persist history over emacs restarts
 (savehist-mode)
-(setq-default use-short-answers t                     ; Replace yes/no prompts with y/n
+(setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
             confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
 ;; apply the theme after frames are created
@@ -100,15 +100,15 @@
 ;; run the below command to install fonts
 ;; (all-the-icons-install-fonts)
 
-(set-face-attribute 'default nil :family "Source Code Pro" :height 140)
-(set-face-attribute 'font-lock-comment-face nil
-                    :family "Source Code Pro"
-                    :height 140
-                    :slant 'italic)
-(set-face-attribute 'font-lock-keywod-face nil
-                    :family "Source Code Pro"
-                    :height 140
-                    :slant 'italic)
+;; (set-face-attribute 'default nil :family "Source Code Pro" :height 140)
+;; (set-face-attribute 'font-lock-comment-face nil
+;;                     :family "Source Code Pro"
+;;                     :height 140
+;;                     :slant 'italic)
+;; (set-face-attribute 'font-lock-keywod-face nil
+;;                     :family "Source Code Pro"
+;;                     :height 140
+;;                     :slant 'italic)
 
 (use-package no-littering)
 
@@ -1028,6 +1028,23 @@ Info-mode:
   ("q" nil)
   ("g" nil))
 
+(defun custom/toggle-line-numbers-type ()
+    "Toggle line numbers type between relative and absolute"
+    (interactive)
+    (setq display-line-numbers-type (if (eq display-line-numbers-type t) 'relative 't))
+    (display-line-numbers-mode)
+    (display-line-numbers-mode))
+(defun custom/toggle-tab-width-setting ()
+    "Toggle setting tab widths between 4 and 8"
+    (interactive)
+    (setq tab-width (if (= tab-width 8) 4 8))
+    (redraw-display))
+(defun custom/toggle-indent-mode-setting ()
+    "toggle indenting modes"
+    (interactive)
+    (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
+    (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
+
 ;; use ibuffer instead of the default list-buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
@@ -1095,6 +1112,14 @@ Info-mode:
   (kbd "<leader>hs") 'hydra-smartparens/body)
 (evil-define-key 'normal 'global
   (kbd "<leader>hw") 'hydra-window/body)
+
+;; toggle keybindings
+(evil-define-key 'normal 'global
+  (kbd "<leader>tl") 'custom/toggle-line-numbers-type)
+(evil-define-key 'normal 'global
+  (kbd "<leader>ts") 'custom/toggle-tab-width-setting)
+(evil-define-key 'normal 'global
+  (kbd "<leader>tt") 'custom/toggle-indent-mode-setting)
 
 ;; embark keybindings
 (evil-define-key 'normal 'global

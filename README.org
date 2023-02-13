@@ -1045,15 +1045,16 @@ References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 * Spell check
 References: [[https://github.com/hunspell/hunspell][hunspell]]
 
-* Key-bindings
+* Shortcuts
 ** Hydra
 References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
+
+*** Setup
 
 #+begin_src emacs-lisp
   (use-package hydra)
 #+end_src
 
-** Custom Hydras
 *** Expand
 
 #+begin_src emacs-lisp
@@ -1532,8 +1533,32 @@ References: [[https://github.com/abo-abo/hydra/wiki/smartparens][smartparens]]
     ("g" nil))
 #+end_src
 
-** Custom Key-bindings
+** Functions
+*** Toggle
+
+#+begin_src emacs-lisp
+  (defun custom/toggle-line-numbers-type ()
+      "Toggle line numbers type between relative and absolute"
+      (interactive)
+      (setq display-line-numbers-type (if (eq display-line-numbers-type t) 'relative 't))
+      (display-line-numbers-mode)
+      (display-line-numbers-mode))
+  (defun custom/toggle-tab-width-setting ()
+      "Toggle setting tab widths between 4 and 8"
+      (interactive)
+      (setq tab-width (if (= tab-width 8) 4 8))
+      (redraw-display))
+  (defun custom/toggle-indent-mode-setting ()
+      "toggle indenting modes"
+      (interactive)
+      (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
+      (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
+#+end_src
+
+** Key-bindings
 References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][evil keymaps]], [[https://www.emacswiki.org/emacs/IbufferMode][ibuffer]]
+
+*** Leader setup
 
 #+begin_src emacs-lisp
   ;; use ibuffer instead of the default list-buffers
@@ -1566,7 +1591,11 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
     (kbd "<leader>e") 'embrace-commander)
   (evil-define-key 'visual 'global
     (kbd "<leader>e") 'embrace-commander)
+#+end_src
 
+*** Org-Roam
+
+#+begin_src emacs-lisp
   ;; (evil-define-key nil evil-normal-state-map
   ;;   (kbd "ys") 'embrace-add)
   ;; (evil-define-key nil evil-normal-state-map
@@ -1585,7 +1614,11 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
     (kbd "<leader>nd2") 'org-roam-dailies-goto-today)
   (evil-define-key 'normal 'global
     (kbd "<leader>nd1") 'org-roam-dailies-goto-tomorrow)
+#+end_src
 
+*** Hydra
+
+#+begin_src emacs-lisp
   ;; hydras
   (evil-define-key 'normal 'global
     (kbd "<leader>he") 'hydra-expand/body)
@@ -1603,7 +1636,23 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
     (kbd "<leader>hs") 'hydra-smartparens/body)
   (evil-define-key 'normal 'global
     (kbd "<leader>hw") 'hydra-window/body)
+#+end_src
 
+*** Toggle
+
+#+begin_src emacs-lisp
+  ;; toggle keybindings
+  (evil-define-key 'normal 'global
+    (kbd "<leader>tl") 'custom/toggle-line-numbers-type)
+  (evil-define-key 'normal 'global
+    (kbd "<leader>ts") 'custom/toggle-tab-width-setting)
+  (evil-define-key 'normal 'global
+    (kbd "<leader>tt") 'custom/toggle-indent-mode-setting)
+#+end_src
+
+*** Embark
+
+#+begin_src emacs-lisp
   ;; embark keybindings
   (evil-define-key 'normal 'global
     (kbd "C-.") 'embark-act)
@@ -1617,13 +1666,21 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
     (kbd "C-;") 'embark-dwim)
   (evil-define-key 'insert 'global
     (kbd "C-;") 'embark-dwim)
+#+end_src
 
+*** Margialia
+
+#+begin_src emacs-lisp
   ;; marginalia keybindings
   (evil-define-key 'normal 'minibuffer-local-map
     (kbd "M-A") 'marginalia-cycle)
   (evil-define-key 'insert 'minibuffer-local-map
     (kbd "M-A") 'marginalia-cycle)
+#+end_src
 
+*** Vertico
+
+#+begin_src emacs-lisp
   ;; vertico keybindings
   ;; (evil-define-key 'insert 'vertico-map
   ;;   (kbd "C-k") 'vertico-previous)
