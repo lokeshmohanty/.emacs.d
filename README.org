@@ -574,19 +574,24 @@ References: [[https://github.com/Fuco1/smartparens][smartparens]], [[https://git
   ;;   (smartparens-global-mode 1))
 #+end_src
 
+** Eglot
+
+#+begin_src emacs-lisp
+  (use-package eglot)
+#+end_src
 ** Language Server Protocol (LSP)
 References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]]
 
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :init (setq lsp-keymap-prefix "C-l")
-    :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
-    :hook
-    (c-mode . lsp-deferred)
-    (c++-mode . lsp-deferred)
-    (cmake-mode . lsp-deferred)
-    (lsp-mode . lsp-enable-which-key-integration))
+  ;; (use-package lsp-mode
+  ;;   :commands (lsp lsp-deferred)
+  ;;   :init (setq lsp-keymap-prefix "C-l")
+  ;;   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+  ;;   :hook
+  ;;   (c-mode . lsp-deferred)
+  ;;   (c++-mode . lsp-deferred)
+  ;;   (cmake-mode . lsp-deferred)
+  ;;   (lsp-mode . lsp-enable-which-key-integration))
 #+end_src
 
 ** Debug Adapter Protocol (DAP)
@@ -595,25 +600,30 @@ References: [[https://emacs-lsp.github.io/dap-mode/page/configuration/][dap]]
 run the respective setup function of the dap language on first time setup
 
 #+begin_src emacs-lisp
-  (use-package dap-mode
-    :config (require 'dap-cpptools))
+  ;; (use-package dap-mode
+  ;;   :after lsp-mode
+  ;;   :config (require 'dap-cpptools))
 
-  (use-package gdb-mi
-    :straight (:host github :repo "weirdNox/emacs-gdb" :files ("*.el" "*.c" "*.h" "Makefile"))
-    :init
-    (fmakunbound 'gdb)
-    (fmakunbound 'gdb-enable-debug))
+  ;; (use-package gdb-mi
+  ;;   :straight (:host github :repo "weirdNox/emacs-gdb" :files ("*.el" "*.c" "*.h" "Makefile"))
+  ;;   :init
+  ;;   (fmakunbound 'gdb)
+  ;;   (fmakunbound 'gdb-enable-debug))
 #+end_src
 
 * Completion
 ** Company (text completion framework)
-References: [[http://company-mode.github.io/][company]]
+References: [[http://company-mode.github.io/][company]], [[https://github.com/sebastiencs/company-box][company-box]]
 
 #+begin_src emacs-lisp
   (use-package company
     :custom (company-minimum-prefix-length 1)
     :config (global-company-mode)
     :custom (company-idle-delay 1))
+
+  ;; company front-end with icons
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
 #+end_src
 
 ** Vertico (vertical interactive completion ui)
