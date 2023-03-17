@@ -355,7 +355,7 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
 #+begin_src emacs-lisp
   (use-package org-roam
     :config
-    (setq org-roam-directory (file-truename "~/Documents/Org-Roam"))
+    (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
     (org-roam-db-autosync-mode))
 #+end_src
 
@@ -524,19 +524,38 @@ References: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
 References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode]], [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
 
 #+begin_src shell
-  pip install "ptvsd>=4.2"
+  # pip install "ptvsd>=4.2"
 #+end_src
+
+*** Conda
+
+#+begin_src emacs-lisp
+  (use-package conda
+    :init
+    (setq conda-anaconda-home (expand-file-name "~/.local/share/miniconda3"))
+    (setq conda-env-home-directory (expand-file-name "~/.local/share/miniconda3"))
+    :config
+    (conda-env-initialize-interactive-shells)
+    (conda-env-initialize-eshell))
+#+end_src
+
+*** Pyright
 
 #+begin_src emacs-lisp
   (use-package lsp-pyright
-    :after lsp-mode
-    :hook (python-mode . (lambda ()
-                            (require 'lsp-pyright)
-                            (lsp-deferred)))
-    :config
-    (require 'dap-python))
+    :defer t
+    :diminish eldoc-mode
+    :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
+    ;; :hook ((python-mode . (lambda () (require 'lsp-pyright)))
+    ;;          (python-mode . lsp-deferred))  :config
+    ;; (require 'dap-python)
+    ;; these hooks can't go in the :hook section since lsp-restart-workspace
+    ;; is not available if lsp isn't active
+    ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
+    ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
+  )
 
-  (use-package pyvenv)
+  ;; (use-package pyvenv)
 #+end_src
 
 ** Others
@@ -839,7 +858,7 @@ Troubleshooting:
 - ~cairo-devel~, ~poppler-devel~, ~poppler-glib-devel~ packages might be required
 
 #+begin_src emacs-lisp
-  ;; (use-package pdf-tools)
+  (use-package pdf-tools)
 #+end_src
 
 * Email
@@ -1586,6 +1605,10 @@ References: [[https://github.com/abo-abo/hydra/wiki/smartparens][smartparens]]
 
 ** Key-bindings
 References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][evil keymaps]], [[https://www.emacswiki.org/emacs/IbufferMode][ibuffer]]
+
+| Key-binding | Action |
+|-------------+--------|
+| =C-l=         | lsp    |
 
 *** General
 References: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]

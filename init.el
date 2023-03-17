@@ -43,6 +43,11 @@
 (setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
             confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
+;; Allow storing of recent files list
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 50)
+
 ;; apply the theme after frames are created
 ;; required as during daemon initialization, there are no frames
 (if (and (daemonp) (not (display-graphic-p)))
@@ -100,11 +105,11 @@
 ;; run the below command to install fonts
 ;; (all-the-icons-install-fonts)
 
-;; (set-face-attribute 'default nil :family "Source Code Pro" :height 140)
-;; (set-face-attribute 'font-lock-comment-face nil
-;;                     :family "Source Code Pro"
-;;                     :height 140
-;;                     :slant 'italic)
+(set-face-attribute 'default nil :family "Source Code Pro" :height 140)
+(set-face-attribute 'font-lock-comment-face nil
+                    :family "Source Code Pro"
+                    :height 140
+                    :slant 'italic)
 ;; (set-face-attribute 'font-lock-keywod-face nil
 ;;                     :family "Source Code Pro"
 ;;                     :height 140
@@ -152,10 +157,10 @@
 (use-package evil-surround
   :config (global-evil-surround-mode 1))
 
-(use-package expand-region)
-
 (use-package embrace
   :commands embrace-commander)
+
+(use-package expand-region)
 
 (use-package helpful
   :commands (helpful-callable	; for functions and macros
@@ -182,9 +187,13 @@
   ;; (org-startup-folded t)
   (org-startup-indented t)
   (org-confim-babel-evaluate nil)
-  (org-pretty-entities t)		; "C-c C-x \" to toggle
+  (org-hide-emphasis-markers t)
+  (org-hidden-keywords t)
+  ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
+  (org-image-actual-width nil)
   :config
   ;; open pdfs with okular
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
   (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
   ;; add markdown to org export backends
@@ -202,11 +211,12 @@
 (use-package org-appear
   :hook (org-mode . org-appear-mode)
   :custom
+  (org-appear-autoemphasis t)
   (org-appear-autolinks t)
   (org-appear-autoentities t)
   (org-appear-autosubmarkers t)	; sub/super scripts
   (org-appear-autokeywords t)	; keywords in org-hidden-keywords
-  (org-appear-delay 1))
+  (org-appear-delay 0))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -228,7 +238,7 @@
 
 (use-package org-roam
   :config
-  (setq org-roam-directory (file-truename "~/Documents/Org-Roam"))
+  (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
   (org-roam-db-autosync-mode))
 
 (use-package org-auctex
@@ -329,6 +339,9 @@
 ;;   :config (setq consult-reftex-preview-function
 ;;                 #'consult-reftex-make-window-preview))
 
+(use-package ink
+  :straight (:type git :host github :repo "lokesh1197/inkscape"))
+
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
@@ -343,15 +356,28 @@
 (use-package cmake-mode)
 (use-package cuda-mode)
 
-(use-package lsp-pyright
-  :after lsp-mode
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp-deferred)))
+(use-package conda
+  :init
+  (setq conda-anaconda-home (expand-file-name "~/.local/share/miniconda3"))
+  (setq conda-env-home-directory (expand-file-name "~/.local/share/miniconda3"))
   :config
-  (require 'dap-python))
+  (conda-env-initialize-interactive-shells)
+  (conda-env-initialize-eshell))
 
-(use-package pyvenv)
+(use-package lsp-pyright
+  :defer t
+  :diminish eldoc-mode
+  :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
+  ;; :hook ((python-mode . (lambda () (require 'lsp-pyright)))
+  ;;          (python-mode . lsp-deferred))  :config
+  ;; (require 'dap-python)
+  ;; these hooks can't go in the :hook section since lsp-restart-workspace
+  ;; is not available if lsp isn't active
+  ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
+  ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
+)
+
+;; (use-package pyvenv)
 
 (use-package haskell-mode)
 (use-package markdown-mode)
@@ -581,7 +607,7 @@
    ("M-e" . dirvish-emerge-menu)
    ("M-j" . dirvish-fd-jump)))
 
-;; (use-package pdf-tools)
+(use-package pdf-tools)
 
 (use-package notmuch
   :custom
@@ -1034,29 +1060,65 @@ Info-mode:
     (setq display-line-numbers-type (if (eq display-line-numbers-type t) 'relative 't))
     (display-line-numbers-mode)
     (display-line-numbers-mode))
-(defun custom/toggle-tab-width-setting ()
-    "Toggle setting tab widths between 4 and 8"
+(defun custom/toggle-tab-width ()
+    "Toggle setting tab widths between 2, 4 and 8"
     (interactive)
-    (setq tab-width (if (= tab-width 8) 4 8))
+    (setq tab-width (if (= tab-width 8) 2 (if (= tab-width 4) 8 4)))
     (redraw-display))
-(defun custom/toggle-indent-mode-setting ()
+(defun custom/toggle-indent-mode ()
     "toggle indenting modes"
     (interactive)
     (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
     (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
 
-;; use ibuffer instead of the default list-buffers
-(global-set-key (kbd "C-x C-b") 'ibuffer)
+(use-package general
+  :config
+  (general-create-definer my/leader
+    ;; :keymaps '(normal insert visual emacs override)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+  (general-create-definer my/ctrl-c
+    :prefix "C-c"))
 
-;; hydras
-(define-key Info-mode-map (kbd "?") #'hydra-info/body)
+(my/leader :states 'normal :kemaps 'override
+  "."    '(find-file :which-key "find file")
+  "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
+  "p"    (general-simulate-key "C-x p" :which-key "project"))
 
-;; evil leader
-(evil-set-leader 'normal (kbd "SPC"))
-(evil-set-leader 'visual (kbd "SPC"))
+(general-def :states 'normal
+ "j" 'evil-next-visual-line
+ "k" 'evil-previous-visual-line
+ "K" 'avy-goto-char-timer)
 
-(evil-define-key 'normal 'global
-  (kbd "<leader>.") 'find-file)
+(general-def :states 'emacs :keymaps 'isearch-mode-map
+  "M-f" 'avy-isearch)
+
+(my/leader :states 'normal :kemaps 'override
+  "b"    '(:ignore t        :which-key "buffer")
+  "bs"   '(consult-buffer   :which-key "switch")
+  "bk"   '(kill-this-buffer :which-key "kill"))
+
+(my/leader :states 'normal :kemaps 'override
+  "r"    '(:ignore t        :which-key "register/bookmark")
+  "ri"   '(bookmark-set     :which-key "insert")
+  "rg"   '(consult-bookmark :which-key "goto")
+  "rs"   '(bookmark-save    :which-key "save"))
+
+(general-define-key :states 'normal
+  "s"   '(embrace-commander :which-key "embrace commander"))
+;; (general-define-key :states 'normal :kemaps 'override
+;;   "ys"   '(embrace-add    :which-key "add surrounding")
+;;   "cs"   '(embrace-change :which-key "change surrounding")
+;;   "ds"   '(embrace-delete :which-key "delete surrounding"))
+
+(general-define-key :states '(normal visual insert) :kemaps 'override
+  "C-."   '(embark-act  :which-key "embark-act")
+  "C-;"   '(embark-dwim :which-key "embark-dwim"))
+
+(my/leader :states 'normal :kemaps 'override
+  "f"    '(:ignore t :which-key "frame")
+  "fb"   '(consult-buffer-other-frame :which-key "buffer")
+  "ff"   '(find-file-other-frame      :which-key "file"))
 
 ;; (evil-define-key 'normal 'latex-mode
 ;;   (kbd "<leader>ca") 'TeX-command-run-all)
@@ -1071,81 +1133,62 @@ Info-mode:
 ;; (evil-define-key 'normal 'latex-mode
 ;;   (kbd "<leader>{") 'cdlatex-environment)
 
-(evil-define-key 'normal 'global
-  (kbd "<leader>e") 'embrace-commander)
-(evil-define-key 'visual 'global
-  (kbd "<leader>e") 'embrace-commander)
+(general-def :states 'normal :keymaps 'Info-mode-map
+  "?" 'hydra-info/body)
 
-;; (evil-define-key nil evil-normal-state-map
-;;   (kbd "ys") 'embrace-add)
-;; (evil-define-key nil evil-normal-state-map
-;;   (kbd "cs") 'embrace-change)
-;; (evil-define-key nil evil-normal-state-map
-;;   (kbd "ds") 'embrace-delete)
+(my/leader :states 'normal
+  "h"   '(:ignore t :which-key "help/hydra")
+  "he"  '(hydra-expand/body :which-key "expand")
+  "ht"  '(hydra-tab-bar/body :which-key "tab-bar")
+  "hm"  '(hydra-mu4e-headers/body :which-key "mu4e")
+  "hi"  '(hydra-info/body :which-key "info")
+  "hp"  '(hydra-pdftools/body :which-key "pdftooks")
+  "hc"  '(hydra-org-clock/body :which-key "org-clock")
+  "hs"  '(hydra-smartparens/body :which-key "smartparens")
+  "hw"  '(hydra-window/body :which-key "window")
+  "hr"  '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+  "hc"  '((lambda () (interactive) (find-file (expand-file-name "~/.config/emacs/README.org"))) :which-key "Goto emacs config"))
 
-;; org-roam keybindings
-(evil-define-key 'normal 'global
-  (kbd "<leader>nf") 'org-roam-node-find)
-(evil-define-key 'normal 'global
-  (kbd "<leader>ni") 'org-roam-node-insert)
-(evil-define-key 'normal 'global
-  (kbd "<leader>nt") 'org-roam-buffer-toggle)
-(evil-define-key 'normal 'global
-  (kbd "<leader>nd2") 'org-roam-dailies-goto-today)
-(evil-define-key 'normal 'global
-  (kbd "<leader>nd1") 'org-roam-dailies-goto-tomorrow)
+(general-define-key :states '(normal insert) :kemaps 'minibuffer-local-map
+  "M-a"   '(marginalia-cycle :which-key "marginalia-cycle"))
 
-;; hydras
-(evil-define-key 'normal 'global
-  (kbd "<leader>he") 'hydra-expand/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>ht") 'hydra-tab-bar/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hm") 'hydra-mu4e-headers/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hi") 'hydra-info/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hp") 'hydra-pdftools/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hc") 'hydra-org-clock/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hs") 'hydra-smartparens/body)
-(evil-define-key 'normal 'global
-  (kbd "<leader>hw") 'hydra-window/body)
+(my/leader :states 'normal :kemaps 'override
+  "t"    '(:ignore t :which-key "tab")
+  "tb"   '(switch-to-buffer-other-tab :which-key "buffer")
+  "tc"   '(tab-close                  :which-key "close")
+  "tf"   '(find-file-other-tab        :which-key "file")
+  "tr"   '(tab-rename                 :which-key "close"))
 
-;; toggle keybindings
-(evil-define-key 'normal 'global
-  (kbd "<leader>tl") 'custom/toggle-line-numbers-type)
-(evil-define-key 'normal 'global
-  (kbd "<leader>ts") 'custom/toggle-tab-width-setting)
-(evil-define-key 'normal 'global
-  (kbd "<leader>tt") 'custom/toggle-indent-mode-setting)
+(my/ctrl-c
+  "n"   '(:ignore t                      :which-key "org roam")
+  "nt"  '(org-roam-buffer-toggle         :which-key "toggle backlinks")
+  "nf"  '(org-roam-node-find             :which-key "find node")
+  "nd"  '(:ignore t                      :which-key "dailies")
+  "nd1" '(org-roam-dailies-goto-today    :which-key "today")
+  "nd2" '(org-roam-dailies-goto-tomorrow :which-key "tomorrow")
+  "ng"  '(org-roam-graph                 :which-key "node graph"))
 
-;; embark keybindings
-(evil-define-key 'normal 'global
-  (kbd "C-.") 'embark-act)
-(evil-define-key 'visual 'global
-  (kbd "C-.") 'embark-act)
-(evil-define-key 'insert 'global
-  (kbd "C-.") 'embark-act)
-(evil-define-key 'normal 'global
-  (kbd "C-;") 'embark-dwim)
-(evil-define-key 'visual 'global
-  (kbd "C-;") 'embark-dwim)
-(evil-define-key 'insert 'global
-  (kbd "C-;") 'embark-dwim)
+(my/ctrl-c :keymaps 'org-mode-map
+  "ni" '(org-roam-node-insert      :which-key "insert")
+  "nI" '(org-roam-insert-immediate :which-key "insert immediate"))
 
-;; marginalia keybindings
-(evil-define-key 'normal 'minibuffer-local-map
-  (kbd "M-A") 'marginalia-cycle)
-(evil-define-key 'insert 'minibuffer-local-map
-  (kbd "M-A") 'marginalia-cycle)
+(my/leader :states 'normal :kemaps 'override
+  "s"    '(:ignore t          :which-key "shortcuts")
+  "sa"   '(org-agenda         :which-key "org-agenda")
+  "sc"   '(org-capture        :which-key "org-capture")
+  "sm"   '(mu4e               :which-key "mu4e")
+  "se"   '(eshell             :which-key "eshell")
+  "st"   '(vterm              :which-key "vterm")
+  "sy"   '(yas-insert-snippet :which-key "insert snippet"))
+;; (evil-define-key 'normal 'global
+;;   (kbd "<leader>sr") 'consult-recent-file) ; recentf-open-files
 
-;; vertico keybindings
-;; (evil-define-key 'insert 'vertico-map
-;;   (kbd "C-k") 'vertico-previous)
-;; (evil-define-key 'insert 'vertico-map
-;;   (kbd "C-j") 'vertico-next)
+(my/leader :states 'normal :kemaps 'override
+  "z"   '(:ignore t                       :which-key "toggle")
+  "zl"  '(custom/toggle-line-numbers-type :which-key "relative line number")
+  "zw"  '(custom/toggle-tab-width         :which-key "tab width")
+  "zi"  '(custom/toggle-indent-mode       :which-key "tab indent")
+  "zt"  '(toggle-truncate-lines           :which-key "toggle truncate lines"))
 
 ;; (add-hook 'doc-view-mode-hook 'pdf-tools-install)
 
