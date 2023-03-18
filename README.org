@@ -166,7 +166,7 @@ References: [[https://github.com/emacscollective/no-littering][no-littering]]
 * Text Edit/Jump
 ** Evil (edit text like in vim)
 References: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[https://github.com/emacs-evil/evil-collection][evil-collection]], [[https://github.com/emacs-evil/evil/blob/master/evil-maps.el][evil maps]]
-| =C-z= | toggle Emacs state | evil-toggle-key |
+| =C-x= =C-z= | toggle Emacs state | evil-toggle-key |
 
   #+begin_src emacs-lisp
     (use-package evil
@@ -177,7 +177,17 @@ References: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[htt
       (evil-want-find-undo t) ;; insert mode undo steps as per emacs
       (evil-undo-system 'undo-redo) ;; use native commands in emacs 28
       :config
-      (evil-mode 1))
+      (evil-mode 1)
+      ;; replace <C-z> with <C-x C-z> to use <C-z> to suspend frame instead
+      (define-key evil-motion-state-map (kbd "C-z") 'suspend-frame)
+      (define-key evil-motion-state-map (kbd "C-x C-z") 'evil-emacs-state)
+      (define-key evil-emacs-state-map (kbd "C-z") 'suspend-frame)
+      (define-key evil-emacs-state-map (kbd "C-x C-z") 'evil-exit-emacs-state)
+      ;; make <C-z> emulate vim in insert/replace mode 
+      (define-key evil-insert-state-map (kbd "C-z") (kbd "C-q C-z"))
+      (define-key evil-insert-state-map (kbd "C-x C-z") 'evil-emacs-state)
+      (define-key evil-replace-state-map (kbd "C-z") (kbd "C-q C-z"))
+      )
 
     (use-package evil-collection
       :after evil
@@ -1797,6 +1807,7 @@ Default: =C-x t=
     "zl"  '(custom/toggle-line-numbers-type :which-key "relative line number")
     "zw"  '(custom/toggle-tab-width         :which-key "tab width")
     "zi"  '(custom/toggle-indent-mode       :which-key "tab indent")
+    "zo"  '(org-toggle-inline-images        :which-key "toggle inline images")
     "zt"  '(toggle-truncate-lines           :which-key "toggle truncate lines"))
 #+end_src
 
