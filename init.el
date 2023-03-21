@@ -28,25 +28,52 @@
 ;; (package-refresh-contents)
 ;; M-x package-install RET use-package RET
 
-;; display position on modeline
-(column-number-mode)
-;; wrap lines
-(global-visual-line-mode t)
-;; update buffers on file change
+(column-number-mode)                                  ; display position on modeline
+(global-visual-line-mode t)                           ; wrap lines
 (global-auto-revert-mode)
-;; enable relative line numbering
-(setq display-line-numbers-type 'relative)
-;; enable line numbers globally
-(global-display-line-numbers-mode 1)
-;; persist history over emacs restarts
-(savehist-mode)
+(setq blink-cursor-mode nil)
+;; (setq display-line-numbers-type 'relative)
+(setq tab-width 2)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+(add-hook 'TeX-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+(savehist-mode)                                     ; persist history over emacs restarts
 (setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
             confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
+;; use visible bell instead of beep
+(setq visible-bell '1)
 ;; Allow storing of recent files list
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 50)
+
+(use-package general
+  :init
+  (setq general-override-states '(insert
+                                  emacs
+                                  hybrid
+                                  normal
+                                  visual
+                                  motion
+                                  operator
+                                  replace))
+  :config
+  (general-create-definer my/leader
+    ;; :keymaps '(normal insert visual emacs override)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+  (general-create-definer my/ctrl-c
+    :prefix "C-c"))
+
+(my/leader :states 'normal :kemaps 'override
+  "."    '(find-file :which-key "find file")
+  "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
+  "p"    (general-simulate-key "C-x p" :which-key "project"))
+
+(general-def :states 'normal
+ "j" 'evil-next-visual-line
+ "k" 'evil-previous-visual-line
+ "D" 'avy-goto-char-timer)
 
 ;; apply the theme after frames are created
 ;; required as during daemon initialization, there are no frames
@@ -98,9 +125,9 @@
   :after all-the-icons
   :config (all-the-icons-completion-mode))
 
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode))
+;; (use-package all-the-icons-dired
+;;   :if (display-graphic-p)
+;;   :hook (dired-mode . all-the-icons-dired-mode))
 
 ;; run the below command to install fonts
 ;; (all-the-icons-install-fonts)
@@ -125,7 +152,17 @@
   (evil-want-find-undo t) ;; insert mode undo steps as per emacs
   (evil-undo-system 'undo-redo) ;; use native commands in emacs 28
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; replace <C-z> with <C-x C-z> to use <C-z> to suspend frame instead
+  (define-key evil-motion-state-map (kbd "C-z") 'suspend-frame)
+  (define-key evil-motion-state-map (kbd "C-x C-z") 'evil-emacs-state)
+  (define-key evil-emacs-state-map (kbd "C-z") 'suspend-frame)
+  (define-key evil-emacs-state-map (kbd "C-x C-z") 'evil-exit-emacs-state)
+  ;; make <C-z> emulate vim in insert/replace mode 
+  (define-key evil-insert-state-map (kbd "C-z") (kbd "C-q C-z"))
+  (define-key evil-insert-state-map (kbd "C-x C-z") 'evil-emacs-state)
+  (define-key evil-replace-state-map (kbd "C-z") (kbd "C-q C-z"))
+  )
 
 (use-package evil-collection
   :after evil
@@ -153,6 +190,8 @@
 
 (use-package evil-lion
   :config (evil-lion-mode))
+
+(use-package avy)
 
 (use-package evil-surround
   :config (global-evil-surround-mode 1))
@@ -193,6 +232,7 @@
   (org-image-actual-width nil)
   :config
   ;; open pdfs with okular
+  ;; (setq org-preview-latex-default-process 'dvisvgm)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
   (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
@@ -209,6 +249,7 @@
   :hook (org-mode . org-fragtog-mode))
 
 (use-package org-appear
+  :after org
   :hook (org-mode . org-appear-mode)
   :custom
   (org-appear-autoemphasis t)
@@ -241,19 +282,30 @@
   (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
   (org-roam-db-autosync-mode))
 
-(use-package org-auctex
-  :straight (:type git :host github :repo "karthink/org-auctex")
-  :hook (org-mode . org-auctex-mode))
+;; (use-package org-auctex
+;;   :straight (:type git :host github :repo "karthink/org-auctex")
+;;   :hook (org-mode . org-auctex-mode))
 
 (use-package tex
   :straight auctex
-  :bind (:map TeX-mode-map ("<f2>" . preview-document))
+  :general
+  (:states '(normal insert visual emacs) :keymaps 'TeX-mode-map
+           "C-c C-g" '(pdf-sync-forward-search)
+           "<f2>" 'preview-document)
   :custom
   (TeX-auto-save t)
   (TeX-parse-self t)
   (TeX-PDF-mode t)
-  (TeX-view-program-selection '((output-pdf "xdg-open")))
+  (preview-auto-cache-preamble t)
+  ;; (TeX-view-program-selection '((output-pdf "xdg-open")))
+  (TeX-source-correlate-method (quote synctex))
+  (TeX-source-correlate-mode t)
+  (TeX-source-correlate-start-server t)
+  (TeX-view-program-selection '((output-pdf "PDF Tools")))
   :config
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+  ;; (add-hook 'TeX-after-TeX-LaTeX-command-finished-hook #'TeX-revert-document-buffer)
   (setq-default TeX-master nil))
 
 (use-package cdlatex
@@ -290,36 +342,6 @@
   (setq cdlatex-paired-parens "$[{(")
   (cdlatex-reset-mode))
 
-;; Make cdlatex play nice inside org tables
-(use-package lazytab
-  ;; :load-path "plugins/lazytab/"
-  :straight (:type git :host github :repo "karthink/lazytab")
-  :bind (:map orgtbl-mode-map
-              ("<tab>" . lazytab-org-table-next-field-maybe)
-              ("TAB" . lazytab-org-table-next-field-maybe))
-  :after cdlatex
-  :demand t
-  :config
-  (add-hook 'cdlatex-tab-hook #'lazytab-cdlatex-or-orgtbl-next-field 90)
-  (dolist (cmd '(("smat" "Insert smallmatrix env"
-                  "\\left( \\begin{smallmatrix} ? \\end{smallmatrix} \\right)"
-                  lazytab-position-cursor-and-edit
-                  nil nil t)
-                 ("bmat" "Insert bmatrix env"
-                  "\\begin{bmatrix} ? \\end{bmatrix}"
-                  lazytab-position-cursor-and-edit
-                  nil nil t)
-                 ("pmat" "Insert pmatrix env"
-                  "\\begin{pmatrix} ? \\end{pmatrix}"
-                  lazytab-position-cursor-and-edit
-                  nil nil t)
-                 ("tbl" "Insert table"
-                  "\\begin{table}\n\\centering ? \\caption{}\n\\end{table}\n"
-                  lazytab-position-cursor-and-edit
-                  nil t nil)))
-    (push cmd cdlatex-command-alist))
-  (cdlatex-reset-mode))
-
 (use-package reftex
   :after latex
   :defer 2
@@ -353,10 +375,11 @@
   :after markdown-mode
   :hook (markdown-mode . evil-markdown-mode))
 
-(use-package cmake-mode)
+;; (use-package cmake-mode) ; facing git errors
 (use-package cuda-mode)
 
 (use-package conda
+  :defer t
   :init
   (setq conda-anaconda-home (expand-file-name "~/.local/share/miniconda3"))
   (setq conda-env-home-directory (expand-file-name "~/.local/share/miniconda3"))
@@ -365,11 +388,8 @@
   (conda-env-initialize-eshell))
 
 (use-package lsp-pyright
-  :defer t
-  :diminish eldoc-mode
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-  ;; :hook ((python-mode . (lambda () (require 'lsp-pyright)))
-  ;;          (python-mode . lsp-deferred))  :config
+  ;; :config
   ;; (require 'dap-python)
   ;; these hooks can't go in the :hook section since lsp-restart-workspace
   ;; is not available if lsp isn't active
@@ -386,6 +406,13 @@
 ;;   :config
 ;;   (smartparens-global-mode 1))
 
+(use-package eglot
+  :hook
+  (TeX-mode . eglot-ensure))
+
+(use-package consult-eglot
+  :commands consult-eglot-symbols)
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :init (setq lsp-keymap-prefix "C-l")
@@ -396,19 +423,24 @@
   (cmake-mode . lsp-deferred)
   (lsp-mode . lsp-enable-which-key-integration))
 
-(use-package dap-mode
-  :config (require 'dap-cpptools))
+;; (use-package dap-mode
+;;   :after lsp-mode
+;;   :config (require 'dap-cpptools))
 
-(use-package gdb-mi
-  :straight (:host github :repo "weirdNox/emacs-gdb" :files ("*.el" "*.c" "*.h" "Makefile"))
-  :init
-  (fmakunbound 'gdb)
-  (fmakunbound 'gdb-enable-debug))
+;; (use-package gdb-mi
+;;   :straight (:host github :repo "weirdNox/emacs-gdb" :files ("*.el" "*.c" "*.h" "Makefile"))
+;;   :init
+;;   (fmakunbound 'gdb)
+;;   (fmakunbound 'gdb-enable-debug))
 
 (use-package company
   :custom (company-minimum-prefix-length 1)
   :config (global-company-mode)
   :custom (company-idle-delay 1))
+
+;; company front-end with icons
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 (use-package vertico
   :init (vertico-mode)
@@ -445,7 +477,6 @@
          ("C-M-#" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ("<help> a" . consult-apropos)            ;; orig. apropos-command
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
@@ -464,7 +495,6 @@
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
          ;; Isearch integration
@@ -543,15 +573,16 @@
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 )
 
+;; Asynchronous fuzzy finder
+;; (use-package affe
+;;   :config
+;;   (consult-customize affe-grep :preview-key "M-.")
+
 (use-package embark
   :init
-  ;; Optionally replace the key help with a completing-read interface
-  ;; don't know the actual use of this
-  (setq prefix-help-command #'embark-prefix-help-command)
-
+  (setq prefix-help-command #'embark-prefix-help-command) ; supposed to replace which-key in the future
   :config
   ;; Hide the mode line of the Embark live/completions buffers
-  ;; don't know the actual use of this
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
@@ -562,6 +593,15 @@
   :demand t ; only necessary if you have the hook below
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
+(use-package yasnippet
+  :hook (prog-mode . yas-minor-mode)
+  :config
+  (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.config/emacs/snippets")))
+  (yas-reload-all))
+;; (add-hook 'prog-mode-hook #'yas-minor-mode)
+
+(use-package yasnippet-snippets)
+
 (use-package magit)
 
 (use-package vterm
@@ -570,44 +610,80 @@
 (use-package dirvish
   :init
   (dirvish-override-dired-mode)
+  :general
+  (:states 'normal :keymaps 'dired-mode-map
+    "l"  'dired-find-file
+    "h"  'dired-up-directory)
+  (:states 'normal :keymaps 'dirvish-mode-map
+    "g?"  'dirvish-dispatch
+    "a"   'dirvish-quick-access
+    "f"   'dirvish-file-info-menu
+    "y"   'dirvish-yank-menu
+    "N"   'dirvish-narrow
+    "H"   'dirvish-history-last
+    "L"   'dirvish-history-jump
+    "o"   'dirvish-quicksort
+    "v"   'dirvish-vc-menu
+    "TAB" 'dirvish-subtree-toggle
+    "M-f" 'dirvish-history-go-forward
+    "M-b" 'dirvish-history-go-backward
+    "M-l" 'dirvish-ls-switches-menu
+    "M-m" 'dirvish-mark-menu
+    "M-t" 'dirvish-layout-toggle
+    "M-s" 'dirvish-setup-menu
+    "M-e" 'dirvish-emerge-menu
+    "M-j" 'dirvish-fd-jump)
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
      ("d" "~/Downloads/"                "Downloads")
+     ("c" "~/Documents/Courses/Jan23/"  "Courses")
+     ("s" "~/.local/src"                "Sources")
      ("m" "/mnt/"                       "Drives")
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
   :config
-  ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  (dirvish-peek-mode) ; Preview files in minibuffer
+  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group")
-  :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-  (("C-c f" . dirvish-fd)
-   :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-   ("a"   . dirvish-quick-access)
-   ("f"   . dirvish-file-info-menu)
-   ("y"   . dirvish-yank-menu)
-   ("N"   . dirvish-narrow)
-   ("^"   . dirvish-history-last)
-   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-   ("TAB" . dirvish-subtree-toggle)
-   ("M-f" . dirvish-history-go-forward)
-   ("M-b" . dirvish-history-go-backward)
-   ("M-l" . dirvish-ls-switches-menu)
-   ("M-m" . dirvish-mark-menu)
-   ("M-t" . dirvish-layout-toggle)
-   ("M-s" . dirvish-setup-menu)
-   ("M-e" . dirvish-emerge-menu)
-   ("M-j" . dirvish-fd-jump)))
+        "-l --almost-all --human-readable --group-directories-first --no-group"))
 
-(use-package pdf-tools)
+(setq dired-mouse-drag-files t)                   ; added in Emacs 29
+(setq mouse-drag-and-drop-region-cross-program t) ; added in Emacs 29
+
+
+(setq mouse-1-click-follows-link nil)
+(define-key dirvish-mode-map (kbd "<mouse-1>") 'dirvish-subtree-toggle-or-open)
+(define-key dirvish-mode-map (kbd "<mouse-2>") 'dired-mouse-find-file-other-window)
+(define-key dirvish-mode-map (kbd "<mouse-3>") 'dired-mouse-find-file)
+
+(use-package burly)
+
+(use-package pdf-tools
+  :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+  :demand t
+  :general
+  (:states 'normal :keymaps 'pdf-view-mode-map
+           "C-s" 'isearch-forward)
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  (setq pdf-view-resize-factor 1.1))               ; finer zooming
+
+(use-package 0x0
+  :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
+
+(my/ctrl-c
+  "0"  '(:ignore t :which-key "0x0")
+  "0d"  '(0x0-dwim :which-key "dwim") ; upload file in dired buffer, upload text in buffer
+  "0p"  '(0x0-popup :which-key "popup")
+  "0s"  '(0x0-shorten-uri :which-key "shorten")
+  "0c"  '(0x0-upload-kill-ring :which-key "clipboard"))
 
 (use-package notmuch
   :custom
@@ -1054,6 +1130,31 @@ Info-mode:
   ("q" nil)
   ("g" nil))
 
+(defun my/text-scale-adjust-latex-previews ()
+  "Adjust the size of latex preview fragments when changing the
+buffer's text scale."
+  (pcase major-mode
+    ('latex-mode
+     (dolist (ov (overlays-in (point-min) (point-max)))
+       (if (eq (overlay-get ov 'category)
+               'preview-overlay)
+           (my/text-scale--resize-fragment ov))))
+    ('org-mode
+     (dolist (ov (overlays-in (point-min) (point-max)))
+       (if (eq (overlay-get ov 'org-overlay-type)
+               'org-latex-overlay)
+           (my/text-scale--resize-fragment ov))))))
+
+(defun my/text-scale--resize-fragment (ov)
+  (overlay-put
+   ov 'display
+   (cons 'image
+         (plist-put
+          (cdr (overlay-get ov 'display))
+          :scale (+ 1.0 (* 0.25 text-scale-mode-amount))))))
+
+;; (add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
+
 (defun custom/toggle-line-numbers-type ()
     "Toggle line numbers type between relative and absolute"
     (interactive)
@@ -1071,25 +1172,6 @@ Info-mode:
     (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
     (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
 
-(use-package general
-  :config
-  (general-create-definer my/leader
-    ;; :keymaps '(normal insert visual emacs override)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-  (general-create-definer my/ctrl-c
-    :prefix "C-c"))
-
-(my/leader :states 'normal :kemaps 'override
-  "."    '(find-file :which-key "find file")
-  "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
-  "p"    (general-simulate-key "C-x p" :which-key "project"))
-
-(general-def :states 'normal
- "j" 'evil-next-visual-line
- "k" 'evil-previous-visual-line
- "K" 'avy-goto-char-timer)
-
 (general-def :states 'emacs :keymaps 'isearch-mode-map
   "M-f" 'avy-isearch)
 
@@ -1099,10 +1181,13 @@ Info-mode:
   "bk"   '(kill-this-buffer :which-key "kill"))
 
 (my/leader :states 'normal :kemaps 'override
-  "r"    '(:ignore t        :which-key "register/bookmark")
-  "ri"   '(bookmark-set     :which-key "insert")
-  "rg"   '(consult-bookmark :which-key "goto")
-  "rs"   '(bookmark-save    :which-key "save"))
+  "r"    '(:ignore t              :which-key "register/bookmark")
+  "ri"   '(:ignore t              :which-key "insert")
+  "rib"  '(bookmark-set           :which-key "buffer")
+  "rif"  '(burly-bookmark-frames  :which-key "frames")
+  "riw"  '(burly-bookmark-windows :which-key "windows")
+  "rg"   '(consult-bookmark       :which-key "goto")
+  "rs"   '(bookmark-save          :which-key "save"))
 
 (general-define-key :states 'normal
   "s"   '(embrace-commander :which-key "embrace commander"))
@@ -1112,13 +1197,19 @@ Info-mode:
 ;;   "ds"   '(embrace-delete :which-key "delete surrounding"))
 
 (general-define-key :states '(normal visual insert) :kemaps 'override
-  "C-."   '(embark-act  :which-key "embark-act")
+  "C-,"   '(embark-act  :which-key "embark-act")
   "C-;"   '(embark-dwim :which-key "embark-dwim"))
 
 (my/leader :states 'normal :kemaps 'override
   "f"    '(:ignore t :which-key "frame")
   "fb"   '(consult-buffer-other-frame :which-key "buffer")
   "ff"   '(find-file-other-frame      :which-key "file"))
+
+(my/leader :states 'normal :kemaps 'eglot-mode-map
+  "l"    '(:ignore t :which-key "language server")
+  "lfn"  '(flymake-goto-next-error :which-key "buffer")
+  "lfp"  '(flymake-goto-prev-error :which-key "close")
+  "lr"   '(eglot-rename            :which-key "close"))
 
 ;; (evil-define-key 'normal 'latex-mode
 ;;   (kbd "<leader>ca") 'TeX-command-run-all)
@@ -1174,34 +1265,25 @@ Info-mode:
 
 (my/leader :states 'normal :kemaps 'override
   "s"    '(:ignore t          :which-key "shortcuts")
+  "s0"   '(0x0-dwim           :which-key "0x0 share")
   "sa"   '(org-agenda         :which-key "org-agenda")
   "sc"   '(org-capture        :which-key "org-capture")
-  "sm"   '(mu4e               :which-key "mu4e")
+  "sd"   '(dirvish-dwim       :which-key "dirvish dwim")
   "se"   '(eshell             :which-key "eshell")
+  "sm"   '(mu4e               :which-key "mu4e")
+  "sr"   '(consult-recent-file :which-key "recent files")
+  "ss"   '(dirvish-side       :which-key "dirvish side")
   "st"   '(vterm              :which-key "vterm")
   "sy"   '(yas-insert-snippet :which-key "insert snippet"))
-;; (evil-define-key 'normal 'global
-;;   (kbd "<leader>sr") 'consult-recent-file) ; recentf-open-files
+
+(my/leader :states 'visual :kemaps 'override
+  "s"    '(:ignore t          :which-key "shortcuts")
+  "s0"   '(0x0-dwim           :which-key "0x0 share"))
 
 (my/leader :states 'normal :kemaps 'override
   "z"   '(:ignore t                       :which-key "toggle")
   "zl"  '(custom/toggle-line-numbers-type :which-key "relative line number")
   "zw"  '(custom/toggle-tab-width         :which-key "tab width")
   "zi"  '(custom/toggle-indent-mode       :which-key "tab indent")
+  "zo"  '(org-toggle-inline-images        :which-key "toggle inline images")
   "zt"  '(toggle-truncate-lines           :which-key "toggle truncate lines"))
-
-;; (add-hook 'doc-view-mode-hook 'pdf-tools-install)
-
-;; (setq-default pdf-view-use-scaling t
-;;               pdf-view-use-imagemagick nil)
-
-
-;; (require 'mailcap)
-
-;; (push '((viewer . "open %s 2> /dev/null &")
-;;         (type . "application/pdf")
-;;         (test . window-system))
-;;       mailcap-user-mime-data)
-
-;; (when (fboundp 'imagemagick-register-types)
-;;   (imagemagick-register-types))

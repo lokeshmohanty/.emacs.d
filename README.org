@@ -266,6 +266,12 @@ Commands: =gl (left align)=, =gL (right align)=
     :config (evil-lion-mode))
 #+end_src
 
+** Avy
+
+#+begin_src emacs-lisp
+  (use-package avy)
+#+end_src
+
 ** Add surroundings in pairs
 References: [[https://github.com/emacs-evil/evil-surround][evil-surround]], [[https://github.com/cute-jumper/embrace.el][embrace]]
 
