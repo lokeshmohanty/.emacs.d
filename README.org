@@ -436,41 +436,6 @@ References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], 
 
 #+end_src
 
-*** Lazytab (cdlatex inside org tables) (Not working as expected)
-
-#+begin_src emacs-lisp
-  ;; Make cdlatex play nice inside org tables
-  (use-package lazytab
-    ;; :load-path "plugins/lazytab/"
-    :straight (:type git :host github :repo "karthink/lazytab")
-    :bind (:map orgtbl-mode-map
-                ("<tab>" . lazytab-org-table-next-field-maybe)
-                ("TAB" . lazytab-org-table-next-field-maybe))
-    :after cdlatex
-    :demand t
-    :config
-    (add-hook 'cdlatex-tab-hook #'lazytab-cdlatex-or-orgtbl-next-field 90)
-    (dolist (cmd '(("smat" "Insert smallmatrix env"
-                    "\\left( \\begin{smallmatrix} ? \\end{smallmatrix} \\right)"
-                    lazytab-position-cursor-and-edit
-                    nil nil t)
-                   ("bmat" "Insert bmatrix env"
-                    "\\begin{bmatrix} ? \\end{bmatrix}"
-                    lazytab-position-cursor-and-edit
-                    nil nil t)
-                   ("pmat" "Insert pmatrix env"
-                    "\\begin{pmatrix} ? \\end{pmatrix}"
-                    lazytab-position-cursor-and-edit
-                    nil nil t)
-                   ("tbl" "Insert table"
-                    "\\begin{table}\n\\centering ? \\caption{}\n\\end{table}\n"
-                    lazytab-position-cursor-and-edit
-                    nil t nil)))
-      (push cmd cdlatex-command-alist))
-    (cdlatex-reset-mode))
-
-#+end_src
-
 *** Reftex
 
 #+begin_src emacs-lisp
@@ -671,7 +636,7 @@ References: [[https://github.com/minad/marginalia][marginalia]]
 #+end_src
 
 ** Consult (practical commands based on completing-read)
-References: [[https://github.com/minad/consult][consult]]
+References: [[https://github.com/minad/consult][consult]], [[https://github.com/minad/affe][affe]]
 
 #+begin_src emacs-lisp
   (use-package consult
@@ -692,7 +657,6 @@ References: [[https://github.com/minad/consult][consult]]
            ("C-M-#" . consult-register)
            ;; Other custom bindings
            ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-           ("<help> a" . consult-apropos)            ;; orig. apropos-command
            ;; M-g bindings (goto-map)
            ("M-g e" . consult-compile-error)
            ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
@@ -711,7 +675,6 @@ References: [[https://github.com/minad/consult][consult]]
            ("M-s r" . consult-ripgrep)
            ("M-s l" . consult-line)
            ("M-s L" . consult-line-multi)
-           ("M-s m" . consult-multi-occur)
            ("M-s k" . consult-keep-lines)
            ("M-s u" . consult-focus-lines)
            ;; Isearch integration
@@ -789,6 +752,11 @@ References: [[https://github.com/minad/consult][consult]]
     ;;;; 4. locate-dominating-file
     ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
+
+  ;; Asynchronous fuzzy finder
+  ;; (use-package affe
+  ;;   :config
+  ;;   (consult-customize affe-grep :preview-key "M-.")
 #+end_src
 
 ** Embark (run commands on target)
@@ -797,13 +765,9 @@ References: [[https://github.com/oantolin/embark][embark]]
 #+begin_src emacs-lisp
   (use-package embark
     :init
-    ;; Optionally replace the key help with a completing-read interface
-    ;; don't know the actual use of this
-    (setq prefix-help-command #'embark-prefix-help-command)
-
+    (setq prefix-help-command #'embark-prefix-help-command) ; supposed to replace which-key in the future
     :config
     ;; Hide the mode line of the Embark live/completions buffers
-    ;; don't know the actual use of this
     (add-to-list 'display-buffer-alist
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
@@ -1812,14 +1776,13 @@ Default: =C-x t=
 #+end_src
 
 * Packages to use when required
-- [[https://github.com/emacsmirror/0x0][0x0]] (upload files/text for sharing to [[https://0x0.st/][0x0.st]])
 - [[https://github.com/etu/webpaste.el][webpaste]]: plugin for pasting text online
 * Notes
+*Useful commands*:
+- Profiler: =profiler-start=, =profiler-stop=, =profiler-report=
 - Run ~(all-the-icons-install-fonts)~ on new emacs config setup
 - Good packages to try:
-  - [[https://github.com/Dewdrops/evil-exchange][evil-exchange]]: swapping text
   - [[https://github.com/redguardtoo/evil-nerd-commenter][evil-nerd-commenter]]: enhanced features for commenting
-  - [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]: edit text anywhere from within emacs
   - [[https://github.com/skeeto/impatient-mode][impatient-mode]]: live previews in browser
   - [[https://github.com/minad/consult][consult]]: practical commands based on completing-read
   - [[https://github.com/cnsunyour/emacs-pastebin][pastebin]]: plugin for interacting with pastebin
@@ -1827,9 +1790,9 @@ Default: =C-x t=
   - [[https://github.com/afewmail/afew][afew]]: initial tagging script for notmuch (to handle moving mail to folders based on tags)
   - [[https://www.emacswiki.org/emacs/GnusAlias][glus-alias]]: for switching identites in notmuch
   - [[https://github.com/smihica/emmet-mode][emmet-mode]]: html code generation
-  - [[https://github.com/alphapapa/unpackaged.el][unpackaged]]: unpackaged useful elisp code
   - [[https://github.com/rougier/nano-emacs][nano-emacs]]: theme for emacs
-  - [[https://github.com/rougier/notebook-mode][notebook-mode]]: notebook like nano emacs
+  - [[https://github.com/abo-abo/ace-window][ace-window]]: for window management (as a replacement for other-window/evil-window)
+  - org-noter, org-pdftools
 
 - References:
   - [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][Rougier]]: Nano Emacs author
@@ -1842,24 +1805,3 @@ Default: =C-x t=
 - [ ] sanitize consult
 - [ ] sanitize embark
 - [ ] fix notmuch
-* To Try
-
-#+begin_src emacs-lisp
-  ;; (add-hook 'doc-view-mode-hook 'pdf-tools-install)
-
-  ;; (setq-default pdf-view-use-scaling t
-  ;;               pdf-view-use-imagemagick nil)
-
-
-  ;; (require 'mailcap)
-
-  ;; (push '((viewer . "open %s 2> /dev/null &")
-  ;;         (type . "application/pdf")
-  ;;         (test . window-system))
-  ;;       mailcap-user-mime-data)
-
-  ;; (when (fboundp 'imagemagick-register-types)
-  ;;   (imagemagick-register-types))
-  
-#+end_src
-
