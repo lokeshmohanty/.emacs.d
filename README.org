@@ -506,6 +506,7 @@ References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https:/
 
 #+begin_src emacs-lisp
   (use-package conda
+    :defer t
     :init
     (setq conda-anaconda-home (expand-file-name "~/.local/share/miniconda3"))
     (setq conda-env-home-directory (expand-file-name "~/.local/share/miniconda3"))
@@ -811,51 +812,97 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
   (use-package dirvish
     :init
     (dirvish-override-dired-mode)
+    :general
+    (:states 'normal :keymaps 'dired-mode-map
+      "l"  'dired-find-file
+      "h"  'dired-up-directory)
+    (:states 'normal :keymaps 'dirvish-mode-map
+      "g?"  'dirvish-dispatch
+      "a"   'dirvish-quick-access
+      "f"   'dirvish-file-info-menu
+      "y"   'dirvish-yank-menu
+      "N"   'dirvish-narrow
+      "H"   'dirvish-history-last
+      "L"   'dirvish-history-jump
+      "o"   'dirvish-quicksort
+      "v"   'dirvish-vc-menu
+      "TAB" 'dirvish-subtree-toggle
+      "M-f" 'dirvish-history-go-forward
+      "M-b" 'dirvish-history-go-backward
+      "M-l" 'dirvish-ls-switches-menu
+      "M-m" 'dirvish-mark-menu
+      "M-t" 'dirvish-layout-toggle
+      "M-s" 'dirvish-setup-menu
+      "M-e" 'dirvish-emerge-menu
+      "M-j" 'dirvish-fd-jump)
     :custom
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
        ("d" "~/Downloads/"                "Downloads")
+       ("c" "~/Documents/Courses/Jan23/"  "Courses")
+       ("s" "~/.local/src"                "Sources")
        ("m" "/mnt/"                       "Drives")
        ("t" "~/.local/share/Trash/files/" "TrashCan")))
     :config
-    ;; (dirvish-peek-mode) ; Preview files in minibuffer
-    ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (dirvish-peek-mode) ; Preview files in minibuffer
+    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
     (setq dirvish-mode-line-format
           '(:left (sort symlink) :right (omit yank index)))
     (setq dirvish-attributes
           '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
-          "-l --almost-all --human-readable --group-directories-first --no-group")
-    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-    (("C-c f" . dirvish-fd)
-     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-     ("a"   . dirvish-quick-access)
-     ("f"   . dirvish-file-info-menu)
-     ("y"   . dirvish-yank-menu)
-     ("N"   . dirvish-narrow)
-     ("^"   . dirvish-history-last)
-     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-     ("TAB" . dirvish-subtree-toggle)
-     ("M-f" . dirvish-history-go-forward)
-     ("M-b" . dirvish-history-go-backward)
-     ("M-l" . dirvish-ls-switches-menu)
-     ("M-m" . dirvish-mark-menu)
-     ("M-t" . dirvish-layout-toggle)
-     ("M-s" . dirvish-setup-menu)
-     ("M-e" . dirvish-emerge-menu)
-     ("M-j" . dirvish-fd-jump)))
+          "-l --almost-all --human-readable --group-directories-first --no-group"))
+
+  (setq dired-mouse-drag-files t)                   ; added in Emacs 29
+  (setq mouse-drag-and-drop-region-cross-program t) ; added in Emacs 29
+
+
+  (setq mouse-1-click-follows-link nil)
+  (define-key dirvish-mode-map (kbd "<mouse-1>") 'dirvish-subtree-toggle-or-open)
+  (define-key dirvish-mode-map (kbd "<mouse-2>") 'dired-mouse-find-file-other-window)
+  (define-key dirvish-mode-map (kbd "<mouse-3>") 'dired-mouse-find-file)
+#+end_src
+
+* Burly (Bookmarks extension)
+References: [[https://github.com/alphapapa/burly.el][burly]], [[info:burly#Top][burly info]]
+Bookmark frame, window positions
+
+#+begin_src emacs-lisp
+  (use-package burly)
 #+end_src
 
 * PDF
-References: [[https://pdftools.wiki/][pdf-tools]]
-Troubleshooting:
-- ~cairo-devel~, ~poppler-devel~, ~poppler-glib-devel~ packages might be required
+References: [[https://pdftools.wiki/][pdf-tools]], [[https://github.com/emacs-evil/evil-collection/blob/master/modes/pdf/evil-collection-pdf.el][evil-collection]]
 
 #+begin_src emacs-lisp
-  (use-package pdf-tools)
+  (use-package pdf-tools
+    :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+    :demand t
+    :general
+    (:states 'normal :keymaps 'pdf-view-mode-map
+             "C-s" 'isearch-forward)
+    :config
+    (pdf-tools-install)
+    (setq-default pdf-view-display-size 'fit-page)
+    (setq pdf-annot-activate-created-annotations t)
+    (setq pdf-view-resize-factor 1.1))               ; finer zooming
+#+end_src
+
+* Sharing
+References: [[https://github.com/emacsmirror/0x0][0x0]]
+=C-u= prefix allows choosing server to upload to
+
+#+begin_src emacs-lisp
+  (use-package 0x0
+    :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
+
+  (my/ctrl-c
+    "0"  '(:ignore t :which-key "0x0")
+    "0d"  '(0x0-dwim :which-key "dwim") ; upload file in dired buffer, upload text in buffer
+    "0p"  '(0x0-popup :which-key "popup")
+    "0s"  '(0x0-shorten-uri :which-key "shorten")
+    "0c"  '(0x0-upload-kill-ring :which-key "clipboard"))
 #+end_src
 
 * Email
