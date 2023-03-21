@@ -47,25 +47,57 @@ References: [[https://github.com/radian-software/straight.el][straight]], [[http
 * Settings
 
 #+begin_src emacs-lisp
-  ;; display position on modeline
-  (column-number-mode)
-  ;; wrap lines
-  (global-visual-line-mode t)
-  ;; update buffers on file change
+  (column-number-mode)                                  ; display position on modeline
+  (global-visual-line-mode t)                           ; wrap lines
   (global-auto-revert-mode)
-  ;; enable relative line numbering
-  (setq display-line-numbers-type 'relative)
-  ;; enable line numbers globally
-  (global-display-line-numbers-mode 1)
-  ;; persist history over emacs restarts
-  (savehist-mode)
+  (setq blink-cursor-mode nil)
+  ;; (setq display-line-numbers-type 'relative)
+  (setq tab-width 2)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+  (add-hook 'TeX-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+  (savehist-mode)                                     ; persist history over emacs restarts
   (setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
               confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
+  ;; use visible bell instead of beep
+  (setq visible-bell '1)
   ;; Allow storing of recent files list
   (recentf-mode 1)
   (setq recentf-max-menu-items 25)
   (setq recentf-max-saved-items 50)
+#+end_src
+
+* General
+References: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]
+
+#+begin_src emacs-lisp
+  (use-package general
+    :init
+    (setq general-override-states '(insert
+                                    emacs
+                                    hybrid
+                                    normal
+                                    visual
+                                    motion
+                                    operator
+                                    replace))
+    :config
+    (general-create-definer my/leader
+      ;; :keymaps '(normal insert visual emacs override)
+      :prefix "SPC"
+      :global-prefix "C-SPC")
+    (general-create-definer my/ctrl-c
+      :prefix "C-c"))
+
+  (my/leader :states 'normal :kemaps 'override
+    "."    '(find-file :which-key "find file")
+    "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
+    "p"    (general-simulate-key "C-x p" :which-key "project"))
+
+  (general-def :states 'normal
+   "j" 'evil-next-visual-line
+   "k" 'evil-previous-visual-line
+   "D" 'avy-goto-char-timer)
 #+end_src
 
 * Graphics
