@@ -4,6 +4,93 @@
 
 CHEATSHEET: [[file:cheatsheet.pdf][./cheatsheet.pdf]]
 
+* Early Init
+References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > setq]]
+
+** Native Compilation
+
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; Prefer loading newest compiled .el file
+  (customize-set-variable 'load-prefer-newer noninteractive)
+
+  (when (featurep 'native-compile)
+    ;; silence compiler warnings
+    (setq native-comp-async-report-warnings-errors nil)
+    ;; asynchronous native compilation
+    (setq native-comp-deferred-compilation t)
+    ;; Set the right directory to store the native compilation cache
+    ;; NOTE: the method for setting the eln-cache directory depends on the emacs version
+    (when (fboundp 'startup-redirect-eln-cache)
+      (if (version< emacs-version "29")
+          (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
+        (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
+    (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
+#+end_src
+
+** Settings
+
+#+begin_src emacs-lisp :tangle early-init.el
+    ;; Don't enable package.el at startup
+    (setq package-enable-at-startup nil)
+
+    ;; Make the initial buffer load faster by setting its mode to fundamental-mode
+    (customize-set-variable 'initial-major-mode 'fundamental-mode)
+
+    (setq-default
+     inhibit-startup-screen t               ; Disable start-up screen
+     inhibit-startup-message t              ; Disable startup message
+     inhibit-startup-echo-area-message t    ; Disable initial echo message
+     initial-scratch-message nil             ; Empty the initial *scratch* buffer
+     initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
+
+    ;; Remove some unneeded UI elements (the user can turn back on anything they wish)
+    (push '(tool-bar-lines . 0) default-frame-alist) ; disable the toolbar
+    (push '(tooltip-lines . 0) default-frame-alist) ; disable the toolbar
+    (push '(menu-bar-lines . 0) default-frame-alist) ; disalbe the menu bar
+    (push '(vertical-scroll-bars) default-frame-alist) ; disable scroll bars
+
+  (setq
+    gc-cons-threshold most-positive-fixnum                    ; Inhibit garbage collection during startup
+    byte-compile-warnings '(cl-functions)                     ; hide cl package deprecation warning
+    auto-mode-case-fold nil                                   ; Use case-sensitive `auto-mode-alist' for performance
+    fast-but-imprecise-scrolling t                            ; More performant rapid scrolling over unfontified regions
+    ffap-machine-p-known 'reject                              ; Don't ping things that look like domain names
+    frame-inhibit-implied-resize t                            ; Inhibit frame resizing for performance
+    idle-update-delay 1.0                                     ; slow down UI updates down
+    inhibit-compacting-font-caches t                          ; Inhibit frame resizing for performance
+    read-process-output-max (* 1024 1024)                     ; Increase how much is read from processes in a single chunk.
+    redisplay-skip-fontification-on-input t                   ; Inhibits it for better scrolling performance.
+    command-line-x-option-alist nil                           ; Remove irreleant command line options for faster startup
+    select-active-regions 'only                               ; Emacs hangs when large selections contain mixed line endings.
+    auto-save-list-file-prefix nil                            ; Disable auto-save
+    create-lockfiles nil                                      ; Disable lockfiles
+    make-backup-files nil                                     ; Disable backup files
+    custom-file (concat user-emacs-directory "custom.el")     ; Place all "custom" code in a temporary file
+    vc-follow-symlinks t)                                      ; Do not ask about symlink following
+#+end_src
+
+* Settings
+
+#+begin_src emacs-lisp
+  (column-number-mode)                                  ; display position on modeline
+  (global-visual-line-mode t)                           ; wrap lines
+  (global-auto-revert-mode)
+  (setq blink-cursor-mode nil)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+  (add-hook 'TeX-mode-hook 'display-line-numbers-mode)  ; enable line numbers for all programming modes
+
+  (setq-default savehist-mode t)                                       ; persist history over emacs restarts
+  (setq-default tab-width 2
+                ;; display-line-numbers-type 'relative
+                use-short-answers t                     ; Replace yes/no prompts with y/n
+                confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
+
+  (setq visible-bell '1)                                ; use visible bell instead of beep
+  (recentf-mode 1)                                      ; Allow storing of recent files list
+  (setq recentf-max-menu-items 25)
+  (setq recentf-max-saved-items 50)
+#+end_src
+
 * Package manager
 ** Straight
 References: [[https://github.com/radian-software/straight.el][straight]], [[https://github.com/jwiegley/use-package][use-package]]
@@ -42,29 +129,6 @@ References: [[https://github.com/radian-software/straight.el][straight]], [[http
 
   ;; (package-refresh-contents)
   ;; M-x package-install RET use-package RET
-#+end_src
-
-* Settings
-
-#+begin_src emacs-lisp
-  (column-number-mode)                                  ; display position on modeline
-  (global-visual-line-mode t)                           ; wrap lines
-  (global-auto-revert-mode)
-  (setq blink-cursor-mode nil)
-  ;; (setq display-line-numbers-type 'relative)
-  (setq tab-width 2)
-  (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
-  (add-hook 'TeX-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
-  (savehist-mode)                                     ; persist history over emacs restarts
-  (setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
-              confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
-
-  ;; use visible bell instead of beep
-  (setq visible-bell '1)
-  ;; Allow storing of recent files list
-  (recentf-mode 1)
-  (setq recentf-max-menu-items 25)
-  (setq recentf-max-saved-items 50)
 #+end_src
 
 * General
@@ -127,12 +191,6 @@ References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://gith
   (use-package nano-modeline
     :config (nano-modeline-mode))
 
-  (setq-default
-   inhibit-startup-screen t               ; Disable start-up screen
-   inhibit-startup-message t              ; Disable startup message
-   inhibit-startup-echo-area-message t    ; Disable initial echo message
-   initial-scratch-message ""             ; Empty the initial *scratch* buffer
-   initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
   ;; (use-package nano-splash
   ;;   :straight (:type git :host github :repo "lokesh1197/nano-splash"))
 
@@ -343,8 +401,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
     (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
     (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
-    ;; add markdown to org export backends
-    )
+    (setq org-export-backends '(ascii html icalendar latex md odt)))
 #+end_src
 
 ** Visual

@@ -1,52 +1,53 @@
-;;; early-init.el -- Runs before starting emacs -*- lexical-binding: t; -*-
-;;; Commentary:
-;;
-;; Decreases Emacs load time by not loading unneeded features
-;; Reference: https://github.com/SystemCrafters/rational-emacs/blob/master/early-init.el
-
-;;; Code:
-
-;;; Garbage Collection
-;; Increase the GC threshold for faster startup
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
-;;; Emacs lisp source/compiled preference
 ;; Prefer loading newest compiled .el file
 (customize-set-variable 'load-prefer-newer noninteractive)
-;; (setq load-prefer-newer noninteractive)
 
-;; Don't use package.el, we'll use straight.el instead
-(setq package-enable-at-startup nil)
-
-;;; Native compilation settings
 (when (featurep 'native-compile)
-  ;; Silence compiler warnings as they can be pretty disruptive
+  ;; silence compiler warnings
   (setq native-comp-async-report-warnings-errors nil)
-
-  ;; Make native compilation happens asynchronously
+  ;; asynchronous native compilation
   (setq native-comp-deferred-compilation t)
-
   ;; Set the right directory to store the native compilation cache
-  ;; NOTE the method for setting the eln-cache directory depends on the emacs version
+  ;; NOTE: the method for setting the eln-cache directory depends on the emacs version
   (when (fboundp 'startup-redirect-eln-cache)
     (if (version< emacs-version "29")
         (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
       (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
-
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
-;;; UI configuration
-;; Remove some unneeded UI elements (the user can turn back on anything they wish)
-(setq inhibit-startup-message t)
-(push '(tool-bar-lines . 0) default-frame-alist) ;; disable the toolbar
-(push '(menu-bar-lines . 0) default-frame-alist) ;; disalbe the menu bar
-(push '(vertical-scroll-bars) default-frame-alist) ;; disable scroll bars
+;; Don't enable package.el at startup
+  (setq package-enable-at-startup nil)
 
-;; Loads a nice blue theme, avoids the white screen flash on startup.
-;; (load-theme 'deeper-blue t)
+  ;; Make the initial buffer load faster by setting its mode to fundamental-mode
+  (customize-set-variable 'initial-major-mode 'fundamental-mode)
 
-;; Make the initial buffer load faster by setting its mode to fundamental-mode
-(customize-set-variable 'initial-major-mode 'fundamental-mode)
+  (setq-default
+   inhibit-startup-screen t               ; Disable start-up screen
+   inhibit-startup-message t              ; Disable startup message
+   inhibit-startup-echo-area-message t    ; Disable initial echo message
+   initial-scratch-message nil             ; Empty the initial *scratch* buffer
+   initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
 
-;;; early-init.el ends here
+  ;; Remove some unneeded UI elements (the user can turn back on anything they wish)
+  (push '(tool-bar-lines . 0) default-frame-alist) ; disable the toolbar
+  (push '(tooltip-lines . 0) default-frame-alist) ; disable the toolbar
+  (push '(menu-bar-lines . 0) default-frame-alist) ; disalbe the menu bar
+  (push '(vertical-scroll-bars) default-frame-alist) ; disable scroll bars
+
+(setq
+  gc-cons-threshold most-positive-fixnum                    ; Inhibit garbage collection during startup
+  byte-compile-warnings '(cl-functions)                     ; hide cl package deprecation warning
+  auto-mode-case-fold nil                                   ; Use case-sensitive `auto-mode-alist' for performance
+  fast-but-imprecise-scrolling t                            ; More performant rapid scrolling over unfontified regions
+  ffap-machine-p-known 'reject                              ; Don't ping things that look like domain names
+  frame-inhibit-implied-resize t                            ; Inhibit frame resizing for performance
+  idle-update-delay 1.0                                     ; slow down UI updates down
+  inhibit-compacting-font-caches t                          ; Inhibit frame resizing for performance
+  read-process-output-max (* 1024 1024)                     ; Increase how much is read from processes in a single chunk.
+  redisplay-skip-fontification-on-input t                   ; Inhibits it for better scrolling performance.
+  command-line-x-option-alist nil                           ; Remove irreleant command line options for faster startup
+  select-active-regions 'only                               ; Emacs hangs when large selections contain mixed line endings.
+  auto-save-list-file-prefix nil                            ; Disable auto-save
+  create-lockfiles nil                                      ; Disable lockfiles
+  make-backup-files nil                                     ; Disable backup files
+  custom-file (concat user-emacs-directory "custom.el")     ; Place all "custom" code in a temporary file
+  vc-follow-symlinks t)                                      ; Do not ask about symlink following

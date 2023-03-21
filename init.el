@@ -1,3 +1,21 @@
+(column-number-mode)                                  ; display position on modeline
+(global-visual-line-mode t)                           ; wrap lines
+(global-auto-revert-mode)
+(setq blink-cursor-mode nil)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
+(add-hook 'TeX-mode-hook 'display-line-numbers-mode)  ; enable line numbers for all programming modes
+
+(setq-default savehist-mode t)                                       ; persist history over emacs restarts
+(setq-default tab-width 2
+              ;; display-line-numbers-type 'relative
+              use-short-answers t                     ; Replace yes/no prompts with y/n
+              confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
+
+(setq visible-bell '1)                                ; use visible bell instead of beep
+(recentf-mode 1)                                      ; Allow storing of recent files list
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 50)
+
 ;; get latest version
 (setq straight-repository-branch "develop")
 
@@ -27,25 +45,6 @@
 
 ;; (package-refresh-contents)
 ;; M-x package-install RET use-package RET
-
-(column-number-mode)                                  ; display position on modeline
-(global-visual-line-mode t)                           ; wrap lines
-(global-auto-revert-mode)
-(setq blink-cursor-mode nil)
-;; (setq display-line-numbers-type 'relative)
-(setq tab-width 2)
-(add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
-(add-hook 'TeX-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
-(savehist-mode)                                     ; persist history over emacs restarts
-(setq-default use-short-answers t                   ; Replace yes/no prompts with y/n
-            confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
-
-;; use visible bell instead of beep
-(setq visible-bell '1)
-;; Allow storing of recent files list
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(setq recentf-max-saved-items 50)
 
 (use-package general
   :init
@@ -96,12 +95,6 @@
 (use-package nano-modeline
   :config (nano-modeline-mode))
 
-(setq-default
- inhibit-startup-screen t               ; Disable start-up screen
- inhibit-startup-message t              ; Disable startup message
- inhibit-startup-echo-area-message t    ; Disable initial echo message
- initial-scratch-message ""             ; Empty the initial *scratch* buffer
- initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
 ;; (use-package nano-splash
 ;;   :straight (:type git :host github :repo "lokesh1197/nano-splash"))
 
@@ -236,8 +229,7 @@
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
   (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
-  ;; add markdown to org export backends
-  )
+  (setq org-export-backends '(ascii html icalendar latex md odt)))
 
 (use-package org-bullets
   :after org
@@ -1129,31 +1121,6 @@ Info-mode:
 
   ("q" nil)
   ("g" nil))
-
-(defun my/text-scale-adjust-latex-previews ()
-  "Adjust the size of latex preview fragments when changing the
-buffer's text scale."
-  (pcase major-mode
-    ('latex-mode
-     (dolist (ov (overlays-in (point-min) (point-max)))
-       (if (eq (overlay-get ov 'category)
-               'preview-overlay)
-           (my/text-scale--resize-fragment ov))))
-    ('org-mode
-     (dolist (ov (overlays-in (point-min) (point-max)))
-       (if (eq (overlay-get ov 'org-overlay-type)
-               'org-latex-overlay)
-           (my/text-scale--resize-fragment ov))))))
-
-(defun my/text-scale--resize-fragment (ov)
-  (overlay-put
-   ov 'display
-   (cons 'image
-         (plist-put
-          (cdr (overlay-get ov 'display))
-          :scale (+ 1.0 (* 0.25 text-scale-mode-amount))))))
-
-;; (add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
 
 (defun custom/toggle-line-numbers-type ()
     "Toggle line numbers type between relative and absolute"
