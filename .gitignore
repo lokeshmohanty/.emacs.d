@@ -2,9 +2,11 @@
 /auto-save-list/
 /dictionaries_enwiktionary/
 /straight/
-/config.el
 /.emacs.desktop
 /var/
 /recentf
 /site-lisp/
 /etc/
+/bookmarks
+/eln-cache/
+/custom.el
