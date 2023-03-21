@@ -134,9 +134,9 @@ References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[h
     :after all-the-icons
     :config (all-the-icons-completion-mode))
 
-  (use-package all-the-icons-dired
-    :if (display-graphic-p)
-    :hook (dired-mode . all-the-icons-dired-mode))
+  ;; (use-package all-the-icons-dired
+  ;;   :if (display-graphic-p)
+  ;;   :hook (dired-mode . all-the-icons-dired-mode))
 
   ;; run the below command to install fonts
   ;; (all-the-icons-install-fonts)
@@ -518,11 +518,8 @@ References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https:/
 
 #+begin_src emacs-lisp
   (use-package lsp-pyright
-    :defer t
-    :diminish eldoc-mode
     :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-    ;; :hook ((python-mode . (lambda () (require 'lsp-pyright)))
-    ;;          (python-mode . lsp-deferred))  :config
+    ;; :config
     ;; (require 'dap-python)
     ;; these hooks can't go in the :hook section since lsp-restart-workspace
     ;; is not available if lsp isn't active
@@ -549,24 +546,26 @@ References: [[https://github.com/Fuco1/smartparens][smartparens]], [[https://git
   ;;   (smartparens-global-mode 1))
 #+end_src
 
-** Eglot
-
-#+begin_src emacs-lisp
-  (use-package eglot)
-#+end_src
 ** Language Server Protocol (LSP)
-References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]]
+References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
 
 #+begin_src emacs-lisp
-  ;; (use-package lsp-mode
-  ;;   :commands (lsp lsp-deferred)
-  ;;   :init (setq lsp-keymap-prefix "C-l")
-  ;;   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
-  ;;   :hook
-  ;;   (c-mode . lsp-deferred)
-  ;;   (c++-mode . lsp-deferred)
-  ;;   (cmake-mode . lsp-deferred)
-  ;;   (lsp-mode . lsp-enable-which-key-integration))
+  (use-package eglot
+    :hook
+    (TeX-mode . eglot-ensure))
+
+  (use-package consult-eglot
+    :commands consult-eglot-symbols)
+
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init (setq lsp-keymap-prefix "C-l")
+    :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+    :hook
+    (c-mode . lsp-deferred)
+    (c++-mode . lsp-deferred)
+    (cmake-mode . lsp-deferred)
+    (lsp-mode . lsp-enable-which-key-integration))
 #+end_src
 
 ** Debug Adapter Protocol (DAP)
@@ -777,6 +776,20 @@ References: [[https://github.com/oantolin/embark][embark]]
     :after (embark consult)
     :demand t ; only necessary if you have the hook below
     :hook (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** Snippets
+References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joaotavora.github.io/yasnippet/][yasnippet-docs]], [[https://github.com/AndreaCrotti/yasnippet-snippets][yasnippet-snippets]]
+
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :hook (prog-mode . yas-minor-mode)
+    :config
+    (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.config/emacs/snippets")))
+    (yas-reload-all))
+  ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
+
+  (use-package yasnippet-snippets)
 #+end_src
 
 * Version control
@@ -1594,30 +1607,6 @@ References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][ev
 |-------------+--------|
 | =C-l=         | lsp    |
 
-*** General
-References: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]
-
-#+begin_src emacs-lisp
-  (use-package general
-    :config
-    (general-create-definer my/leader
-      ;; :keymaps '(normal insert visual emacs override)
-      :prefix "SPC"
-      :global-prefix "C-SPC")
-    (general-create-definer my/ctrl-c
-      :prefix "C-c"))
-
-  (my/leader :states 'normal :kemaps 'override
-    "."    '(find-file :which-key "find file")
-    "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
-    "p"    (general-simulate-key "C-x p" :which-key "project"))
-
-  (general-def :states 'normal
-   "j" 'evil-next-visual-line
-   "k" 'evil-previous-visual-line
-   "K" 'avy-goto-char-timer)
-#+end_src
-
 *** Avy
 
 #+begin_src emacs-lisp
@@ -1640,10 +1629,13 @@ Default: =C-x r=
 
 #+begin_src emacs-lisp
   (my/leader :states 'normal :kemaps 'override
-    "r"    '(:ignore t        :which-key "register/bookmark")
-    "ri"   '(bookmark-set     :which-key "insert")
-    "rg"   '(consult-bookmark :which-key "goto")
-    "rs"   '(bookmark-save    :which-key "save"))
+    "r"    '(:ignore t              :which-key "register/bookmark")
+    "ri"   '(:ignore t              :which-key "insert")
+    "rib"  '(bookmark-set           :which-key "buffer")
+    "rif"  '(burly-bookmark-frames  :which-key "frames")
+    "riw"  '(burly-bookmark-windows :which-key "windows")
+    "rg"   '(consult-bookmark       :which-key "goto")
+    "rs"   '(bookmark-save          :which-key "save"))
 #+end_src
 
 *** Embrace (vim surrounding)
@@ -1661,7 +1653,7 @@ Default: =C-x r=
 
 #+begin_src emacs-lisp
   (general-define-key :states '(normal visual insert) :kemaps 'override
-    "C-."   '(embark-act  :which-key "embark-act")
+    "C-,"   '(embark-act  :which-key "embark-act")
     "C-;"   '(embark-dwim :which-key "embark-dwim"))
 #+end_src
 
@@ -1673,6 +1665,17 @@ Default: =C-x 5=
     "f"    '(:ignore t :which-key "frame")
     "fb"   '(consult-buffer-other-frame :which-key "buffer")
     "ff"   '(find-file-other-frame      :which-key "file"))
+#+end_src
+
+*** Language Server
+Current bindings are for eglot
+
+#+begin_src emacs-lisp
+  (my/leader :states 'normal :kemaps 'eglot-mode-map
+    "l"    '(:ignore t :which-key "language server")
+    "lfn"  '(flymake-goto-next-error :which-key "buffer")
+    "lfp"  '(flymake-goto-prev-error :which-key "close")
+    "lr"   '(eglot-rename            :which-key "close"))
 #+end_src
 
 *** Latex
@@ -1753,14 +1756,20 @@ Default: =C-x t=
 #+begin_src emacs-lisp
   (my/leader :states 'normal :kemaps 'override
     "s"    '(:ignore t          :which-key "shortcuts")
+    "s0"   '(0x0-dwim           :which-key "0x0 share")
     "sa"   '(org-agenda         :which-key "org-agenda")
     "sc"   '(org-capture        :which-key "org-capture")
-    "sm"   '(mu4e               :which-key "mu4e")
+    "sd"   '(dirvish-dwim       :which-key "dirvish dwim")
     "se"   '(eshell             :which-key "eshell")
+    "sm"   '(mu4e               :which-key "mu4e")
+    "sr"   '(consult-recent-file :which-key "recent files")
+    "ss"   '(dirvish-side       :which-key "dirvish side")
     "st"   '(vterm              :which-key "vterm")
     "sy"   '(yas-insert-snippet :which-key "insert snippet"))
-  ;; (evil-define-key 'normal 'global
-  ;;   (kbd "<leader>sr") 'consult-recent-file) ; recentf-open-files
+
+  (my/leader :states 'visual :kemaps 'override
+    "s"    '(:ignore t          :which-key "shortcuts")
+    "s0"   '(0x0-dwim           :which-key "0x0 share"))
 #+end_src
 
 *** Toggle
