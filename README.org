@@ -301,6 +301,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     (org-image-actual-width nil)
     :config
     ;; open pdfs with okular
+    ;; (setq org-preview-latex-default-process 'dvisvgm)
     (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
     (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
     (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
@@ -322,6 +323,7 @@ References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12
     :hook (org-mode . org-fragtog-mode))
 
   (use-package org-appear
+    :after org
     :hook (org-mode . org-appear-mode)
     :custom
     (org-appear-autoemphasis t)
@@ -373,9 +375,9 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
 References: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 #+begin_src emacs-lisp
-  (use-package org-auctex
-    :straight (:type git :host github :repo "karthink/org-auctex")
-    :hook (org-mode . org-auctex-mode))
+  ;; (use-package org-auctex
+  ;;   :straight (:type git :host github :repo "karthink/org-auctex")
+  ;;   :hook (org-mode . org-auctex-mode))
 #+end_src
 
 * Languages
@@ -387,13 +389,24 @@ References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], 
 #+begin_src emacs-lisp
   (use-package tex
     :straight auctex
-    :bind (:map TeX-mode-map ("<f2>" . preview-document))
+    :general
+    (:states '(normal insert visual emacs) :keymaps 'TeX-mode-map
+             "C-c C-g" '(pdf-sync-forward-search)
+             "<f2>" 'preview-document)
     :custom
     (TeX-auto-save t)
     (TeX-parse-self t)
     (TeX-PDF-mode t)
-    (TeX-view-program-selection '((output-pdf "xdg-open")))
+    (preview-auto-cache-preamble t)
+    ;; (TeX-view-program-selection '((output-pdf "xdg-open")))
+    (TeX-source-correlate-method (quote synctex))
+    (TeX-source-correlate-mode t)
+    (TeX-source-correlate-start-server t)
+    (TeX-view-program-selection '((output-pdf "PDF Tools")))
     :config
+    (add-hook 'TeX-after-compilation-finished-functions
+              #'TeX-revert-document-buffer)
+    ;; (add-hook 'TeX-after-TeX-LaTeX-command-finished-hook #'TeX-revert-document-buffer)
     (setq-default TeX-master nil))
 #+end_src
 
@@ -491,7 +504,7 @@ References: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package cmake-mode)
+  ;; (use-package cmake-mode) ; facing git errors
   (use-package cuda-mode)
 #+end_src
 
