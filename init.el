@@ -3,7 +3,8 @@
 (global-auto-revert-mode)
 (setq blink-cursor-mode nil)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
-(add-hook 'TeX-mode-hook 'display-line-numbers-mode)  ; enable line numbers for all programming modes
+(add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
+(add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
 
 (setq-default savehist-mode t)                                       ; persist history over emacs restarts
 (setq-default tab-width 2
@@ -90,14 +91,7 @@
   ;;   (doom-themes-org-config))
   (use-package modus-themes
       :config
-      (load-theme 'modus-operandi-tinted t))
-  )
-
-(use-package nano-modeline
-  :config (nano-modeline-mode))
-
-;; (use-package nano-splash
-;;   :straight (:type git :host github :repo "lokesh1197/nano-splash"))
+      (load-theme 'modus-operandi-tinted t)))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
