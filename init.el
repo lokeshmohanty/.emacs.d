@@ -70,27 +70,28 @@
   "p"    (general-simulate-key "C-x p" :which-key "project"))
 
 (general-def :states 'normal
- "j" 'evil-next-visual-line
- "k" 'evil-previous-visual-line
- "D" 'avy-goto-char-timer)
+ "j"   'evil-next-visual-line
+ "k"   'evil-previous-visual-line
+ "D"   'avy-goto-char-timer
+ "M-d" 'avy-pop-mark)
 
 ;; apply the theme after frames are created
 ;; required as during daemon initialization, there are no frames
 (if (and (daemonp) (not (display-graphic-p)))
-  (use-package nano-theme
-    :straight (:type git :host github :repo "rougier/nano-theme")
-    :config
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (load-theme 'nano-dark t)))
-    (load-theme 'nano-dark t))
-  (use-package doom-themes
-    :config 
-    (load-theme 'doom-gruvbox-light t)
-    ;; (load-theme 'doom-gruvbox t)
-    ;; (load-theme 'doom-one-light t)
-    ;; (load-theme 'doom-one t)
-    (doom-themes-org-config)))
+  (use-package modus-themes
+      :config
+      (load-theme 'modus-vivendi-deuteranopia t))
+  ;; (use-package doom-themes
+  ;;   :config 
+  ;;   (load-theme 'doom-gruvbox-light t)
+  ;;   ;; (load-theme 'doom-gruvbox t)
+  ;;   ;; (load-theme 'doom-one-light t)
+  ;;   ;; (load-theme 'doom-one t)
+  ;;   (doom-themes-org-config))
+  (use-package modus-themes
+      :config
+      (load-theme 'modus-operandi-tinted t))
+  )
 
 (use-package nano-modeline
   :config (nano-modeline-mode))
@@ -125,11 +126,12 @@
 ;; run the below command to install fonts
 ;; (all-the-icons-install-fonts)
 
-(set-face-attribute 'default nil :family "Source Code Pro" :height 140)
+(set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Source Code Pro"
-                    :height 140
+                    :family "Iosevka Fixed SS07"
+                    :height 135
                     :slant 'italic)
+
 ;; (set-face-attribute 'font-lock-keywod-face nil
 ;;                     :family "Source Code Pro"
 ;;                     :height 140
@@ -274,9 +276,11 @@
   (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
   (org-roam-db-autosync-mode))
 
-;; (use-package org-auctex
-;;   :straight (:type git :host github :repo "karthink/org-auctex")
-;;   :hook (org-mode . org-auctex-mode))
+(use-package org-auctex
+  :straight (:type git :host github :repo "karthink/org-auctex")
+  :hook (org-mode . org-auctex-mode))
+
+(use-package ox-reveal)
 
 (use-package tex
   :straight auctex
@@ -428,7 +432,7 @@
 (use-package company
   :custom (company-minimum-prefix-length 1)
   :config (global-company-mode)
-  :custom (company-idle-delay 1))
+  :custom (company-idle-delay 0.3))
 
 ;; company front-end with icons
 (use-package company-box
@@ -1153,7 +1157,7 @@ Info-mode:
   "rib"  '(bookmark-set           :which-key "buffer")
   "rif"  '(burly-bookmark-frames  :which-key "frames")
   "riw"  '(burly-bookmark-windows :which-key "windows")
-  "rg"   '(consult-bookmark       :which-key "goto")
+  "rl"   '(consult-bookmark       :which-key "list")
   "rs"   '(bookmark-save          :which-key "save"))
 
 (general-define-key :states 'normal
