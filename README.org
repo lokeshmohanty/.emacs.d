@@ -176,9 +176,10 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
     "p"    (general-simulate-key "C-x p" :which-key "project"))
 
   (general-def :states 'normal
-   "j" 'evil-next-visual-line
-   "k" 'evil-previous-visual-line
-   "D" 'avy-goto-char-timer)
+   "j"   'evil-next-visual-line
+   "k"   'evil-previous-visual-line
+   "D"   'avy-goto-char-timer
+   "M-d" 'avy-pop-mark)
 #+end_src
 
 * Graphics
@@ -487,14 +488,19 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
 References: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 #+begin_src emacs-lisp
-  ;; (use-package org-auctex
-  ;;   :straight (:type git :host github :repo "karthink/org-auctex")
-  ;;   :hook (org-mode . org-auctex-mode))
+  (use-package org-auctex
+    :straight (:type git :host github :repo "karthink/org-auctex")
+    :hook (org-mode . org-auctex-mode))
 #+end_src
 
+** Reveal (Presentation using reveal.js)
+
+#+begin_src emacs-lisp
+  (use-package ox-reveal)
+#+end_src
 * Languages
 ** Latex
-References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], [[https://github.com/cdominik/cdlatex][cdlatex]](abbreviations), [[https://www.gnu.org/software/auctex/manual/reftex.html][reftex]](references, labels, ...)
+References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], [[https://www.gnu.org/software/auctex/manual/auctex.html#Indices][auctex(shortcuts)]], [[https://github.com/cdominik/cdlatex][cdlatex]](abbreviations), [[https://www.gnu.org/software/auctex/manual/reftex.html][reftex]](references, labels, ...)
 
 *** AucTeX
 
@@ -675,6 +681,10 @@ References: [[https://github.com/Fuco1/smartparens][smartparens]], [[https://git
 ** Language Server Protocol (LSP)
 References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
 
+| xref-find-definitions | M-. |
+| xref-pop-marker-stack | M-, |
+| xref-find-references  | M-? |
+
 #+begin_src emacs-lisp
   (use-package eglot
     :hook
@@ -719,7 +729,7 @@ References: [[http://company-mode.github.io/][company]], [[https://github.com/se
   (use-package company
     :custom (company-minimum-prefix-length 1)
     :config (global-company-mode)
-    :custom (company-idle-delay 1))
+    :custom (company-idle-delay 0.3))
 
   ;; company front-end with icons
   (use-package company-box
@@ -1806,7 +1816,7 @@ Default: =C-x r=
     "rib"  '(bookmark-set           :which-key "buffer")
     "rif"  '(burly-bookmark-frames  :which-key "frames")
     "riw"  '(burly-bookmark-windows :which-key "windows")
-    "rg"   '(consult-bookmark       :which-key "goto")
+    "rl"   '(consult-bookmark       :which-key "list")
     "rs"   '(bookmark-save          :which-key "save"))
 #+end_src
 
