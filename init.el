@@ -642,6 +642,7 @@
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group"))
 
+(setq dired-auto-revert-buffer t)
 (setq dired-mouse-drag-files t)                   ; added in Emacs 29
 (setq mouse-drag-and-drop-region-cross-program t) ; added in Emacs 29
 
