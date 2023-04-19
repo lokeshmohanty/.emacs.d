@@ -84,8 +84,6 @@
   :config
   (load-theme 'gruvbox-dark-medium t))
 
-(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
 

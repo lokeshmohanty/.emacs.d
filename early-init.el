@@ -21,17 +21,21 @@
   (customize-set-variable 'initial-major-mode 'fundamental-mode)
 
   (setq-default
-   inhibit-startup-screen t               ; Disable start-up screen
-   inhibit-startup-message t              ; Disable startup message
-   inhibit-startup-echo-area-message t    ; Disable initial echo message
-   initial-scratch-message nil             ; Empty the initial *scratch* buffer
-   initial-buffer-choice nil)             ; Open *scratch* buffer at init, make it 't' for using nano-splash
+   inhibit-startup-screen t            ; Disable start-up screen
+   inhibit-startup-message t           ; Disable startup message
+   inhibit-startup-echo-area-message t ; Disable initial echo message
+   initial-scratch-message nil         ; Empty the initial *scratch* buffer
+   initial-buffer-choice nil)          ; Open *scratch* buffer at init, make it 't' for using nano-splash
 
-  ;; Remove some unneeded UI elements (the user can turn back on anything they wish)
-  (push '(tool-bar-lines . 0) default-frame-alist) ; disable the toolbar
-  (push '(tooltip-lines . 0) default-frame-alist) ; disable the toolbar
-  (push '(menu-bar-lines . 0) default-frame-alist) ; disalbe the menu bar
-  (push '(vertical-scroll-bars) default-frame-alist) ; disable scroll bars
+  ;; Set some default frame parameters
+  (add-to-list 'default-frame-alist '(tool-bar-lines . 0))   ; disable the toolbar
+  (add-to-list 'default-frame-alist '(tooltip-lines . 0))    ; disable the toolbar
+  (add-to-list 'default-frame-alist '(menu-bar-lines . 0))   ; disalbe the menu bar
+  (add-to-list 'default-frame-alist '(vertical-scroll-bars)) ; disable scroll bars
+  (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
+
+  ;; Example of setting a frame parameter manually
+  ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 
 (setq
   gc-cons-threshold most-positive-fixnum                    ; Inhibit garbage collection during startup
