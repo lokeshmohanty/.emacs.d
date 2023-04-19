@@ -76,22 +76,15 @@
  "D"   'avy-goto-char-timer
  "M-d" 'avy-pop-mark)
 
-;; apply the theme after frames are created
 ;; required as during daemon initialization, there are no frames
-(if (and (daemonp) (not (display-graphic-p)))
-  (use-package modus-themes
-      :config
-      (load-theme 'modus-vivendi-deuteranopia t))
-  ;; (use-package doom-themes
-  ;;   :config 
-  ;;   (load-theme 'doom-gruvbox-light t)
-  ;;   ;; (load-theme 'doom-gruvbox t)
-  ;;   ;; (load-theme 'doom-one-light t)
-  ;;   ;; (load-theme 'doom-one t)
-  ;;   (doom-themes-org-config))
-  (use-package modus-themes
-      :config
-      (load-theme 'modus-operandi-tinted t)))
+;; (use-package modus-themes
+;; 	:config
+;; 	(load-theme 'modus-vivendi-tinted t))
+(use-package gruvbox-theme
+  :config
+  (load-theme 'gruvbox-dark-medium t))
+
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -222,9 +215,10 @@
   :config
   ;; open pdfs with okular
   ;; (setq org-preview-latex-default-process 'dvisvgm)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
-  (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
-  (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
+  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+  ;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
+  ;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
+  (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
   (setq org-export-backends '(ascii html icalendar latex md odt)))
 
 (use-package org-bullets
@@ -238,7 +232,7 @@
 
 (use-package org-appear
   :after org
-  :hook (org-mode . org-appear-mode)
+  ;; :hook (org-mode . org-appear-mode)
   :custom
   (org-appear-autoemphasis t)
   (org-appear-autolinks t)
@@ -246,6 +240,8 @@
   (org-appear-autosubmarkers t)	; sub/super scripts
   (org-appear-autokeywords t)	; keywords in org-hidden-keywords
   (org-appear-delay 0))
+
+(add-hook 'org-mode-hook #'org-appear-mode)
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -274,7 +270,9 @@
   :straight (:type git :host github :repo "karthink/org-auctex")
   :hook (org-mode . org-auctex-mode))
 
-(use-package ox-reveal)
+;; (use-package ox-reveal)
+
+(setq treesit-extra-load-path '("/usr/local/lib"))
 
 (use-package tex
   :straight auctex
@@ -426,7 +424,7 @@
 (use-package company
   :custom (company-minimum-prefix-length 1)
   :config (global-company-mode)
-  :custom (company-idle-delay 0.3))
+  :custom (company-idle-delay 0.5))
 
 ;; company front-end with icons
 (use-package company-box
@@ -608,12 +606,13 @@
     "g?"  'dirvish-dispatch
     "a"   'dirvish-quick-access
     "f"   'dirvish-file-info-menu
+    "o"   'dirvish-quicksort
+    "q"   'dirvish-quit
+    "v"   'dirvish-vc-menu
     "y"   'dirvish-yank-menu
     "N"   'dirvish-narrow
     "H"   'dirvish-history-last
     "L"   'dirvish-history-jump
-    "o"   'dirvish-quicksort
-    "v"   'dirvish-vc-menu
     "TAB" 'dirvish-subtree-toggle
     "M-f" 'dirvish-history-go-forward
     "M-b" 'dirvish-history-go-backward
@@ -632,8 +631,7 @@
      ("m" "/mnt/"                       "Drives")
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
   :config
-  (dirvish-peek-mode) ; Preview files in minibuffer
-  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  (dirvish-peek-mode) ; Preview files listed in minibuffer
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
@@ -653,6 +651,16 @@
 (define-key dirvish-mode-map (kbd "<mouse-3>") 'dired-mouse-find-file)
 
 (use-package burly)
+
+;; auth-sources
+(setq auth-source-debug t)
+(setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
+;; (setq auth-sources '((:source "~/.authinfo.gpg")))
+(setq password-cache-expiry nil)
+(customize-set-variable 'ange-ftp-netrc-filename "~/.authinfo.gpg")
+
+;; access unix password store
+(use-package password-store)
 
 (use-package pdf-tools
   :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
@@ -691,6 +699,8 @@
 )
 
 (use-package emacs-everywhere)
+
+(use-package sudo-edit)
 
 (use-package hydra)
 

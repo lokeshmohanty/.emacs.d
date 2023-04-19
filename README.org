@@ -188,23 +188,16 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
 References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
 
 #+begin_src emacs-lisp
-
-  ;; apply the theme after frames are created
   ;; required as during daemon initialization, there are no frames
-  (if (and (daemonp) (not (display-graphic-p)))
-    (use-package modus-themes
-        :config
-        (load-theme 'modus-vivendi-deuteranopia t))
-    ;; (use-package doom-themes
-    ;;   :config 
-    ;;   (load-theme 'doom-gruvbox-light t)
-    ;;   ;; (load-theme 'doom-gruvbox t)
-    ;;   ;; (load-theme 'doom-one-light t)
-    ;;   ;; (load-theme 'doom-one t)
-    ;;   (doom-themes-org-config))
-    (use-package modus-themes
-        :config
-        (load-theme 'modus-operandi-tinted t)))
+  ;; (use-package modus-themes
+  ;; 	:config
+  ;; 	(load-theme 'modus-vivendi-tinted t))
+  (use-package gruvbox-theme
+    :config
+    (load-theme 'gruvbox-dark-medium t))
+
+  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+
 #+end_src
 
 ** Terminal fixes (emacs -nw)
@@ -413,9 +406,10 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     :config
     ;; open pdfs with okular
     ;; (setq org-preview-latex-default-process 'dvisvgm)
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
-    (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
-    (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
+    ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+    ;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
+    ;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
+    (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
     (setq org-export-backends '(ascii html icalendar latex md odt)))
 #+end_src
 
@@ -434,7 +428,7 @@ References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12
 
   (use-package org-appear
     :after org
-    :hook (org-mode . org-appear-mode)
+    ;; :hook (org-mode . org-appear-mode)
     :custom
     (org-appear-autoemphasis t)
     (org-appear-autolinks t)
@@ -442,6 +436,8 @@ References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12
     (org-appear-autosubmarkers t)	; sub/super scripts
     (org-appear-autokeywords t)	; keywords in org-hidden-keywords
     (org-appear-delay 0))
+
+  (add-hook 'org-mode-hook #'org-appear-mode)
 #+end_src
 
 ** Source blocks
@@ -493,9 +489,15 @@ References: [[https://github.com/karthink/org-auctex][org-auctex]]
 ** Reveal (Presentation using reveal.js)
 
 #+begin_src emacs-lisp
-  (use-package ox-reveal)
+  ;; (use-package ox-reveal)
 #+end_src
 * Languages
+** Tree Sitter (Syntax highlighter)
+
+#+begin_src emacs-lisp
+  (setq treesit-extra-load-path '("/usr/local/lib"))
+#+end_src
+
 ** Latex
 References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], [[https://www.gnu.org/software/auctex/manual/auctex.html#Indices][auctex(shortcuts)]], [[https://github.com/cdominik/cdlatex][cdlatex]](abbreviations), [[https://www.gnu.org/software/auctex/manual/reftex.html][reftex]](references, labels, ...)
 
@@ -726,7 +728,7 @@ References: [[http://company-mode.github.io/][company]], [[https://github.com/se
   (use-package company
     :custom (company-minimum-prefix-length 1)
     :config (global-company-mode)
-    :custom (company-idle-delay 0.3))
+    :custom (company-idle-delay 0.5))
 
   ;; company front-end with icons
   (use-package company-box
@@ -939,6 +941,7 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
 #+end_src
 
 * Directory Viewer
+References: [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.org][dirvish]], [[https://github.com/alexluigit/dirvish/blob/main/docs/EXTENSIONS.org][dirvish-extensions]]
 
 #+begin_src emacs-lisp
   (use-package dirvish
@@ -952,12 +955,13 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
       "g?"  'dirvish-dispatch
       "a"   'dirvish-quick-access
       "f"   'dirvish-file-info-menu
+      "o"   'dirvish-quicksort
+      "q"   'dirvish-quit
+      "v"   'dirvish-vc-menu
       "y"   'dirvish-yank-menu
       "N"   'dirvish-narrow
       "H"   'dirvish-history-last
       "L"   'dirvish-history-jump
-      "o"   'dirvish-quicksort
-      "v"   'dirvish-vc-menu
       "TAB" 'dirvish-subtree-toggle
       "M-f" 'dirvish-history-go-forward
       "M-b" 'dirvish-history-go-backward
@@ -976,8 +980,7 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
        ("m" "/mnt/"                       "Drives")
        ("t" "~/.local/share/Trash/files/" "TrashCan")))
     :config
-    (dirvish-peek-mode) ; Preview files in minibuffer
-    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (dirvish-peek-mode) ; Preview files listed in minibuffer
     (setq dirvish-mode-line-format
           '(:left (sort symlink) :right (omit yank index)))
     (setq dirvish-attributes
@@ -1003,6 +1006,20 @@ Bookmark frame, window positions
 
 #+begin_src emacs-lisp
   (use-package burly)
+#+end_src
+
+* Credential Management
+
+#+begin_src emacs-lisp
+  ;; auth-sources
+  (setq auth-source-debug t)
+  (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
+  ;; (setq auth-sources '((:source "~/.authinfo.gpg")))
+  (setq password-cache-expiry nil)
+  (customize-set-variable 'ange-ftp-netrc-filename "~/.authinfo.gpg")
+
+  ;; access unix password store
+  (use-package password-store)
 #+end_src
 
 * PDF
@@ -1269,6 +1286,13 @@ References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 
 * Spell check
 References: [[https://github.com/hunspell/hunspell][hunspell]]
+
+* Packages for simple tasks
+** Edit with superuser access
+
+#+begin_src emacs-lisp
+  (use-package sudo-edit)
+#+end_src
 
 * Shortcuts
 ** Hydra
