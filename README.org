@@ -494,6 +494,7 @@ References: [[https://github.com/karthink/org-auctex][org-auctex]]
 #+begin_src emacs-lisp
   ;; (use-package ox-reveal)
 #+end_src
+
 * Languages
 ** Tree Sitter (Syntax highlighter)
 
@@ -736,6 +737,24 @@ References: [[http://company-mode.github.io/][company]], [[https://github.com/se
   ;; company front-end with icons
   (use-package company-box
     :hook (company-mode . company-box-mode))
+#+end_src
+
+** Github Copilot
+References: [[https://github.com/zerolfx/copilot.el][copilot]]
+
+#+begin_src emacs-lisp
+  (use-package copilot
+    :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+    :general
+    (:states 'insert :keymaps 'copilot-mode-map
+             "M-C-h"  'copilot-complete
+             "M-C-n"  'copilot-next-completion
+             "M-C-p"  'copilot-previous-completion
+             "M-C-l"  'copilot-accept-completion-by-word
+             "M-C-j"  'copilot-accept-completion-by-line
+             "M-C-<return>"  'copilot-accept-completion))
+
+  (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
 
 ** Vertico (vertical interactive completion ui)

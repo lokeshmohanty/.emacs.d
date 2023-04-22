@@ -430,6 +430,19 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :general
+  (:states 'normal :keymaps 'copilot-mode-map
+           "M-C-h"  'copilot-complete
+           "M-C-n"  'copilot-next-completion
+           "M-C-p"  'copilot-previous-completion
+           "M-C-l"  'copilot-accept-completion-by-word
+           "M-C-j"  'copilot-accept-completion-by-line
+           "M-C-<return>"  'copilot-accept-completion))
+
+;; (add-hook 'prog-mode-hook 'copilot-mode)
+
 (use-package vertico
   :init (vertico-mode)
   :custom (vertico-cycle t))
