@@ -937,10 +937,15 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
 #+end_src
 
 * Vterm (terminal within emacs)
+References: [[https://github.com/suonlight/multi-vterm][multi-vterm]]
 
 #+begin_src emacs-lisp
   (use-package vterm
     :custom (vterm-shell "fish"))
+
+  (use-package multi-vterm
+    :config
+    (setq multi-vterm-dedicated-window-height-percent 30))
 #+end_src
 
 * Directory Viewer
@@ -1974,12 +1979,20 @@ Default: =C-x t=
     "sm"   '(mu4e               :which-key "mu4e")
     "sr"   '(consult-recent-file :which-key "recent files")
     "ss"   '(dirvish-side       :which-key "dirvish side")
-    "st"   '(vterm              :which-key "vterm")
+    "sp"   '(multi-vterm-project :which-key "vterm")
+    "st"   '(multi-vterm-dedicated-toggle :which-key "vterm")
     "sy"   '(yas-insert-snippet :which-key "insert snippet"))
 
   (my/leader :states 'visual :kemaps 'override
     "s"    '(:ignore t          :which-key "shortcuts")
     "s0"   '(0x0-dwim           :which-key "0x0 share"))
+
+  (general-def :states 'normal :kemaps 'vterm-mode-map
+    ",c"    'multi-vterm
+    ",n"    'multi-vterm-next
+    ",p"    'multi-vterm-prev
+    ",d"    'multi-vterm-dedicated-toggle
+    ",q"    'kill-this-buffer)
 #+end_src
 
 *** Toggle
