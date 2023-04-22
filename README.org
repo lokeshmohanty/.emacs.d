@@ -109,6 +109,8 @@ References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > se
   (recentf-mode 1)                                      ; Allow storing of recent files list
   (setq recentf-max-menu-items 25)
   (setq recentf-max-saved-items 50)
+
+  (undelete-frame-mode)										; allows recovering a deleted frame (emacs 29)
 #+end_src
 
 * Package manager
@@ -151,7 +153,7 @@ References: [[https://github.com/radian-software/straight.el][straight]], [[http
   ;; M-x package-install RET use-package RET
 #+end_src
 
-* General
+* General (key-bindings helper)
 References: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]
 
 Use =general-describe-keybindings= to view all keybindings defined using =general.=
@@ -183,8 +185,8 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
   (general-def :states 'normal
    "j"   'evil-next-visual-line
    "k"   'evil-previous-visual-line
-   "D"   'avy-goto-char-timer
-   "M-d" 'avy-pop-mark)
+   "K"   'avy-goto-char-timer
+   "M-k" 'avy-pop-mark)
 #+end_src
 
 * Graphics
@@ -1867,7 +1869,10 @@ Default: =C-x 5=
 
 #+begin_src emacs-lisp
   (my/leader :states 'normal :kemaps 'override
-    "f"    '(:ignore t :which-key "frame")
+    "f"    '(:ignore t                  :which-key "frame")
+    "fc"   '(clone-frame                :which-key "clone")
+    "fd"   '(delete-frame               :which-key "delete")
+    "fu"   '(undelete-frame             :which-key "undelete")
     "fb"   '(consult-buffer-other-frame :which-key "buffer")
     "ff"   '(find-file-other-frame      :which-key "file"))
 #+end_src
@@ -1991,6 +1996,8 @@ Default: =C-x t=
 
 * Packages to use when required
 - [[https://github.com/etu/webpaste.el][webpaste]]: plugin for pasting text online
+- [[https://github.com/emacsmirror/spray][spray]]: speed reading emacs mode. Start with ~spray-mode~, ~SPC~ to pause/resume, ~f~ to increase speed, ~s~ to decrease speed, ~h~ for previous word, ~k~ for next word
+
 * Notes
 *Useful commands*:
 - Profiler: =profiler-start=, =profiler-stop=, =profiler-report=
@@ -2004,12 +2011,8 @@ Default: =C-x t=
   - [[https://github.com/afewmail/afew][afew]]: initial tagging script for notmuch (to handle moving mail to folders based on tags)
   - [[https://www.emacswiki.org/emacs/GnusAlias][glus-alias]]: for switching identites in notmuch
   - [[https://github.com/smihica/emmet-mode][emmet-mode]]: html code generation
-  - [[https://github.com/rougier/nano-emacs][nano-emacs]]: theme for emacs
   - [[https://github.com/abo-abo/ace-window][ace-window]]: for window management (as a replacement for other-window/evil-window)
   - org-noter, org-pdftools
-
-- References:
-  - [[https://github.com/rougier/dotemacs/blob/master/dotemacs.org][Rougier]]: Nano Emacs author
 
 - Known bugs:
   - ~evil-insert-digraph~ keybinding is shadowed by vertico custom map
