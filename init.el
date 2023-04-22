@@ -17,6 +17,8 @@
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 50)
 
+(undelete-frame-mode)										; allows recovering a deleted frame (emacs 29)
+
 ;; get latest version
 (setq straight-repository-branch "develop")
 
@@ -73,8 +75,8 @@
 (general-def :states 'normal
  "j"   'evil-next-visual-line
  "k"   'evil-previous-visual-line
- "D"   'avy-goto-char-timer
- "M-d" 'avy-pop-mark)
+ "K"   'avy-goto-char-timer
+ "M-k" 'avy-pop-mark)
 
 ;; required as during daemon initialization, there are no frames
 ;; (use-package modus-themes
@@ -593,6 +595,10 @@
 (use-package vterm
   :custom (vterm-shell "fish"))
 
+(use-package multi-vterm
+  :config
+  (setq multi-vterm-dedicated-window-height-percent 30))
+
 (use-package dirvish
   :init
   (dirvish-override-dired-mode)
@@ -697,6 +703,36 @@
 )
 
 (use-package emacs-everywhere)
+
+(use-package elfeed
+  :bind ("C-x w" . elfeed))
+
+(use-package elfeed-org
+  :config (elfeed-org)
+  :custom (rmh-elfeed-org-files (list "elfeed.org")))
+
+(use-package elfeed-goodies
+  :config (elfeed-goodies/setup))
+
+(use-package elfeed-tube
+  :after elfeed
+  :demand t
+  :config
+  ;; (setq elfeed-tube-auto-save-p nil) ; default value
+  ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
+  (elfeed-tube-setup)
+
+  :bind (:map elfeed-show-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)
+         :map elfeed-search-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)))
+
+(use-package elfeed-tube-mpv
+  :bind (:map elfeed-show-mode-map
+              ("C-c C-f" . elfeed-tube-mpv-follow-mode)
+              ("C-c C-w" . elfeed-tube-mpv-where)))
 
 (use-package sudo-edit)
 
@@ -1175,7 +1211,10 @@ Info-mode:
   "C-;"   '(embark-dwim :which-key "embark-dwim"))
 
 (my/leader :states 'normal :kemaps 'override
-  "f"    '(:ignore t :which-key "frame")
+  "f"    '(:ignore t                  :which-key "frame")
+  "fc"   '(clone-frame                :which-key "clone")
+  "fd"   '(delete-frame               :which-key "delete")
+  "fu"   '(undelete-frame             :which-key "undelete")
   "fb"   '(consult-buffer-other-frame :which-key "buffer")
   "ff"   '(find-file-other-frame      :which-key "file"))
 
@@ -1247,12 +1286,20 @@ Info-mode:
   "sm"   '(mu4e               :which-key "mu4e")
   "sr"   '(consult-recent-file :which-key "recent files")
   "ss"   '(dirvish-side       :which-key "dirvish side")
-  "st"   '(vterm              :which-key "vterm")
+  "sp"   '(multi-vterm-project :which-key "vterm")
+  "st"   '(multi-vterm-dedicated-toggle :which-key "vterm")
   "sy"   '(yas-insert-snippet :which-key "insert snippet"))
 
 (my/leader :states 'visual :kemaps 'override
   "s"    '(:ignore t          :which-key "shortcuts")
   "s0"   '(0x0-dwim           :which-key "0x0 share"))
+
+(general-def :states 'normal :kemaps 'vterm-mode-map
+  ",c"    'multi-vterm
+  ",n"    'multi-vterm-next
+  ",p"    'multi-vterm-prev
+  ",d"    'multi-vterm-dedicated-toggle
+  ",q"    'kill-this-buffer)
 
 (my/leader :states 'normal :kemaps 'override
   "z"   '(:ignore t                       :which-key "toggle")

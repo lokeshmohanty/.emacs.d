@@ -1295,6 +1295,41 @@ References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 * Spell check
 References: [[https://github.com/hunspell/hunspell][hunspell]]
 
+* Elfeed (Manage RSS feeds)
+References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/remyhonig/elfeed-org][elfeed-org]], [[https://github.com/jeetelongname/elfeed-goodies][elfeed-goodies]], [[https://github.com/karthink/elfeed-tube][elfeed-tube]]
+
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :bind ("C-x w" . elfeed))
+
+  (use-package elfeed-org
+    :config (elfeed-org)
+    :custom (rmh-elfeed-org-files (list "elfeed.org")))
+
+  (use-package elfeed-goodies
+    :config (elfeed-goodies/setup))
+
+  (use-package elfeed-tube
+    :after elfeed
+    :demand t
+    :config
+    ;; (setq elfeed-tube-auto-save-p nil) ; default value
+    ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
+    (elfeed-tube-setup)
+
+    :bind (:map elfeed-show-mode-map
+           ("F" . elfeed-tube-fetch)
+           ([remap save-buffer] . elfeed-tube-save)
+           :map elfeed-search-mode-map
+           ("F" . elfeed-tube-fetch)
+           ([remap save-buffer] . elfeed-tube-save)))
+
+  (use-package elfeed-tube-mpv
+    :bind (:map elfeed-show-mode-map
+                ("C-c C-f" . elfeed-tube-mpv-follow-mode)
+                ("C-c C-w" . elfeed-tube-mpv-where)))
+#+end_src
+
 * Packages for simple tasks
 ** Edit with superuser access
 
