@@ -433,7 +433,7 @@
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :general
-  (:states 'normal :keymaps 'copilot-mode-map
+  (:states 'insert :keymaps 'copilot-mode-map
            "M-C-h"  'copilot-complete
            "M-C-n"  'copilot-next-completion
            "M-C-p"  'copilot-previous-completion
@@ -441,7 +441,17 @@
            "M-C-j"  'copilot-accept-completion-by-line
            "M-C-<return>"  'copilot-accept-completion))
 
-;; (add-hook 'prog-mode-hook 'copilot-mode)
+(add-hook 'prog-mode-hook 'copilot-mode)
+
+(use-package shell-maker
+  :straight (:host github :repo "xenodium/chatgpt-shell")
+  :config
+  (require 'ob-chatgpt-shell)
+  (require 'ob-dall-e-shell)
+  (setq chatgpt-shell-openai-key
+      (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi"))))
+  (setq dall-e-shell-openai-key
+      (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi")))))
 
 (use-package vertico
   :init (vertico-mode)
@@ -1201,7 +1211,7 @@ Info-mode:
 (my/leader :states 'normal :kemaps 'override
   "b"    '(:ignore t        :which-key "buffer")
   "bs"   '(consult-buffer   :which-key "switch")
-  "bk"   '(kill-this-buffer :which-key "kill"))
+  "bk"   '(kill-current-buffer :which-key "kill"))
 
 (my/leader :states 'normal :kemaps 'override
   "r"    '(:ignore t              :which-key "register/bookmark")

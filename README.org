@@ -757,6 +757,21 @@ References: [[https://github.com/zerolfx/copilot.el][copilot]]
   (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
 
+** OpenAPI (ChatGPT and Dall-E)
+References: [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]
+
+#+begin_src emacs-lisp
+  (use-package shell-maker
+    :straight (:host github :repo "xenodium/chatgpt-shell")
+    :config
+    (require 'ob-chatgpt-shell)
+    (require 'ob-dall-e-shell)
+    (setq chatgpt-shell-openai-key
+        (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi"))))
+    (setq dall-e-shell-openai-key
+        (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi")))))
+#+end_src
+
 ** Vertico (vertical interactive completion ui)
 References: [[https://github.com/minad/vertico][vertico]]
 
@@ -1887,7 +1902,7 @@ Default: =C-x b=
   (my/leader :states 'normal :kemaps 'override
     "b"    '(:ignore t        :which-key "buffer")
     "bs"   '(consult-buffer   :which-key "switch")
-    "bk"   '(kill-this-buffer :which-key "kill"))
+    "bk"   '(kill-current-buffer :which-key "kill"))
 #+end_src
 
 *** Bookmark
