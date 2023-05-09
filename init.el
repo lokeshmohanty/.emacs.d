@@ -394,9 +394,27 @@
 ;;   :config
 ;;   (smartparens-global-mode 1))
 
+(use-package citre
+  :defer t
+  :init (require 'citre-config)
+  :general
+  (:states 'normal :keymaps '(citre-mode-map override)
+           "gd"  'citre-jump
+           "gD"  'citre-jump-back
+           "gp"  'citre-peek
+           "gP"  'citre-ace-peek
+           "gc"  '(:ignore t :which-key "citre")
+           "gcj"  'citre-peek-next-line
+           "gck"  'citre-peek-prev-line
+           "gcc"  'citre-create-tags-file
+           "gcu"  'citre-update-this-tags-file
+           "gcU"  'citre-update-tags-file)
+  :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
+
 (use-package eglot
-  :hook
-  (TeX-mode . eglot-ensure))
+  :hook (TeX-mode . eglot-ensure))
+
+;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
 (use-package consult-eglot
   :commands consult-eglot-symbols)
@@ -406,9 +424,9 @@
   :init (setq lsp-keymap-prefix "C-l")
   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
   :hook
-  (c-mode . lsp-deferred)
-  (c++-mode . lsp-deferred)
-  (cmake-mode . lsp-deferred)
+  ;; (c-mode . lsp-deferred)
+  ;; (c++-mode . lsp-deferred)
+  ;; (cmake-mode . lsp-deferred)
   (lsp-mode . lsp-enable-which-key-integration))
 
 ;; (use-package dap-mode
@@ -434,12 +452,12 @@
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :general
   (:states 'insert :keymaps 'copilot-mode-map
-           "M-C-h"  'copilot-complete
-           "M-C-n"  'copilot-next-completion
-           "M-C-p"  'copilot-previous-completion
-           "M-C-l"  'copilot-accept-completion-by-word
-           "M-C-j"  'copilot-accept-completion-by-line
-           "M-C-<return>"  'copilot-accept-completion))
+           "M-h"  'copilot-complete
+           "M-n"  'copilot-next-completion
+           "M-p"  'copilot-previous-completion
+           "M-l"  'copilot-accept-completion-by-word
+           "M-j"  'copilot-accept-completion-by-line
+           "M-<return>"  'copilot-accept-completion))
 
 (add-hook 'prog-mode-hook 'copilot-mode)
 
@@ -732,7 +750,7 @@
 
 (use-package elfeed-org
   :config (elfeed-org)
-  :custom (rmh-elfeed-org-files (list "elfeed.org")))
+  :custom (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory))))
 
 (use-package elfeed-goodies
   :config (elfeed-goodies/setup))
@@ -741,7 +759,7 @@
   :after elfeed
   :demand t
   :config
-  ;; (setq elfeed-tube-auto-save-p nil) ; default value
+  (setq elfeed-tube-auto-save-p t) ; default value: nil
   ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
   (elfeed-tube-setup)
 
@@ -757,7 +775,15 @@
               ("C-c C-f" . elfeed-tube-mpv-follow-mode)
               ("C-c C-w" . elfeed-tube-mpv-where)))
 
+(use-package elfeed-dashboard
+  :config
+  (setq elfeed-dashboard-file "elfeed-dashboard.org")
+  ;; update feed counts on elfeed-quit
+  (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
+
 (use-package sudo-edit)
+
+(use-package deadgrep)
 
 (use-package hydra)
 
@@ -1236,6 +1262,7 @@ Info-mode:
 (my/leader :states 'normal :kemaps 'override
   "f"    '(:ignore t                  :which-key "frame")
   "fc"   '(clone-frame                :which-key "clone")
+  "fc"   '(other-frame                :which-key "other")
   "fd"   '(delete-frame               :which-key "delete")
   "fu"   '(undelete-frame             :which-key "undelete")
   "fb"   '(consult-buffer-other-frame :which-key "buffer")

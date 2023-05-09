@@ -1354,7 +1354,10 @@ References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 References: [[https://github.com/hunspell/hunspell][hunspell]]
 
 * Elfeed (Manage RSS feeds)
-References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/remyhonig/elfeed-org][elfeed-org]], [[https://github.com/jeetelongname/elfeed-goodies][elfeed-goodies]], [[https://github.com/karthink/elfeed-tube][elfeed-tube]]
+References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/remyhonig/elfeed-org][elfeed-org]], [[https://github.com/jeetelongname/elfeed-goodies][elfeed-goodies]], [[https://github.com/karthink/elfeed-tube][elfeed-tube]], [[https://github.com/manojm321/elfeed-dashboard][elfeed-dashboard]]
+
+Fix: [[https://github.com/manojm321/elfeed-dashboard/issues/13#issuecomment-1072962002][elfeed-dashboard: github issues]]
+Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-keymap~
 
 #+begin_src emacs-lisp
   (use-package elfeed
@@ -1362,7 +1365,7 @@ References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/
 
   (use-package elfeed-org
     :config (elfeed-org)
-    :custom (rmh-elfeed-org-files (list "elfeed.org")))
+    :custom (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory))))
 
   (use-package elfeed-goodies
     :config (elfeed-goodies/setup))
@@ -1371,7 +1374,7 @@ References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/
     :after elfeed
     :demand t
     :config
-    ;; (setq elfeed-tube-auto-save-p nil) ; default value
+    (setq elfeed-tube-auto-save-p t) ; default value: nil
     ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
     (elfeed-tube-setup)
 
@@ -1386,13 +1389,26 @@ References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/
     :bind (:map elfeed-show-mode-map
                 ("C-c C-f" . elfeed-tube-mpv-follow-mode)
                 ("C-c C-w" . elfeed-tube-mpv-where)))
+
+  (use-package elfeed-dashboard
+    :config
+    (setq elfeed-dashboard-file "elfeed-dashboard.org")
+    ;; update feed counts on elfeed-quit
+    (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
 #+end_src
 
 * Packages for simple tasks
-** Edit with superuser access
+** Sudo-Edit (Edit with superuser access)
 
 #+begin_src emacs-lisp
   (use-package sudo-edit)
+#+end_src
+
+** Deadgrep (Easy and friendly search)
+References: [[https://github.com/Wilfred/deadgrep][deadgrep]]
+
+#+begin_src emacs-lisp
+  (use-package deadgrep)
 #+end_src
 
 * Shortcuts
@@ -1969,6 +1985,7 @@ Default: =C-x 5=
   (my/leader :states 'normal :kemaps 'override
     "f"    '(:ignore t                  :which-key "frame")
     "fc"   '(clone-frame                :which-key "clone")
+    "fc"   '(other-frame                :which-key "other")
     "fd"   '(delete-frame               :which-key "delete")
     "fu"   '(undelete-frame             :which-key "undelete")
     "fb"   '(consult-buffer-other-frame :which-key "buffer")
