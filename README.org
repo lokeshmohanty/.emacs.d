@@ -681,6 +681,29 @@ References: [[https://github.com/Fuco1/smartparens][smartparens]], [[https://git
   ;;   (smartparens-global-mode 1))
 #+end_src
 
+** Ctags Frontend
+References: [[https://github.com/universal-ctags/citre][citre]]
+~M-l~ : extra bindings in peek minor mode
+
+#+begin_src emacs-lisp
+  (use-package citre
+    :defer t
+    :init (require 'citre-config)
+    :general
+    (:states 'normal :keymaps '(citre-mode-map override)
+             "gd"  'citre-jump
+             "gD"  'citre-jump-back
+             "gp"  'citre-peek
+             "gP"  'citre-ace-peek
+             "gc"  '(:ignore t :which-key "citre")
+             "gcj"  'citre-peek-next-line
+             "gck"  'citre-peek-prev-line
+             "gcc"  'citre-create-tags-file
+             "gcu"  'citre-update-this-tags-file
+             "gcU"  'citre-update-tags-file)
+    :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
+#+end_src
+
 ** Language Server Protocol (LSP)
 References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
 
@@ -690,8 +713,9 @@ References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com
 
 #+begin_src emacs-lisp
   (use-package eglot
-    :hook
-    (TeX-mode . eglot-ensure))
+    :hook (TeX-mode . eglot-ensure))
+
+  ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
   (use-package consult-eglot
     :commands consult-eglot-symbols)
@@ -701,9 +725,9 @@ References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com
     :init (setq lsp-keymap-prefix "C-l")
     :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
     :hook
-    (c-mode . lsp-deferred)
-    (c++-mode . lsp-deferred)
-    (cmake-mode . lsp-deferred)
+    ;; (c-mode . lsp-deferred)
+    ;; (c++-mode . lsp-deferred)
+    ;; (cmake-mode . lsp-deferred)
     (lsp-mode . lsp-enable-which-key-integration))
 #+end_src
 
