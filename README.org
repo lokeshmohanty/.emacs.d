@@ -771,12 +771,12 @@ References: [[https://github.com/zerolfx/copilot.el][copilot]]
     :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
     :general
     (:states 'insert :keymaps 'copilot-mode-map
-             "M-C-h"  'copilot-complete
-             "M-C-n"  'copilot-next-completion
-             "M-C-p"  'copilot-previous-completion
-             "M-C-l"  'copilot-accept-completion-by-word
-             "M-C-j"  'copilot-accept-completion-by-line
-             "M-C-<return>"  'copilot-accept-completion))
+             "M-h"  'copilot-complete
+             "M-n"  'copilot-next-completion
+             "M-p"  'copilot-previous-completion
+             "M-l"  'copilot-accept-completion-by-word
+             "M-j"  'copilot-accept-completion-by-line
+             "M-<return>"  'copilot-accept-completion))
 
   (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
