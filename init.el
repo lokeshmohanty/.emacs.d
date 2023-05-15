@@ -623,7 +623,7 @@
 (use-package yasnippet
   :hook (prog-mode . yas-minor-mode)
   :config
-  (setq yas-snippet-dirs (append yas-snippet-dirs '((expand-file-name "snippets" user-emacs-directory))))
+  (setq yas-snippet-dirs (append yas-snippet-dirs (list (expand-file-name "snippets" user-emacs-directory))))
   (yas-reload-all))
 ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
 
