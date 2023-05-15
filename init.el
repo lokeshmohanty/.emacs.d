@@ -73,10 +73,8 @@
   "p"    (general-simulate-key "C-x p" :which-key "project"))
 
 (general-def :states 'normal
- "j"   'evil-next-visual-line
- "k"   'evil-previous-visual-line
- "K"   'avy-goto-char-timer
- "M-k" 'avy-pop-mark)
+  "j"   'evil-next-visual-line
+  "k"   'evil-previous-visual-line)
 
 ;; required as during daemon initialization, there are no frames
 ;; (use-package modus-themes
@@ -783,7 +781,10 @@
 
 (use-package sudo-edit)
 
-(use-package deadgrep)
+(use-package deadgrep
+  :general
+  (:states '(normal insert visual)
+           "M-s s" 'deadgrep))
 
 (use-package hydra)
 
@@ -1233,6 +1234,10 @@ Info-mode:
 
 (general-def :states 'emacs :keymaps 'isearch-mode-map
   "M-f" 'avy-isearch)
+
+(general-def :states 'normal
+  "K"   'avy-goto-char-timer
+  "M-k" 'avy-pop-mark)
 
 (my/leader :states 'normal :kemaps 'override
   "b"    '(:ignore t        :which-key "buffer")
