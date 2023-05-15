@@ -979,7 +979,7 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
   (use-package yasnippet
     :hook (prog-mode . yas-minor-mode)
     :config
-    (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.config/emacs/snippets")))
+    (setq yas-snippet-dirs (append yas-snippet-dirs '((expand-file-name "snippets" user-emacs-directory))))
     (yas-reload-all))
   ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
 
@@ -2041,8 +2041,8 @@ Current bindings are for eglot
     "hc"  '(hydra-org-clock/body :which-key "org-clock")
     "hs"  '(hydra-smartparens/body :which-key "smartparens")
     "hw"  '(hydra-window/body :which-key "window")
-    "hr"  '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
-    "hc"  '((lambda () (interactive) (find-file (expand-file-name "~/.config/emacs/README.org"))) :which-key "Goto emacs config"))
+    "hr"  '((lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory))) :which-key "Reload emacs config")
+    "hc"  '((lambda () (interactive) (find-file (expand-file-name "README.org" user-emacs-directory))) :which-key "Goto emacs config"))
 #+end_src
 
 *** Marginalia

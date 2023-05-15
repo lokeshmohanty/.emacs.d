@@ -623,7 +623,7 @@
 (use-package yasnippet
   :hook (prog-mode . yas-minor-mode)
   :config
-  (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.config/emacs/snippets")))
+  (setq yas-snippet-dirs (append yas-snippet-dirs '((expand-file-name "snippets" user-emacs-directory))))
   (yas-reload-all))
 ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
 
@@ -1305,8 +1305,8 @@ Info-mode:
   "hc"  '(hydra-org-clock/body :which-key "org-clock")
   "hs"  '(hydra-smartparens/body :which-key "smartparens")
   "hw"  '(hydra-window/body :which-key "window")
-  "hr"  '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
-  "hc"  '((lambda () (interactive) (find-file (expand-file-name "~/.config/emacs/README.org"))) :which-key "Goto emacs config"))
+  "hr"  '((lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory))) :which-key "Reload emacs config")
+  "hc"  '((lambda () (interactive) (find-file (expand-file-name "README.org" user-emacs-directory))) :which-key "Goto emacs config"))
 
 (general-define-key :states '(normal insert) :kemaps 'minibuffer-local-map
   "M-a"   '(marginalia-cycle :which-key "marginalia-cycle"))
@@ -1332,18 +1332,19 @@ Info-mode:
   "nI" '(org-roam-insert-immediate :which-key "insert immediate"))
 
 (my/leader :states 'normal :kemaps 'override
-  "s"    '(:ignore t          :which-key "shortcuts")
-  "s0"   '(0x0-dwim           :which-key "0x0 share")
-  "sa"   '(org-agenda         :which-key "org-agenda")
-  "sc"   '(org-capture        :which-key "org-capture")
-  "sd"   '(dirvish-dwim       :which-key "dirvish dwim")
-  "se"   '(eshell             :which-key "eshell")
-  "sm"   '(mu4e               :which-key "mu4e")
-  "sr"   '(consult-recent-file :which-key "recent files")
-  "ss"   '(dirvish-side       :which-key "dirvish side")
-  "sp"   '(multi-vterm-project :which-key "vterm")
+  "s"    '(:ignore t                    :which-key "shortcuts")
+  "s0"   '(0x0-dwim                     :which-key "0x0 share")
+  "sa"   '(org-agenda                   :which-key "org-agenda")
+  "sc"   '(org-capture                  :which-key "org-capture")
+  "sd"   '(dirvish-dwim                 :which-key "dirvish dwim")
+  "se"   '(eshell                       :which-key "eshell")
+  "sg"   '(general-describe-keybindings :which-key "general keybindings")
+  "sm"   '(mu4e                         :which-key "mu4e")
+  "sr"   '(consult-recent-file          :which-key "recent files")
+  "ss"   '(dirvish-side                 :which-key "dirvish side")
+  "sp"   '(multi-vterm-project          :which-key "vterm")
   "st"   '(multi-vterm-dedicated-toggle :which-key "vterm")
-  "sy"   '(yas-insert-snippet :which-key "insert snippet"))
+  "sy"   '(yas-insert-snippet           :which-key "insert snippet"))
 
 (my/leader :states 'visual :kemaps 'override
   "s"    '(:ignore t          :which-key "shortcuts")
