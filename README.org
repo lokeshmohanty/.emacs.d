@@ -1562,6 +1562,18 @@ References: [[https://github.com/Wilfred/deadgrep][deadgrep]]
              "M-s s" 'deadgrep))
 #+end_src
 
+** Ledger (Accounting)
+References: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://ledger-cli.org/][cli]]
+
+#+begin_src emacs-lisp
+  (use-package ledger-mode)
+  (use-package evil-ledger
+    :after ledger-mode
+    :config
+    (setq evil-ledger-sort-key "S")
+    (add-hook 'ledger-mode-hook #'evil-ledger-mode))
+#+end_src
+
 * Shortcuts
 ** Hydra
 References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
