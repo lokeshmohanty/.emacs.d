@@ -1,33 +1,32 @@
-#+title: Elfeed Sources
-#+author: Lokesh Mohanty
-
-* Sources                                                            :elfeed:
-** General
-*** [[https://nitter.net/iiscbangalore/rss][iisc]]                                                          :twitter:
-*** [[https://nitter.net/cdsiisc/rss][iisc cds]]                                                      :twitter:
-*** [[https://nitter.net/SashikumaarG/rss][sashikumaar_ganesan]]                                           :twitter:
-*** [[https://nitter.net/deepakns/rss][deepak subramani]]                                              :twitter:
-** Machine Learning                                                     :ai:
+* Elfeed                                                             :elfeed:
+** Blogs                                                             :blogs:
+*** [[https://karthinks.com/index.xml][karthink]]                                                        :emacs:
+*** [[https://planet.emacslife.com/atom.xml][planetemacs]]                                                     :emacs:
+*** [[http://pragmaticemacs.com/feed/][pragmaticemacs]]                                                  :emacs:
+*** [[https://developer.nvidia.com/blog/feed][nvidia]]                                                            :hpc:
+** Twitter                                                         :twitter:
+*** [[https://nitter.net/iiscbangalore/rss][iisc]]                                                             :iisc:
+*** [[https://nitter.net/cdsiisc/rss][iisc cds]]                                                         :iisc:
+*** [[https://nitter.net/SashikumaarG/rss][sashikumaar_ganesan]]                                              :iisc:
+*** [[https://nitter.net/deepakns/rss][deepak subramani]]                                                 :iisc:
+*** [[https://nitter.net/dair_ai/rss][dair]]                                                               :ai:
+*** [[https://nitter.net/huggingface/rss][hugging_face]]                                                       :ai:
+*** [[https://nitter.net/MetaAI/rss][meta]]                                                               :ai:
+*** [[https://nitter.net/midjourney/rss][midjourney]]                                                         :ai:
+*** [[https://nitter.net/AndrewYNg/rss][andrew_ng]]                                                          :ai:
+*** [[https://nitter.net/ylecun/rss][yann lecun]]                                                         :ai:
+*** [[https://nitter.net/goodfellow_ian/rss][goodfellow]]                                                         :ai:
+*** [[https://nitter.net/ilyasut/rss][ilya_sutskever]]                                                     :ai:
+*** [[https://nitter.net/XAI_Research/rss][xai_research]]                                                       :ai:
+*** [[https://nitter.net/ExplainableML/rss][explainable_ml]]                                                     :ai:
+*** https://nitter.net/xmonad/rss                                  :xmonad:
+** Youtube                                                         :youtube:
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw][3b1b]]                                                            :maths:
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg][2-minute-papers]]                                               :science:
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA][veritasium]]                                                    :science:
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCSIvk78tK2TiviLQn4fSHaw][up-and-atom]]                                                   :science:
+** Reddit                                                           :reddit:
+*** [[http://www.reddit.com/r/xmonad/.rss][xmonad-reddit]]                                                  :ignore:
 *** [[http://www.reddit.com/r/MachineLearning/.rss][machinelearning_reddit]]                                         :ignore:
-*** [[https://nitter.net/dair_ai/rss][dair]]                                                          :twitter:
-*** [[https://nitter.net/huggingface/rss][hugging_face]]                                                  :twitter:
-*** [[https://nitter.net/MetaAI/rss][meta]]                                                          :twitter:
-*** [[https://nitter.net/midjourney/rss][midjourney]]                                                    :twitter:
-*** [[https://nitter.net/AndrewYNg/rss][andrew_ng]]                                                     :twitter:
-*** [[https://nitter.net/ylecun/rss][yann lecun]]                                                    :twitter:
-*** [[https://nitter.net/goodfellow_ian/rss][goodfellow]]                                                    :twitter:
-*** [[https://nitter.net/ilyasut/rss][ilya_sutskever]]                                                :twitter:
-*** [[https://nitter.net/XAI_Research/rss][xai_research]]                                                  :twitter:
-*** [[https://nitter.net/ExplainableML/rss][explainable_ml]]                                                :twitter:
-** Science                                                         :science:
-*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw][3b1b]]                                                          :youtube:
-*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg][2-minute-papers]]                                               :youtube:
-*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA][veritasium]]                                                    :youtube:
-** Emacs                                                             :emacs:
-*** https://karthinks.com/index.xml
-*** https://planet.emacslife.com/atom.xml
-*** http://pragmaticemacs.com/feed/
-** Xmonad                                                           :xmonad:
-*** https://nitter.net/xmonad/rss                                 :twitter:
-*** [[http://www.reddit.com/r/xmonad/.rss][xmonad-reddit]]                                           :reddit:ignore:
+*** [[http://www.reddit.com/r/LightningDegree/.rss][lightning-degree]]                                               :comics:
 
