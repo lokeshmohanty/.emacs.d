@@ -2,6 +2,7 @@
 (global-visual-line-mode t)                           ; wrap lines
 (global-auto-revert-mode)
 (setq blink-cursor-mode nil)
+(add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
 (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
 (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
@@ -251,6 +252,100 @@
         (sql        . t)
         (haskell    . t)))
 
+(setq org-agenda-files '("~/Documents/Org/calendar.org" "~/Documents/Org/tasks.org"))
+
+(setq org-todo-keywords 
+      '(
+        (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "|" "DONE(D!)")
+        (sequence "WAITING(w@/!)" "DELEGATED(d@/!)" "|" "ASSIGNED(A@/!)" "CANCELLED(C@/!)")
+        (sequence "CONSUME(c!)" "CONSUMING(k!)" "SHARE(s@/!)" "|" "IGNORED(I@/!)" "REFERENCE(R!)" "SHARED(S!)")
+        (sequence "VISIT(v!)" "|" "VISITED(V!)")  ;; physically
+        (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
+        ))
+
+
+(setq org-capture-templates 
+      `(("t" "Tasks")
+        ("tt" "General Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Inbox")
+         "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ts" "Scheduled Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Inbox")
+         "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("td" "Task with deadline" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Inbox")
+         "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+
+        ("l" "Lab Tasks")
+        ("lt" "Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Lab")
+         "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ls" "Scheduled Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Lab")
+         "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ld" "Task with deadline" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Lab")
+         "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ln" "Lab Note" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Lab Notes")
+         "* NOTE %? :@work\n:PROPERTIES:\n:CATEGORIES: %^{Categories}\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+
+        ("b" "Bookmarks / References")
+        ("bl" "Links to visit" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Links")
+         "* CONSUME [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:END:\n  %i" 
+         :empty-lines 1)
+        ("bb" "Bookmark" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Bookmarks")
+         "* BOOKMARK [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:REPEAT_TO_STATE: BOOKMARK\n:LOGGING: DONE(!)\n:END:\n  %i")
+
+        ("n" "Notes")
+        ("nn" "General Note" entry 
+         (file "~/Documents/Org/notes.org")
+         "* NOTE %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+        ("nv" "Vocabulary" entry 
+         (file+olp+datetree "~/Documents/Org/notes.org" "Vocabulary")
+         "\n* %<%I:%M %p>\n\n%?\n"
+         :clock-in :clock-resume :empty-lines 1)
+
+        ("j" "Journal Entries")
+        ("jj" "Journal" entry
+         (file+olp+datetree "~/Documents/Org/Journal.org")
+         "\n* %<%I:%M %p> - %? :journal:\n"
+         :clock-in :clock-resume :empty-lines 1)
+
+        ("h" "Habit Entries")
+        ("hd" "Daily Habit" entry
+         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hw" "Weekly Habit" entry
+         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hm" "Monthly Habit" entry
+         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hy" "Yearly Habit" entry
+         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hr" "Repeat Tasks" entry 
+         (file "~/Documents/Org/tasks.org" "Habits")
+         "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
+
+        ("P" "process-soon" entry 
+         (file+headline "todo.org" "Todo")
+         "* TODO %:fromname: %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))")
+        ))
+
 (use-package evil-org
   :after org
   ;; :hook (org-mode . (lambda () evil-org-mode))
@@ -271,6 +366,19 @@
 ;; (use-package ox-reveal)
 
 (setq treesit-extra-load-path '("/usr/local/lib"))
+
+(setq major-mode-remap-alist
+ '((yaml-mode       . yaml-ts-mode)
+   (bash-mode       . bash-ts-mode)
+   (js2-mode        . js-ts-mode)
+   (typescript-mode . typescript-ts-mode)
+   (json-mode       . json-ts-mode)
+   (css-mode        . css-ts-mode)
+   (cmake-mode      . cmake-ts-mode)
+   (python-mode     . python-ts-mode)))
+
+(add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
+(add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
 
 (use-package tex
   :straight auctex
@@ -717,6 +825,14 @@
   (setq pdf-annot-activate-created-annotations t)
   (setq pdf-view-resize-factor 1.1))               ; finer zooming
 
+(use-package emms
+  ;; :init (add-hook 'emms-player-started-hook 'emms-show)
+  :config
+  (require 'emms-setup)
+  (emms-all)
+  (emms-default-players)
+  (setq emms-source-file-default-directory "~/Music/"))
+
 (use-package 0x0
   :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
 
@@ -727,19 +843,45 @@
   "0s"  '(0x0-shorten-uri :which-key "shorten")
   "0c"  '(0x0-upload-kill-ring :which-key "clipboard"))
 
-(use-package notmuch
-  :custom
-  (message-kill-buffer-on-exit t)
-  (sendmail-program "msmtp")
-  (mail-specify-envelope-from t)
-  (message-sendmail-envelope-from 'header)
-  (mail-envelope-from 'header)
-;; (setq send-mail-function 'sendmail-send-it
-;; 	sendmail-program "/usr/local/bin/msmtp"
-;; 	mail-specify-envelope-from t
-;; 	message-sendmail-envelope-from 'header
-;; 	mail-envelope-from 'header)
-)
+(setq message-kill-buffer-on-exit t)
+(setq send-mail-function 'sendmail-send-it
+      sendmail-program "msmtp"
+;;      message-sendmail-f-is-evil t
+      mail-specify-envelope-from t
+      message-sendmail-envelope-from 'header
+      mail-envelope-from 'header)
+
+;; use mu4e/notmuch for e-mail in emacs
+;; (setq mail-user-agent 'mu4e-user-agent)
+(setq mail-user-agent 'notmuch-user-agent)
+
+(use-package notmuch)
+
+(use-package gnus-alias
+  :config
+  (setq gnus-alias-identity-alist
+        '(("lokesh1197@gmail.com"
+           nil ;; parent identity
+           "Lokesh Mohanty <lokesh1197@gmail.com>" ;; from
+           nil ;; organization
+           nil ;; extra headers
+           nil ;; body
+           "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
+          ("lokesh1197@yahoo.com"
+           nil
+           "Lokesh Mohanty <lokesh1197@yahoo.com>"
+           nil
+           (("Bcc" . "lokesh1197@gmail.com"))
+           nil
+           "Thanks & Regards\nLokesh Mohanty\n\n")))
+  (setq gnus-alias-default-identity "lokesh1197@gmail.com")
+  ;; Define rules to match work identity
+  ;; (setq gnus-alias-identity-rules
+  ;;       '(("work" ("any" "john.doe@\\(example\\.com\\|help\\.example.com\\)" both) "work")))
+  ;; Determine identity when message-mode loads
+  (add-hook 'message-setup-hook 'gnus-alias-determine-identity))
+
+(use-package ol-notmuch)
 
 (use-package emacs-everywhere)
 
@@ -785,6 +927,13 @@
   :general
   (:states '(normal insert visual)
            "M-s s" 'deadgrep))
+
+(use-package ledger-mode)
+(use-package evil-ledger
+  :after ledger-mode
+  :config
+  (setq evil-ledger-sort-key "S")
+  (add-hook 'ledger-mode-hook #'evil-ledger-mode))
 
 (use-package hydra)
 
@@ -1319,6 +1468,7 @@ Info-mode:
   "tr"   '(tab-rename                 :which-key "close"))
 
 (my/ctrl-c
+  "l"   '(org-store-link                 :which-key "org roam")
   "n"   '(:ignore t                      :which-key "org roam")
   "nt"  '(org-roam-buffer-toggle         :which-key "toggle backlinks")
   "nf"  '(org-roam-node-find             :which-key "find node")

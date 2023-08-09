@@ -95,6 +95,8 @@ References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > se
   (global-visual-line-mode t)                           ; wrap lines
   (global-auto-revert-mode)
   (setq blink-cursor-mode nil)
+  (add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
+  (add-hook 'TeX-mode-hook 'hs-minor-mode)              ; enable folding for latex mode
   (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
   (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
   (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
@@ -414,7 +416,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     (setq org-export-backends '(ascii html icalendar latex md odt)))
 #+end_src
 
-** Visual
+** Visual (bullets, fragtog, appear)
 References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12/org-fragtog][org-fragtog]], [[https://github.com/awth13/org-appear][org-appear]]
 
 #+begin_src emacs-lisp
@@ -455,6 +457,109 @@ References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12
           (haskell    . t)))
 #+end_src
 
+** Agenda
+
+#+begin_src emacs-lisp
+  (setq org-agenda-files '("~/Documents/Org/calendar.org" "~/Documents/Org/tasks.org"))
+#+end_src
+
+** Capture
+
+#+begin_src emacs-lisp
+  (setq org-todo-keywords 
+        '(
+          (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "|" "DONE(D!)")
+          (sequence "WAITING(w@/!)" "DELEGATED(d@/!)" "|" "ASSIGNED(A@/!)" "CANCELLED(C@/!)")
+          (sequence "CONSUME(c!)" "CONSUMING(k!)" "SHARE(s@/!)" "|" "IGNORED(I@/!)" "REFERENCE(R!)" "SHARED(S!)")
+          (sequence "VISIT(v!)" "|" "VISITED(V!)")  ;; physically
+          (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
+          ))
+          
+
+  (setq org-capture-templates 
+        `(("t" "Tasks")
+          ("tt" "General Task" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Inbox")
+           "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+          ("ts" "Scheduled Task" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Inbox")
+           "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+          ("td" "Task with deadline" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Inbox")
+           "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+
+          ("l" "Lab Tasks")
+          ("lt" "Task" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Lab")
+           "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+          ("ls" "Scheduled Task" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Lab")
+           "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+          ("ld" "Task with deadline" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Lab")
+           "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           :empty-lines 1)
+          ("ln" "Lab Note" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Lab Notes")
+           "* NOTE %? :@work\n:PROPERTIES:\n:CATEGORIES: %^{Categories}\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+
+          ("b" "Bookmarks / References")
+          ("bl" "Links to visit" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Links")
+           "* CONSUME [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:END:\n  %i" 
+           :empty-lines 1)
+          ("bb" "Bookmark" entry 
+           (file+olp "~/Documents/Org/tasks.org" "Bookmarks")
+           "* BOOKMARK [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:REPEAT_TO_STATE: BOOKMARK\n:LOGGING: DONE(!)\n:END:\n  %i")
+
+          ("n" "Notes")
+          ("nn" "General Note" entry 
+           (file "~/Documents/Org/notes.org")
+           "* NOTE %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+          ("nv" "Vocabulary" entry 
+           (file+olp+datetree "~/Documents/Org/notes.org" "Vocabulary")
+           "\n* %<%I:%M %p>\n\n%?\n"
+           :clock-in :clock-resume :empty-lines 1)
+
+          ("j" "Journal Entries")
+          ("jj" "Journal" entry
+           (file+olp+datetree "~/Documents/Org/Journal.org")
+           "\n* %<%I:%M %p> - %? :journal:\n"
+           :clock-in :clock-resume :empty-lines 1)
+
+          ("h" "Habit Entries")
+          ("hd" "Daily Habit" entry
+           (file+olp "~/Documents/Org/tasks.org" "Habits")
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           :empty-lines 1)
+          ("hw" "Weekly Habit" entry
+           (file+olp "~/Documents/Org/tasks.org" "Habits")
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           :empty-lines 1)
+          ("hm" "Monthly Habit" entry
+           (file+olp "~/Documents/Org/tasks.org" "Habits")
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           :empty-lines 1)
+          ("hy" "Yearly Habit" entry
+           (file+olp "~/Documents/Org/tasks.org" "Habits")
+           "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+           :empty-lines 1)
+          ("hr" "Repeat Tasks" entry 
+           (file "~/Documents/Org/tasks.org" "Habits")
+           "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
+
+          ("P" "process-soon" entry 
+           (file+headline "todo.org" "Todo")
+           "* TODO %:fromname: %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))")
+          ))
+
+#+end_src
+
 ** Evil Org (evil kebindings for org)
 References: [[https://github.com/Somelauw/evil-org-mode][evil-org]]
 
@@ -468,7 +573,7 @@ References: [[https://github.com/Somelauw/evil-org-mode][evil-org]]
     (evil-org-agenda-set-keys))
 #+end_src
 
-** Org Roam (for note taking)
+** Roam (for note taking)
 References: [[https://www.orgroam.com/manual.html][org-roam]]
 
 #+begin_src emacs-lisp
@@ -478,7 +583,7 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
     (org-roam-db-autosync-mode))
 #+end_src
 
-** Org Auctex (for better latex fragements preview)
+** Auctex (for better latex fragements preview)
 References: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 #+begin_src emacs-lisp
@@ -498,6 +603,19 @@ References: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 #+begin_src emacs-lisp
   (setq treesit-extra-load-path '("/usr/local/lib"))
+
+  (setq major-mode-remap-alist
+   '((yaml-mode       . yaml-ts-mode)
+     (bash-mode       . bash-ts-mode)
+     (js2-mode        . js-ts-mode)
+     (typescript-mode . typescript-ts-mode)
+     (json-mode       . json-ts-mode)
+     (css-mode        . css-ts-mode)
+     (cmake-mode      . cmake-ts-mode)
+     (python-mode     . python-ts-mode)))
+
+  (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
+  (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
 #+end_src
 
 ** Latex
@@ -1120,6 +1238,23 @@ References: [[https://github.com/emacsmirror/0x0][0x0]]
 #+end_src
 
 * Email
+** Common
+
+#+begin_src emacs-lisp
+  (setq message-kill-buffer-on-exit t)
+  (setq send-mail-function 'sendmail-send-it
+        sendmail-program "msmtp"
+  ;;      message-sendmail-f-is-evil t
+        mail-specify-envelope-from t
+        message-sendmail-envelope-from 'header
+        mail-envelope-from 'header)
+
+  ;; use mu4e/notmuch for e-mail in emacs
+  ;; (setq mail-user-agent 'mu4e-user-agent)
+  (setq mail-user-agent 'notmuch-user-agent)
+
+#+end_src
+
 ** Mu4e (email frontend for mu)
 # References: [[https://www.emacswiki.org/emacs/mu4e][mu4e-wiki]], [[https://github.com/djcb/mu][mu]], [[https://www.djcbsoftware.nl/code/mu/mu4e/index.html][mu4e-documentation]]
 # *** Initialize mu for new email address
@@ -1149,22 +1284,11 @@ References: [[https://github.com/emacsmirror/0x0][0x0]]
 #     (setq mu4e-get-mail-command "mw -Y")
 #     (setq mu4e-root-maildir "~/.local/share/mail")
 
-#     ;; use mu4e for e-mail in emacs
-#     (setq mail-user-agent 'mu4e-user-agent)
-
 #     ;; Fixing duplicate UID errors when using mbsync and mu4e
 #     (setq mu4e-change-filenames-when-moving t)
 
-#     ;; don't keep message buffers around
-#     (setq message-kill-buffer-on-exit t)
 #     (setq mu4e-attachment-dir "~/Downloads")
 #     (setq mu4e-view-show-images t)
-
-#     (setq sendmail-program "/usr/bin/msmtp"
-#           send-mail-function 'smtpmail-send-it
-#           message-sendmail-f-is-evil t
-#           message-sendmail-extra-arguments '("--read-envelope-from")
-#           message-send-mail-function 'message-send-mail-with-sendmail))
 # #+end_src
 
 # **** Contexts
@@ -1323,22 +1447,36 @@ References: [[https://github.com/emacsmirror/0x0][0x0]]
 # #+end_src
 
 ** Notmuch (email frontend for notmuch)
-References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]], [[https://git.sr.ht/~inwit/org-notmuch-hello][notmuch-dashboard]]
+References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]], [[https://git.sr.ht/~inwit/org-notmuch-hello][notmuch-dashboard]], [[https://git.sr.ht/~tarsius/ol-notmuch][ol-notmuch]]
 
 #+begin_src emacs-lisp
-  (use-package notmuch
-    :custom
-    (message-kill-buffer-on-exit t)
-    (sendmail-program "msmtp")
-    (mail-specify-envelope-from t)
-    (message-sendmail-envelope-from 'header)
-    (mail-envelope-from 'header)
-  ;; (setq send-mail-function 'sendmail-send-it
-  ;; 	sendmail-program "/usr/local/bin/msmtp"
-  ;; 	mail-specify-envelope-from t
-  ;; 	message-sendmail-envelope-from 'header
-  ;; 	mail-envelope-from 'header)
-  )
+  (use-package notmuch)
+
+  (use-package gnus-alias
+    :config
+    (setq gnus-alias-identity-alist
+          '(("lokesh1197@gmail.com"
+             nil ;; parent identity
+             "Lokesh Mohanty <lokesh1197@gmail.com>" ;; from
+             nil ;; organization
+             nil ;; extra headers
+             nil ;; body
+             "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
+            ("lokesh1197@yahoo.com"
+             nil
+             "Lokesh Mohanty <lokesh1197@yahoo.com>"
+             nil
+             (("Bcc" . "lokesh1197@gmail.com"))
+             nil
+             "Thanks & Regards\nLokesh Mohanty\n\n")))
+    (setq gnus-alias-default-identity "lokesh1197@gmail.com")
+    ;; Define rules to match work identity
+    ;; (setq gnus-alias-identity-rules
+    ;;       '(("work" ("any" "john.doe@\\(example\\.com\\|help\\.example.com\\)" both) "work")))
+    ;; Determine identity when message-mode loads
+    (add-hook 'message-setup-hook 'gnus-alias-determine-identity))
+
+  (use-package ol-notmuch)
 #+end_src
 
 * Emacs Everywhere
@@ -2064,10 +2202,11 @@ Default: =C-x t=
     "tr"   '(tab-rename                 :which-key "close"))
 #+end_src
 
-*** Org-Roam
+*** Org
 
 #+begin_src emacs-lisp
   (my/ctrl-c
+    "l"   '(org-store-link                 :which-key "org roam")
     "n"   '(:ignore t                      :which-key "org roam")
     "nt"  '(org-roam-buffer-toggle         :which-key "toggle backlinks")
     "nf"  '(org-roam-node-find             :which-key "find node")
@@ -2138,10 +2277,12 @@ Default: =C-x t=
   - [[https://github.com/cnsunyour/emacs-pastebin][pastebin]]: plugin for interacting with pastebin
   - [[https://github.com/aperezdc/notmuch-addrlookup-c][notmuch-addrlookup-c]]: for fetch email address
   - [[https://github.com/afewmail/afew][afew]]: initial tagging script for notmuch (to handle moving mail to folders based on tags)
-  - [[https://www.emacswiki.org/emacs/GnusAlias][glus-alias]]: for switching identites in notmuch
+  - [[https://www.emacswiki.org/emacs/GnusAlias][gnus-alias]]: for switching identites in notmuch
   - [[https://github.com/smihica/emmet-mode][emmet-mode]]: html code generation
   - [[https://github.com/abo-abo/ace-window][ace-window]]: for window management (as a replacement for other-window/evil-window)
   - org-noter, org-pdftools
+  - org-ref, for managing references
+  - ebib, for managing .bib files
 
 - Known bugs:
   - ~evil-insert-digraph~ keybinding is shadowed by vertico custom map
