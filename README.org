@@ -1221,6 +1221,18 @@ References: [[https://pdftools.wiki/][pdf-tools]], [[https://github.com/emacs-ev
     (setq pdf-view-resize-factor 1.1))               ; finer zooming
 #+end_src
 
+* Music
+
+#+begin_src emacs-lisp
+  (use-package emms
+    ;; :init (add-hook 'emms-player-started-hook 'emms-show)
+    :config
+    (require 'emms-setup)
+    (emms-all)
+    (emms-default-players)
+    (setq emms-source-file-default-directory "~/Music/"))
+#+end_src
+
 * Sharing
 References: [[https://github.com/emacsmirror/0x0][0x0]]
 =C-u= prefix allows choosing server to upload to
