@@ -1,8 +1,10 @@
+(context-menu-mode)											              ; show context menu on right click
 (column-number-mode)                                  ; display position on modeline
 (global-visual-line-mode t)                           ; wrap lines
 (global-auto-revert-mode)
 (setq blink-cursor-mode nil)
 (add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
+(add-hook 'TeX-mode-hook 'hs-minor-mode)              ; enable folding for latex mode
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
 (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
 (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
@@ -256,10 +258,8 @@
 
 (setq org-todo-keywords 
       '(
-        (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "|" "DONE(D!)")
-        (sequence "WAITING(w@/!)" "DELEGATED(d@/!)" "|" "ASSIGNED(A@/!)" "CANCELLED(C@/!)")
-        (sequence "CONSUME(c!)" "CONSUMING(k!)" "SHARE(s@/!)" "|" "IGNORED(I@/!)" "REFERENCE(R!)" "SHARED(S!)")
-        (sequence "VISIT(v!)" "|" "VISITED(V!)")  ;; physically
+        (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "ATTEND(A!)" "|" "DONE(D!)" "CANCELED(C!)" "MISSED(M!)")
+        (sequence "VISIT(v!)" "CONSUME(c!)" "CONSUMING(k!)" "SHARE(s@/!)" "|" "REFERENCE(R!)" "SHARED(S!)")
         (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
         ))
 
@@ -279,21 +279,21 @@
          "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
 
-        ("l" "Lab Tasks")
-        ("lt" "Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Lab")
+        ("p" "Project Tasks")
+        ("pt" "Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Projects")
          "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
-        ("ls" "Scheduled Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Lab")
+        ("ps" "Scheduled Task" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Projects")
          "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
-        ("ld" "Task with deadline" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Lab")
+        ("pd" "Task with deadline" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Projects")
          "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
-        ("ln" "Lab Note" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Lab Notes")
+        ("pn" "Project Note" entry 
+         (file+olp "~/Documents/Org/tasks.org" "Project Notes")
          "* NOTE %? :@work\n:PROPERTIES:\n:CATEGORIES: %^{Categories}\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
 
         ("b" "Bookmarks / References")
@@ -322,23 +322,23 @@
 
         ("h" "Habit Entries")
         ("hd" "Daily Habit" entry
-         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         (file+olp "~/Documents/Org/calendar.org" "Habits")
          "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
          :empty-lines 1)
         ("hw" "Weekly Habit" entry
-         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         (file+olp "~/Documents/Org/calendar.org" "Habits")
          "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
          :empty-lines 1)
         ("hm" "Monthly Habit" entry
-         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         (file+olp "~/Documents/Org/calendar.org" "Habits")
          "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
          :empty-lines 1)
         ("hy" "Yearly Habit" entry
-         (file+olp "~/Documents/Org/tasks.org" "Habits")
+         (file+olp "~/Documents/Org/calendar.org" "Habits")
          "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
          :empty-lines 1)
         ("hr" "Repeat Tasks" entry 
-         (file "~/Documents/Org/tasks.org" "Habits")
+         (file "~/Documents/Org/calendar.org" "Habits")
          "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
 
         ("P" "process-soon" entry 
@@ -475,8 +475,8 @@
 (use-package conda
   :defer t
   :init
-  (setq conda-anaconda-home (expand-file-name "~/.local/share/miniconda3"))
-  (setq conda-env-home-directory (expand-file-name "~/.local/share/miniconda3"))
+  (setq conda-anaconda-home (expand-file-name "~/.conda"))
+  (setq conda-env-home-directory (expand-file-name "~/.conda/envs"))
   :config
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
@@ -777,7 +777,7 @@
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
      ("d" "~/Downloads/"                "Downloads")
-     ("c" "~/Documents/Courses/Jan23/"  "Courses")
+     ("c" "~/Documents/Courses/Aug23/"  "Courses")
      ("s" "~/.local/src"                "Sources")
      ("m" "/mnt/"                       "Drives")
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
@@ -815,6 +815,8 @@
 
 (use-package pdf-tools
   :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+  ;; :hook ((pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+  ;;        (pdf-view-mode . (setq mode-line-format nil))) ; hide mode-line
   :demand t
   :general
   (:states 'normal :keymaps 'pdf-view-mode-map
@@ -1380,6 +1382,14 @@ Info-mode:
     (interactive)
     (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
     (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
+;; Change opacity from input with empty as 100
+(defun custom/change-opacity (opacity)
+    "Change the opacity of the frame"
+    (interactive "nOpacity: ")
+    (set-frame-parameter (selected-frame) 'alpha
+                         (list (if (equal opacity 0)
+                               100
+                               (/ opacity 100.0)))))
 
 (general-def :states 'emacs :keymaps 'isearch-mode-map
   "M-f" 'avy-isearch)
