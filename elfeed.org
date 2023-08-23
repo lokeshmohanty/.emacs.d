@@ -4,6 +4,7 @@
 *** [[https://planet.emacslife.com/atom.xml][planetemacs]]                                                     :emacs:
 *** [[http://pragmaticemacs.com/feed/][pragmaticemacs]]                                                  :emacs:
 *** [[https://developer.nvidia.com/blog/feed][nvidia]]                                                            :hpc:
+*** [[https://xkcd.com/atom.xml][xkcd]]                                                            :memes:
 ** Twitter                                                         :twitter:
 *** [[https://nitter.net/iiscbangalore/rss][iisc]]                                                             :iisc:
 *** [[https://nitter.net/cdsiisc/rss][iisc cds]]                                                         :iisc:
@@ -26,7 +27,6 @@
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA][veritasium]]                                                    :science:
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCSIvk78tK2TiviLQn4fSHaw][up-and-atom]]                                                   :science:
 ** Reddit                                                           :reddit:
-*** [[http://www.reddit.com/r/xmonad/.rss][xmonad-reddit]]                                                  :ignore:
-*** [[http://www.reddit.com/r/MachineLearning/.rss][machinelearning_reddit]]                                         :ignore:
-*** [[http://www.reddit.com/r/LightningDegree/.rss][lightning-degree]]                                               :comics:
+*** [[http://www.reddit.com/r/xmonad/.rss][xmonad]]                                                         :ignore:
+*** [[http://www.reddit.com/r/MachineLearning/.rss][machinelearning]]                                                :ignore:
 
