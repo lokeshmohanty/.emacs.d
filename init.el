@@ -222,6 +222,87 @@
   (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
   (setq org-export-backends '(ascii html icalendar latex md odt)))
 
+(setq org-directory "~/Documents/Org")
+
+(setq org-agenda-files '("calendar.org" "tasks.org"))
+
+(setq org-todo-keywords 
+      '((sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "ATTEND(A!)" "|" "DONE(D!)" "CANCELED(C!)" "MISSED(M!)")))
+
+(setq org-capture-templates 
+      `(("t" "Tasks")
+        ("tt" "General" entry 
+         (file+olp "tasks.org" "Inbox")
+         "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ts" "Scheduled" entry 
+         (file+olp "tasks.org" "Inbox")
+         "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("td" "With a deadline" entry 
+         (file+olp "tasks.org" "Inbox")
+         "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("tl" "Links to visit" entry 
+         (file+olp "tasks.org" "Links")
+         "* TODO [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:END:\n  %i" 
+         :empty-lines 1)
+
+        ("p" "Project Task")
+        ("pt" "General" entry 
+         (file+olp "tasks.org" "Projects")
+         "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("ps" "Scheduled" entry 
+         (file+olp "tasks.org" "Projects")
+         "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+        ("pd" "With a deadline" entry 
+         (file+olp "tasks.org" "Projects")
+         "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         :empty-lines 1)
+
+        ("n" "Notes")
+        ("nn" "General" entry 
+         (file "notes.org")
+         "* %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+        ("np" "Project" entry 
+         (file+olp "notes.org" "Project")
+         "* %? :@work\n:PROPERTIES:\n:CATEGORIES: %^{Categories}\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
+        ("nv" "Vocabulary" entry 
+         (file+olp+datetree "notes.org" "Vocabulary")
+         "\n* %<%I:%M %p>\n\n%?\n"
+         :clock-in :clock-resume :empty-lines 1)
+
+        ("j" "Journal Entries")
+        ("jj" "Journal" entry
+         (file+olp+datetree "journal.org")
+         "\n* %<%I:%M %p> - %? :journal:\n"
+         :clock-in :clock-resume :empty-lines 1)
+
+        ("h" "Habit Entries")
+        ("hd" "Daily Habit" entry
+         (file+olp "tasks.org" "Repeat Tasks")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hw" "Weekly Habit" entry
+         (file+olp "tasks.org" "Repeat Tasks")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hm" "Monthly Habit" entry
+         (file+olp "tasks.org" "Repeat Tasks")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hy" "Yearly Habit" entry
+         (file+olp "tasks.org" "Repeat Tasks")
+         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
+         :empty-lines 1)
+        ("hr" "Repeat Tasks" entry 
+         (file+olp "tasks.org" "Repeat Tasks")
+         "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
+
+        ))
+
 (use-package org-bullets
   :after org
   :hook (org-mode . org-bullets-mode))
@@ -253,98 +334,6 @@
         (js         . t)
         (sql        . t)
         (haskell    . t)))
-
-(setq org-agenda-files '("~/Documents/Org/calendar.org" "~/Documents/Org/tasks.org"))
-
-(setq org-todo-keywords 
-      '(
-        (sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "ATTEND(A!)" "|" "DONE(D!)" "CANCELED(C!)" "MISSED(M!)")
-        (sequence "VISIT(v!)" "CONSUME(c!)" "CONSUMING(k!)" "SHARE(s@/!)" "|" "REFERENCE(R!)" "SHARED(S!)")
-        (sequence "|" "NOTE(N)" "BOOKMARK(B)")  ;; static todo keywords
-        ))
-
-
-(setq org-capture-templates 
-      `(("t" "Tasks")
-        ("tt" "General Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Inbox")
-         "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-        ("ts" "Scheduled Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Inbox")
-         "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-        ("td" "Task with deadline" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Inbox")
-         "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-
-        ("p" "Project Tasks")
-        ("pt" "Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Projects")
-         "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-        ("ps" "Scheduled Task" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Projects")
-         "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-        ("pd" "Task with deadline" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Projects")
-         "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
-         :empty-lines 1)
-        ("pn" "Project Note" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Project Notes")
-         "* NOTE %? :@work\n:PROPERTIES:\n:CATEGORIES: %^{Categories}\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
-
-        ("b" "Bookmarks / References")
-        ("bl" "Links to visit" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Links")
-         "* CONSUME [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:END:\n  %i" 
-         :empty-lines 1)
-        ("bb" "Bookmark" entry 
-         (file+olp "~/Documents/Org/tasks.org" "Bookmarks")
-         "* BOOKMARK [[%c][%^{Link Title}]] %^G\n:PROPERTIES:\n:Created: %U\n:REPEAT_TO_STATE: BOOKMARK\n:LOGGING: DONE(!)\n:END:\n  %i")
-
-        ("n" "Notes")
-        ("nn" "General Note" entry 
-         (file "~/Documents/Org/notes.org")
-         "* NOTE %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i")
-        ("nv" "Vocabulary" entry 
-         (file+olp+datetree "~/Documents/Org/notes.org" "Vocabulary")
-         "\n* %<%I:%M %p>\n\n%?\n"
-         :clock-in :clock-resume :empty-lines 1)
-
-        ("j" "Journal Entries")
-        ("jj" "Journal" entry
-         (file+olp+datetree "~/Documents/Org/Journal.org")
-         "\n* %<%I:%M %p> - %? :journal:\n"
-         :clock-in :clock-resume :empty-lines 1)
-
-        ("h" "Habit Entries")
-        ("hd" "Daily Habit" entry
-         (file+olp "~/Documents/Org/calendar.org" "Habits")
-         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
-         :empty-lines 1)
-        ("hw" "Weekly Habit" entry
-         (file+olp "~/Documents/Org/calendar.org" "Habits")
-         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1w>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
-         :empty-lines 1)
-        ("hm" "Monthly Habit" entry
-         (file+olp "~/Documents/Org/calendar.org" "Habits")
-         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1m>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
-         :empty-lines 1)
-        ("hy" "Yearly Habit" entry
-         (file+olp "~/Documents/Org/calendar.org" "Habits")
-         "* TODO %?\nSCHEDULED: <%<%Y-%m-%d %a .+1y>>\n:PROPERTIES:\n:STYLE:    habit\n:Created: %U\n:END:\n"
-         :empty-lines 1)
-        ("hr" "Repeat Tasks" entry 
-         (file "~/Documents/Org/calendar.org" "Habits")
-         "* REPEAT %?\nSCHEDULED: <%<%Y-%m-%d %a .+1d>>\n:PROPERTIES:\n:Created: %U\n:STYLE: habit\n:REPEAT_TO_STATE: REPEAT\n:LOGGING: DONE(!)\n:ARCHIVE: %%s_archive::* Habits\n:END:\n")
-
-        ("P" "process-soon" entry 
-         (file+headline "todo.org" "Todo")
-         "* TODO %:fromname: %a %?\nDEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))")
-        ))
 
 (use-package evil-org
   :after org
