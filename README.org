@@ -199,9 +199,12 @@ References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://gith
   ;; (use-package modus-themes
   ;; 	:config
   ;; 	(load-theme 'modus-vivendi-tinted t))
-  (use-package gruvbox-theme
+  ;; (use-package gruvbox-theme
+  ;;   :config
+  ;;   (load-theme 'gruvbox-dark-medium t))
+  (use-package doom-themes
     :config
-    (load-theme 'gruvbox-dark-medium t))
+      (load-theme 'doom-palenight t))
 #+end_src
 
 ** Terminal fixes (emacs -nw)
@@ -1498,7 +1501,8 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
 
 #+begin_src emacs-lisp
   (use-package elfeed
-    :bind ("C-x w" . elfeed))
+    :bind ("C-x w" . elfeed)
+    :custom (use-shr-fonts nil))
 
   (use-package elfeed-org
     :config (elfeed-org)

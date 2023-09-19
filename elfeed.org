@@ -5,6 +5,7 @@
 *** [[http://pragmaticemacs.com/feed/][pragmaticemacs]]                                                  :emacs:
 *** [[https://developer.nvidia.com/blog/feed][nvidia]]                                                            :hpc:
 *** [[https://xkcd.com/atom.xml][xkcd]]                                                            :memes:
+*** [[https://systemcrafters.net/rss/news.xml][systemcrafters]]                                                  :emacs:
 ** Twitter                                                         :twitter:
 *** [[https://nitter.net/iiscbangalore/rss][iisc]]                                                             :iisc:
 *** [[https://nitter.net/cdsiisc/rss][iisc cds]]                                                         :iisc:
