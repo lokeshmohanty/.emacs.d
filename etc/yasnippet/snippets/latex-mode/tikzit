@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: tikzit figure
+# key: tikz
+# expand-env: ((yas/after-exit-snippet-hook #'tikzit/make-figure))
+# --
+\begin{minipage}{0.70\textwidth}
+  ${1:text}
+\end{minipage}
+\begin{minipage}{0.30\textwidth}
+	\begin{figure}[ht]
+		\centering
+		$0
+		\caption{\label{fig:${2:label}} $3}
+	\end{figure}
+\end{minipage}

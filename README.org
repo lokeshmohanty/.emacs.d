@@ -251,11 +251,6 @@ References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[h
                       :family "Iosevka Fixed SS07"
                       :height 135
                       :slant 'italic)
-
-  ;; (set-face-attribute 'font-lock-keywod-face nil
-  ;;                     :family "Source Code Pro"
-  ;;                     :height 140
-  ;;                     :slant 'italic)
 #+end_src
 
 * No littering
@@ -278,6 +273,7 @@ References: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[htt
       (evil-shift-width 2)
       (evil-want-find-undo t) ;; insert mode undo steps as per emacs
       (evil-undo-system 'undo-redo) ;; use native commands in emacs 28
+      (evil-symbol-word-search t)		; */# search the symbol under the cursor instead of the word
       :config
       (evil-mode 1)
       ;; replace <C-z> with <C-x C-z> to use <C-z> to suspend frame instead
@@ -426,7 +422,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
 
   (setq org-todo-keywords 
         '((sequence "TODO(t@/!)" "ACTIVE(a!)" "BACKLOG(b!)" "HOLD(h@/!)" "ATTEND(A!)" "|" "DONE(D!)" "CANCELED(C!)" "MISSED(M!)")))
-          
+
   (setq org-capture-templates 
         `(("t" "Tasks")
           ("tt" "General" entry 
@@ -449,15 +445,15 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
           ("p" "Project Task")
           ("pt" "General" entry 
            (file+olp "tasks.org" "Projects")
-           "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
            :empty-lines 1)
           ("ps" "Scheduled" entry 
            (file+olp "tasks.org" "Projects")
-           "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
            :empty-lines 1)
           ("pd" "With a deadline" entry 
            (file+olp "tasks.org" "Projects")
-           "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+           "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
            :empty-lines 1)
 
           ("n" "Notes")
@@ -472,8 +468,8 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
            "\n* %<%I:%M %p>\n\n%?\n"
            :clock-in :clock-resume :empty-lines 1)
 
-          ("j" "Journal Entries")
-          ("jj" "Journal" entry
+          ;; ("j" "Journal Entries")
+          ("j" "Journal" entry
            (file+olp+datetree "journal.org")
            "\n* %<%I:%M %p> - %? :journal:\n"
            :clock-in :clock-resume :empty-lines 1)
@@ -573,12 +569,6 @@ References: [[https://github.com/karthink/org-auctex][org-auctex]]
   (use-package org-auctex
     :straight (:type git :host github :repo "karthink/org-auctex")
     :hook (org-mode . org-auctex-mode))
-#+end_src
-
-** Reveal (Presentation using reveal.js)
-
-#+begin_src emacs-lisp
-  ;; (use-package ox-reveal)
 #+end_src
 
 * Languages
@@ -705,8 +695,7 @@ References: [[https://jblevins.org/projects/markdown-mode/][markdown-mode]], [[h
 
 #+begin_src emacs-lisp
   (use-package markdown-mode
-    :mode ("README\\.md\\'" . gfm-mode)
-    :init (setq markdown-command "multimarkdown"))
+    :mode ("README\\.md\\'" . gfm-mode))
 
   (use-package evil-markdown
     :straight '(evil-markdown
@@ -768,7 +757,6 @@ References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https:/
 
 #+begin_src emacs-lisp
   (use-package haskell-mode)
-  (use-package markdown-mode)
 #+end_src
 
 ** Smart Parenthesis
@@ -1114,35 +1102,37 @@ References: [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.o
     (dirvish-override-dired-mode)
     :general
     (:states 'normal :keymaps 'dired-mode-map
-      "l"  'dired-find-file
-      "h"  'dired-up-directory)
+      "SPC" 'nil
+      "l"   'dired-find-file
+      "h"   'dired-up-directory)
     (:states 'normal :keymaps 'dirvish-mode-map
       "g?"  'dirvish-dispatch
       "a"   'dirvish-quick-access
       "f"   'dirvish-file-info-menu
       "o"   'dirvish-quicksort
       "q"   'dirvish-quit
+      "z"   'dirvish-layout-toggle
       "v"   'dirvish-vc-menu
       "y"   'dirvish-yank-menu
       "N"   'dirvish-narrow
       "H"   'dirvish-history-last
       "L"   'dirvish-history-jump
       "TAB" 'dirvish-subtree-toggle
-      "M-f" 'dirvish-history-go-forward
-      "M-b" 'dirvish-history-go-backward
+      "F" 'dirvish-history-go-forward
+      "B" 'dirvish-history-go-backward
       "M-l" 'dirvish-ls-switches-menu
-      "M-m" 'dirvish-mark-menu
-      "M-t" 'dirvish-layout-toggle
-      "M-s" 'dirvish-setup-menu
-      "M-e" 'dirvish-emerge-menu
-      "M-j" 'dirvish-fd-jump)
+      "M" 'dirvish-mark-menu
+      "S" 'dirvish-setup-menu
+      "E" 'dirvish-emerge-menu
+      "J" 'dirvish-fd-jump)
     :custom
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
-       ("d" "~/Downloads/"                "Downloads")
        ("c" "~/Documents/Courses/Aug23/"  "Courses")
-       ("s" "~/.local/src"                "Sources")
+       ("d" "~/Downloads/"                "Downloads")
        ("m" "/mnt/"                       "Drives")
+       ("p" "~/Documents/Projects/"       "Projects")
+       ("s" "~/.local/src"                "Sources")
        ("t" "~/.local/share/Trash/files/" "TrashCan")))
     :config
     (dirvish-peek-mode) ; Preview files listed in minibuffer
@@ -1530,7 +1520,7 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
     (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
 #+end_src
 
-* Packages for simple tasks
+* Packages for specific tasks with zero(almost) configuration
 ** Sudo-Edit (Edit with superuser access)
 
 #+begin_src emacs-lisp
@@ -1559,6 +1549,45 @@ References: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://
     (add-hook 'ledger-mode-hook #'evil-ledger-mode))
 #+end_src
 
+** Presentation
+References: [[https://systemcrafters.net/emacs-tips/presentations-with-org-present/][system-crafters]]
+
+#+begin_src emacs-lisp
+  (use-package org-present)
+  (use-package visual-fill-column
+    :custom
+    (visual-fill-column-width 110)
+    (visual-fill-column-center-text t))
+
+  (defun my/org-present-prepare-slide (buffer-name heading)
+    (org-overview) ; show only top-level headlines
+    (org-show-entry) ; unfold the current entry
+    (org-show-children)) ; show only direct subheadings of the slide but don't expand them
+
+  (defun my/org-present-start ()
+    (setq header-line-format " ") ; set a blank header line string to create blank space at the top
+    (org-display-inline-images)
+    (display-line-numbers-mode 0)
+    (visual-line-mode 1)
+    (visual-fill-column-mode 1))
+
+  (defun my/org-present-end ()
+    (setq header-line-format nil) ; clear the header line string so that it isn't displayed
+    (org-remove-inline-images)
+    (display-line-numbers-mode 1)
+    (visual-line-mode 0)
+    (visual-fill-column-mode 0))
+
+  (add-hook 'org-present-mode-hook #'my/org-present-start)
+  (add-hook 'org-present-mode-quit-hook #'my/org-present-end)
+  (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
+#+end_src
+
+** Reveal (Presentation using reveal.js)
+
+#+begin_src emacs-lisp
+  ;; (use-package ox-reveal)
+#+end_src
 * Shortcuts
 ** Hydra
 References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
@@ -2248,12 +2277,12 @@ Default: =C-x t=
     "sd"   '(dirvish-dwim                 :which-key "dirvish dwim")
     "se"   '(eshell                       :which-key "eshell")
     "sg"   '(general-describe-keybindings :which-key "general keybindings")
-    "sm"   '(mu4e                         :which-key "mu4e")
+    "sm"   '(notmuch                      :which-key "mail")
+    "so"   '(org-present                  :which-key "org present")
     "sr"   '(consult-recent-file          :which-key "recent files")
     "ss"   '(dirvish-side                 :which-key "dirvish side")
     "sp"   '(multi-vterm-project          :which-key "vterm")
-    "st"   '(multi-vterm-dedicated-toggle :which-key "vterm")
-    "sy"   '(yas-insert-snippet           :which-key "insert snippet"))
+    "st"   '(multi-vterm-dedicated-toggle :which-key "vterm"))
 
   (my/leader :states 'visual :kemaps 'override
     "s"    '(:ignore t          :which-key "shortcuts")
