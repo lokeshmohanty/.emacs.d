@@ -1,6 +1,6 @@
 (context-menu-mode)											              ; show context menu on right click
 (column-number-mode)                                  ; display position on modeline
-(global-visual-line-mode t)                           ; wrap lines
+;; (global-visual-line-mode t)                           ; wrap lines
 (global-auto-revert-mode)
 (setq blink-cursor-mode nil)
 (add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
@@ -16,6 +16,7 @@
               confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
 (setq visible-bell '1)                                ; use visible bell instead of beep
+(add-hook 'after-init-hook 'recentf-load-list)
 (recentf-mode 1)                                      ; Allow storing of recent files list
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 50)
@@ -83,9 +84,12 @@
 ;; (use-package modus-themes
 ;; 	:config
 ;; 	(load-theme 'modus-vivendi-tinted t))
-(use-package gruvbox-theme
+;; (use-package gruvbox-theme
+;;   :config
+;;   (load-theme 'gruvbox-dark-medium t))
+(use-package doom-themes
   :config
-  (load-theme 'gruvbox-dark-medium t))
+    (load-theme 'doom-palenight t))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -120,11 +124,6 @@
                     :height 135
                     :slant 'italic)
 
-;; (set-face-attribute 'font-lock-keywod-face nil
-;;                     :family "Source Code Pro"
-;;                     :height 140
-;;                     :slant 'italic)
-
 (use-package no-littering)
 
 (use-package evil
@@ -134,6 +133,7 @@
   (evil-shift-width 2)
   (evil-want-find-undo t) ;; insert mode undo steps as per emacs
   (evil-undo-system 'undo-redo) ;; use native commands in emacs 28
+  (evil-symbol-word-search t)		; */# search the symbol under the cursor instead of the word
   :config
   (evil-mode 1)
   ;; replace <C-z> with <C-x C-z> to use <C-z> to suspend frame instead
@@ -251,15 +251,15 @@
         ("p" "Project Task")
         ("pt" "General" entry 
          (file+olp "tasks.org" "Projects")
-         "* TODO %? %^G:@work:\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         "* TODO %? %^G\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
         ("ps" "Scheduled" entry 
          (file+olp "tasks.org" "Projects")
-         "* TODO %? %^G:@work:\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         "* TODO %? %^G\nSCHEDULED: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
         ("pd" "With a deadline" entry 
          (file+olp "tasks.org" "Projects")
-         "* TODO %? %^G:@work:\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
+         "* TODO %? %^G\nDEADLINE: %^t\n:PROPERTIES:\n:Created: %U\n:LOCATION: %a\n:END:\n  %i" 
          :empty-lines 1)
 
         ("n" "Notes")
@@ -274,8 +274,8 @@
          "\n* %<%I:%M %p>\n\n%?\n"
          :clock-in :clock-resume :empty-lines 1)
 
-        ("j" "Journal Entries")
-        ("jj" "Journal" entry
+        ;; ("j" "Journal Entries")
+        ("j" "Journal" entry
          (file+olp+datetree "journal.org")
          "\n* %<%I:%M %p> - %? :journal:\n"
          :clock-in :clock-resume :empty-lines 1)
@@ -351,8 +351,6 @@
 (use-package org-auctex
   :straight (:type git :host github :repo "karthink/org-auctex")
   :hook (org-mode . org-auctex-mode))
-
-;; (use-package ox-reveal)
 
 (setq treesit-extra-load-path '("/usr/local/lib"))
 
@@ -444,12 +442,27 @@
 ;;   :config (setq consult-reftex-preview-function
 ;;                 #'consult-reftex-make-window-preview))
 
-(use-package ink
-  :straight (:type git :host github :repo "lokesh1197/inkscape"))
+(defun my/tikzit-make-figure ()
+  "Prompt for file name, insert tikzit boilerplate, and start the tikzit process."
+  (interactive)
+  (let* ((name (read-string "Enter filename: "))
+         (filename (concat "figures/" name ".tikz")))
+    (make-directory "figures" t)
+    (insert (concat "\\ctikzfig{" name "}"))
+    (make-process :name "tikzit"
+                  :command (list "tikzit" filename))))
+
+(defun my/tikzit-edit-figure ()
+  "Get the file name from the word under the cursor, and start the tikzit process."
+  (interactive)
+  (let* ((name (thing-at-point 'symbol))
+         (filename (concat "figures/" name ".tikz")))
+    (make-directory "figures" t)
+    (make-process :name "tikzit"
+                  :command (list "tikzit" filename))))
 
 (use-package markdown-mode
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
+  :mode ("README\\.md\\'" . gfm-mode))
 
 (use-package evil-markdown
   :straight '(evil-markdown
@@ -483,7 +496,6 @@
 ;; (use-package pyvenv)
 
 (use-package haskell-mode)
-(use-package markdown-mode)
 
 ;; (use-package smartparens
 ;;   :config
@@ -719,9 +731,7 @@
 
 (use-package yasnippet
   :hook (prog-mode . yas-minor-mode)
-  :config
-  (setq yas-snippet-dirs (append yas-snippet-dirs (list (expand-file-name "snippets" user-emacs-directory))))
-  (yas-reload-all))
+  :config (yas-reload-all))
 ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
 
 (use-package yasnippet-snippets)
@@ -740,35 +750,37 @@
   (dirvish-override-dired-mode)
   :general
   (:states 'normal :keymaps 'dired-mode-map
-    "l"  'dired-find-file
-    "h"  'dired-up-directory)
+    "SPC" 'nil
+    "l"   'dired-find-file
+    "h"   'dired-up-directory)
   (:states 'normal :keymaps 'dirvish-mode-map
     "g?"  'dirvish-dispatch
     "a"   'dirvish-quick-access
     "f"   'dirvish-file-info-menu
     "o"   'dirvish-quicksort
     "q"   'dirvish-quit
+    "z"   'dirvish-layout-toggle
     "v"   'dirvish-vc-menu
     "y"   'dirvish-yank-menu
     "N"   'dirvish-narrow
     "H"   'dirvish-history-last
     "L"   'dirvish-history-jump
     "TAB" 'dirvish-subtree-toggle
-    "M-f" 'dirvish-history-go-forward
-    "M-b" 'dirvish-history-go-backward
+    "F" 'dirvish-history-go-forward
+    "B" 'dirvish-history-go-backward
     "M-l" 'dirvish-ls-switches-menu
-    "M-m" 'dirvish-mark-menu
-    "M-t" 'dirvish-layout-toggle
-    "M-s" 'dirvish-setup-menu
-    "M-e" 'dirvish-emerge-menu
-    "M-j" 'dirvish-fd-jump)
+    "M" 'dirvish-mark-menu
+    "S" 'dirvish-setup-menu
+    "E" 'dirvish-emerge-menu
+    "J" 'dirvish-fd-jump)
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
-     ("d" "~/Downloads/"                "Downloads")
      ("c" "~/Documents/Courses/Aug23/"  "Courses")
-     ("s" "~/.local/src"                "Sources")
+     ("d" "~/Downloads/"                "Downloads")
      ("m" "/mnt/"                       "Drives")
+     ("p" "~/Documents/Projects/"       "Projects")
+     ("s" "~/.local/src"                "Sources")
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
   :config
   (dirvish-peek-mode) ; Preview files listed in minibuffer
@@ -842,11 +854,161 @@
       message-sendmail-envelope-from 'header
       mail-envelope-from 'header)
 
-;; use mu4e/notmuch for e-mail in emacs
-;; (setq mail-user-agent 'mu4e-user-agent)
-(setq mail-user-agent 'notmuch-user-agent)
+;; (use-package mu4easy
+;;   ;; :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
+;;   :config
+;;   (mu4easy-mode))
 
-(use-package notmuch)
+;; (use-package mu4e
+;;   :straight (:host github
+;;                    :repo "djcb/mu"
+;;                    :branch "master"
+;;                    :files ("build/mu4e/*")
+;;                    :pre-build (("./autogen.sh") ("ninja" "-C" "build")))
+  ;; :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
+  ;; :config
+  ;; (setq mu4e-get-mail-command "mw -Y")
+  ;; (setq mu4e-root-maildir "~/.local/share/mail")
+
+;;   ;; Fixing duplicate UID errors when using mbsync and mu4e
+;;   (setq mu4e-change-filenames-when-moving t)
+
+;;   (setq mu4e-attachment-dir "~/Downloads")
+  ;; (setq mu4e-view-show-images t))
+
+;; use mu4e/notmuch for e-mail in emacs
+(setq mail-user-agent 'mu4e-user-agent)
+
+(with-eval-after-load 'mu4e
+  (defun my/make-mu4e-context (address &rest args)
+    (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
+           (context (if (plist-member args :context) (plist-get args :context) address))
+           (type (if (plist-member args :type) (plist-get args :type) 'other))
+           (dir (concat "/" address))
+           (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
+           (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
+      (make-mu4e-context
+       ;; first letter of context is used to switch contexts
+       :name context
+       ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
+       ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
+       :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
+       :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
+       :match-func (lambda (msg) (when msg (mu4e-message-contact-field-matches msg :to address)))
+       :vars
+       `((user-mail-address    . ,address)
+         (user-full-name       . ,name)
+         (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
+         (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
+         (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
+         (mu4e-refile-folder   . ,(concat prefix "/Archive"))
+         (mu4e-compose-signature . ,signature)))))
+
+  (setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com" :context "home")
+                        ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
+                        ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook))))
+
+(with-eval-after-load 'mu4e
+  (setq mu4e-maildir-shortcuts
+        '(("/lokesh1197@gmail.com/INBOX"      . ?g)
+          ("/lokesh1197@yahoo.com/INBOX"      . ?y)
+          ("/lokeshm@iisc.ac.in/INBOX"        . ?w)
+          ("/lokeshm@iisc.ac.in/Sent Items"   . ?s)
+          ("/befreier19@gmail.com/INBOX"      . ?b)
+          ("/ineffable97@gmail.com/INBOX"     . ?i)))
+
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Work Inbox Unread"
+                       :query "maildir:/lokesh.mohanty@e-arc.com/INBOX not flag:trashed"
+                       :key ?w))
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Unread bulk messages"
+                       :query "flag:unread AND NOT flag:trashed"
+                       ;; :query "flag:unread NOT flag:trashed AND (flag:list OR from:lokesh1197@yahoo.com)"
+                       :key ?l))
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Messages with attachments for me"
+                       :query "mime:application/* AND NOT mime:application/pgp* AND (maildir:**/INBOX)"
+                       :key ?d))
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Important Messages"
+                       :query "flag:flagged"
+                       :key ?f)))
+
+;; (use-package nano-sidebar
+;;   :straight (:type git :host github :repo "rougier/nano-sidebar")
+;;   :config (require 'nano-sidebar-ibuffer))
+
+;; (use-package svg-tag-mode
+;;   :straight (:type git :host github :repo "rougier/svg-tag-mode")
+;;   :config
+;;   (setq svg-tag-tags
+;;       '((":TODO:" . ((lambda (tag) (svg-tag-make "TODO")))))))
+
+;; (use-package mu4e-thread-folding
+;;   :straight (:type git :host github :repo "rougier/mu4e-thread-folding"))
+
+(use-package mu4e-dashboard
+  :disabled t
+  :straight (:type git :host github :repo "rougier/mu4e-dashboard")
+  :after mu4e
+  :custom (mu4e-dashboard-file (expand-file-name "side-dashboard.org" user-emacs-directory)))
+
+(use-package svg-lib
+  :disabled t
+  :straight (:type git :host github :repo "rougier/svg-lib"))
+
+;; (require 'mu4e-dashboard)
+;; (require 'svg-lib)
+
+(setq mu4e-dashboard-propagate-keymap nil)
+
+(defun mu4e-dashboard ()
+  "Open the mu4e dashboard on the left side."
+
+  (interactive)
+  (with-selected-window
+      (split-window (selected-window) -34 'left)
+
+    (find-file (expand-file-name "side-dashboard.org" user-emacs-directory))
+    (mu4e-dashboard-mode)
+    (hl-line-mode)
+    (set-window-dedicated-p nil t)
+    (defvar svg-font-lock-keywords
+      `(("\\!\\([\\ 0-9]+\\)\\!"
+         (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))))
+    (defun svg-font-lock-tag (label)
+      (svg-lib-tag label nil
+                   :stroke 0 :margin 1 :font-weight 'bold
+                   :padding (max 0 (- 3 (length label)))
+                   :foreground (face-foreground 'nano-popout-i)
+                   :background (face-background 'nano-popout-i)))
+    (push 'display font-lock-extra-managed-props)
+    (font-lock-add-keywords nil svg-font-lock-keywords)
+    (font-lock-flush (point-min) (point-max))))
+
+(use-package org-msg
+  :disabled t
+  :after org
+  :config
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new		. (text html))
+                                       (reply-to-html	. (text html))
+                                       (reply-to-text	. (text)))
+        org-msg-convert-citation t
+        org-msg-signature (concat
+                            "#+begin_signature\n"
+                            "Regards,\n"
+                            "*Lokesh Mohanty*\n"
+                            "#+end_signature"))
+  (org-msg-mode))
+
+(use-package notmuch
+  :custom (mail-user-agent 'notmuch-user-agent))
 
 (use-package gnus-alias
   :config
@@ -872,12 +1034,56 @@
   ;; Determine identity when message-mode loads
   (add-hook 'message-setup-hook 'gnus-alias-determine-identity))
 
+;; (setq message-directory "Drafts") ; stores postponed messages to the specified directory
+;; (setq notmuch-fcc-dirs "Sent") ; sent mail directory
+;; (setq notmuch-hello-hide-tags (quote ("killed"))) ; settings for main screen
+
+;; (setq notmuch-saved-searches
+;; 			(quote
+;; 			 ((:name "inbox" :query "tag:inbox AND -tag:work" :key "i" :sort-order oldest-first)
+;; 				(:name "flagged" :query "tag:flagged" :key "f") ;flagged messages
+;; 				(:name "sent" :query "tag:sent -tag:work" :key "t" :sort-order newest-first)
+;; 				(:name "drafts" :query "tag:draft" :key "d")
+;; 				(:name "mailinglist" :query "tag:lists/mailinglistID" :key "c")
+;; 				(:name "all mail" :query "*" :key "a" :sort-order newest-first))))
+
+;; (setq mail-user-agent 'message-user-agent)
+
+(setq message-kill-buffer-on-exit t) ; kill buffer after sending mail)
+(setq mail-specify-envelope-from t) ; Settings to work with msmtp
+
+;; (setq sendmail-program "~/.local/bin/msmtp-enqueue.sh"
+;; 			mail-specify-envelope-from t
+;; 			;; needed for debians message.el cf. README.Debian.gz
+;; 			message-sendmail-f-is-evil nil
+;; 			mail-envelope-from 'header
+;; 			message-sendmail-envelope-from 'header)
+
+;; (define-key notmuch-show-mode-map "S"
+;; 						(lambda ()
+;; 							"mark message as spam"
+;; 							(interactive)
+;; 							(notmuch-show-tag (list "+spam" "-inbox"))))
+
+;; (define-key notmuch-search-mode-map "S"
+;; 						(lambda ()
+;; 							"mark message as spam"
+;; 							(interactive)
+;; 							(notmuch-search-tag (list "-inbox" "+spam"))
+;; 							(next-line) ))
+
+;; Crypto Settings
+(setq notmuch-crypto-process-mime t) ; Automatically check signatures
+(add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
+(setq epg-gpg-program "/usr/bin/gpg2")
+
 (use-package ol-notmuch)
 
 (use-package emacs-everywhere)
 
 (use-package elfeed
-  :bind ("C-x w" . elfeed))
+  :bind ("C-x w" . elfeed)
+  :custom (use-shr-fonts nil))
 
 (use-package elfeed-org
   :config (elfeed-org)
@@ -925,6 +1131,37 @@
   :config
   (setq evil-ledger-sort-key "S")
   (add-hook 'ledger-mode-hook #'evil-ledger-mode))
+
+(use-package org-present)
+(use-package visual-fill-column
+  :custom
+  (visual-fill-column-width 110)
+  (visual-fill-column-center-text t))
+
+(defun my/org-present-prepare-slide (buffer-name heading)
+  (org-overview) ; show only top-level headlines
+  (org-show-entry) ; unfold the current entry
+  (org-show-children)) ; show only direct subheadings of the slide but don't expand them
+
+(defun my/org-present-start ()
+  (setq header-line-format " ") ; set a blank header line string to create blank space at the top
+  (org-display-inline-images)
+  (display-line-numbers-mode 0)
+  (visual-line-mode 1)
+  (visual-fill-column-mode 1))
+
+(defun my/org-present-end ()
+  (setq header-line-format nil) ; clear the header line string so that it isn't displayed
+  (org-remove-inline-images)
+  (display-line-numbers-mode 1)
+  (visual-line-mode 0)
+  (visual-fill-column-mode 0))
+
+(add-hook 'org-present-mode-hook #'my/org-present-start)
+(add-hook 'org-present-mode-quit-hook #'my/org-present-end)
+(add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
+
+;; (use-package ox-reveal)
 
 (use-package hydra)
 
@@ -1480,6 +1717,9 @@ Info-mode:
   "ni" '(org-roam-node-insert      :which-key "insert")
   "nI" '(org-roam-insert-immediate :which-key "insert immediate"))
 
+(my/ctrl-c
+  "y" '(yas-insert-snippet :which-key "insert snippet"))
+
 (my/leader :states 'normal :kemaps 'override
   "s"    '(:ignore t                    :which-key "shortcuts")
   "s0"   '(0x0-dwim                     :which-key "0x0 share")
@@ -1488,12 +1728,12 @@ Info-mode:
   "sd"   '(dirvish-dwim                 :which-key "dirvish dwim")
   "se"   '(eshell                       :which-key "eshell")
   "sg"   '(general-describe-keybindings :which-key "general keybindings")
-  "sm"   '(mu4e                         :which-key "mu4e")
+  "sm"   '(notmuch                      :which-key "mail")
+  "so"   '(org-present                  :which-key "org present")
   "sr"   '(consult-recent-file          :which-key "recent files")
   "ss"   '(dirvish-side                 :which-key "dirvish side")
   "sp"   '(multi-vterm-project          :which-key "vterm")
-  "st"   '(multi-vterm-dedicated-toggle :which-key "vterm")
-  "sy"   '(yas-insert-snippet           :which-key "insert snippet"))
+  "st"   '(multi-vterm-dedicated-toggle :which-key "vterm"))
 
 (my/leader :states 'visual :kemaps 'override
   "s"    '(:ignore t          :which-key "shortcuts")
