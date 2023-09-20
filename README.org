@@ -1,6 +1,6 @@
-#+TITLE: My Emacs Config
-#+AUTHOR: Lokesh Mohanty
-#+PROPERTY: header-args:emacs-lisp :tangle init.el
+#+title: My Emacs Config
+#+author: Lokesh Mohanty
+#+property: header-args:emacs-lisp :tangle init.el
 
 - CHEATSHEET: [[file:cheatsheet.pdf][./cheatsheet.pdf]]
 
@@ -195,16 +195,16 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
 References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
 
 #+begin_src emacs-lisp
-  ;; required as during daemon initialization, there are no frames
-  ;; (use-package modus-themes
-  ;; 	:config
-  ;; 	(load-theme 'modus-vivendi-tinted t))
-  ;; (use-package gruvbox-theme
-  ;;   :config
-  ;;   (load-theme 'gruvbox-dark-medium t))
-  (use-package doom-themes
-    :config
-      (load-theme 'doom-palenight t))
+	;; required as during daemon initialization, there are no frames
+	;; (use-package modus-themes
+	;; 	:config
+	;; 	(load-theme 'modus-vivendi-tinted t))
+	;; (use-package gruvbox-theme
+	;;   :config
+	;;   (load-theme 'gruvbox-dark-medium t))
+	(use-package doom-themes
+		:config
+			(load-theme 'doom-palenight t))
 #+end_src
 
 ** Terminal fixes (emacs -nw)
@@ -403,7 +403,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     (org-startup-indented t)
     (org-confim-babel-evaluate nil)
     (org-hide-emphasis-markers t)
-    (org-hidden-keywords t)
+    (org-hidden-keywords nil)			; enabling it couases fontification error and problem with org-appear
     ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
     (org-image-actual-width nil)
     :config
@@ -505,27 +505,25 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
 References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12/org-fragtog][org-fragtog]], [[https://github.com/awth13/org-appear][org-appear]]
 
 #+begin_src emacs-lisp
-  (use-package org-bullets
-    :after org
-    :hook (org-mode . org-bullets-mode))
+	(use-package org-bullets
+		:after org
+		:hook (org-mode . org-bullets-mode))
 
-  ;; latex fragments preview, toggle with "C-c C-x C-l"
-  (use-package org-fragtog
-    :after org
-    :hook (org-mode . org-fragtog-mode))
+	;; latex fragments preview, toggle with "C-c C-x C-l"
+	(use-package org-fragtog
+		:after org
+		:hook (org-mode . org-fragtog-mode))
 
-  (use-package org-appear
-    :after org
-    ;; :hook (org-mode . org-appear-mode)
-    :custom
-    (org-appear-autoemphasis t)
-    (org-appear-autolinks t)
-    (org-appear-autoentities t)
-    (org-appear-autosubmarkers t)	; sub/super scripts
-    (org-appear-autokeywords t)	; keywords in org-hidden-keywords
-    (org-appear-delay 0))
-
-  (add-hook 'org-mode-hook #'org-appear-mode)
+	(use-package org-appear
+		:after org
+		:hook (org-mode . org-appear-mode)
+		:custom
+		(org-appear-autoemphasis t)
+		(org-appear-autolinks t)
+		(org-appear-autoentities t)
+		(org-appear-autosubmarkers t)	; sub/super scripts
+		(org-appear-autokeywords t)	; kkywords in org-hidden-keywords
+		(org-appear-delay 0))
 #+end_src
 
 ** Source blocks
