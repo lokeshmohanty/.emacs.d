@@ -16,10 +16,11 @@
               confirm-nonexistent-file-or-buffer nil) ; Ok to visit non existent files
 
 (setq visible-bell '1)                                ; use visible bell instead of beep
+
 (add-hook 'after-init-hook 'recentf-load-list)
 (recentf-mode 1)                                      ; Allow storing of recent files list
-(setq recentf-max-menu-items 25)
-(setq recentf-max-saved-items 50)
+(setq recentf-max-menu-items 200)
+(setq recentf-max-saved-items 200)
 
 (undelete-frame-mode)										; allows recovering a deleted frame (emacs 29)
 
@@ -88,8 +89,8 @@
 ;;   :config
 ;;   (load-theme 'gruvbox-dark-medium t))
 (use-package doom-themes
-  :config
-    (load-theme 'doom-palenight t))
+	:config
+		(load-theme 'doom-palenight t))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -210,7 +211,7 @@
   (org-startup-indented t)
   (org-confim-babel-evaluate nil)
   (org-hide-emphasis-markers t)
-  (org-hidden-keywords t)
+  (org-hidden-keywords nil)			; enabling it couases fontification error and problem with org-appear
   ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
   (org-image-actual-width nil)
   :config
@@ -304,26 +305,24 @@
         ))
 
 (use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode))
+	:after org
+	:hook (org-mode . org-bullets-mode))
 
 ;; latex fragments preview, toggle with "C-c C-x C-l"
 (use-package org-fragtog
-  :after org
-  :hook (org-mode . org-fragtog-mode))
+	:after org
+	:hook (org-mode . org-fragtog-mode))
 
 (use-package org-appear
-  :after org
-  ;; :hook (org-mode . org-appear-mode)
-  :custom
-  (org-appear-autoemphasis t)
-  (org-appear-autolinks t)
-  (org-appear-autoentities t)
-  (org-appear-autosubmarkers t)	; sub/super scripts
-  (org-appear-autokeywords t)	; keywords in org-hidden-keywords
-  (org-appear-delay 0))
-
-(add-hook 'org-mode-hook #'org-appear-mode)
+	:after org
+	:hook (org-mode . org-appear-mode)
+	:custom
+	(org-appear-autoemphasis t)
+	(org-appear-autolinks t)
+	(org-appear-autoentities t)
+	(org-appear-autosubmarkers t)	; sub/super scripts
+	(org-appear-autokeywords t)	; kkywords in org-hidden-keywords
+	(org-appear-delay 0))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -1008,69 +1007,44 @@
   (org-msg-mode))
 
 (use-package notmuch
-  :custom (mail-user-agent 'notmuch-user-agent))
+	:custom (mail-user-agent 'notmuch-user-agent))
 
 (use-package gnus-alias
-  :config
-  (setq gnus-alias-identity-alist
-        '(("lokesh1197@gmail.com"
-           nil ;; parent identity
-           "Lokesh Mohanty <lokesh1197@gmail.com>" ;; from
-           nil ;; organization
-           nil ;; extra headers
-           nil ;; body
-           "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
-          ("lokesh1197@yahoo.com"
-           nil
-           "Lokesh Mohanty <lokesh1197@yahoo.com>"
-           nil
-           (("Bcc" . "lokesh1197@gmail.com"))
-           nil
-           "Thanks & Regards\nLokesh Mohanty\n\n")))
-  (setq gnus-alias-default-identity "lokesh1197@gmail.com")
-  ;; Define rules to match work identity
-  ;; (setq gnus-alias-identity-rules
-  ;;       '(("work" ("any" "john.doe@\\(example\\.com\\|help\\.example.com\\)" both) "work")))
-  ;; Determine identity when message-mode loads
-  (add-hook 'message-setup-hook 'gnus-alias-determine-identity))
+	:config
+	(setq gnus-alias-identity-alist
+				'(("lokesh1197@gmail.com"
+					 nil ;; parent identity
+					 "Lokesh Mohanty <lokesh1197@gmail.com>" ;; from
+					 nil ;; organization
+					 nil ;; extra headers
+					 nil ;; body
+					 "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
+					("lokesh1197@yahoo.com"
+					 nil
+					 "Lokesh Mohanty <lokesh1197@yahoo.com>"
+					 nil
+					 (("Bcc" . "lokesh1197@gmail.com"))
+					 nil
+					 "Thanks & Regards\nLokesh Mohanty\n\n")
+					("lokeshm@iisc.ac.in"
+					 nil
+					 "Lokesh Mohanty <lokeshm@iisc.ac.in>"
+					 nil
+					 nil
+					 nil
+					 "Thanks & Regards\nLokesh Mohanty\n\n")))
+	(setq gnus-alias-default-identity "lokesh1197@gmail.com")
+	;; Determine identity when message-mode loads
+	(add-hook 'message-setup-hook 'gnus-alias-determine-identity))
 
 ;; (setq message-directory "Drafts") ; stores postponed messages to the specified directory
 ;; (setq notmuch-fcc-dirs "Sent") ; sent mail directory
 ;; (setq notmuch-hello-hide-tags (quote ("killed"))) ; settings for main screen
 
-;; (setq notmuch-saved-searches
-;; 			(quote
-;; 			 ((:name "inbox" :query "tag:inbox AND -tag:work" :key "i" :sort-order oldest-first)
-;; 				(:name "flagged" :query "tag:flagged" :key "f") ;flagged messages
-;; 				(:name "sent" :query "tag:sent -tag:work" :key "t" :sort-order newest-first)
-;; 				(:name "drafts" :query "tag:draft" :key "d")
-;; 				(:name "mailinglist" :query "tag:lists/mailinglistID" :key "c")
-;; 				(:name "all mail" :query "*" :key "a" :sort-order newest-first))))
-
 ;; (setq mail-user-agent 'message-user-agent)
 
 (setq message-kill-buffer-on-exit t) ; kill buffer after sending mail)
 (setq mail-specify-envelope-from t) ; Settings to work with msmtp
-
-;; (setq sendmail-program "~/.local/bin/msmtp-enqueue.sh"
-;; 			mail-specify-envelope-from t
-;; 			;; needed for debians message.el cf. README.Debian.gz
-;; 			message-sendmail-f-is-evil nil
-;; 			mail-envelope-from 'header
-;; 			message-sendmail-envelope-from 'header)
-
-;; (define-key notmuch-show-mode-map "S"
-;; 						(lambda ()
-;; 							"mark message as spam"
-;; 							(interactive)
-;; 							(notmuch-show-tag (list "+spam" "-inbox"))))
-
-;; (define-key notmuch-search-mode-map "S"
-;; 						(lambda ()
-;; 							"mark message as spam"
-;; 							(interactive)
-;; 							(notmuch-search-tag (list "-inbox" "+spam"))
-;; 							(next-line) ))
 
 ;; Crypto Settings
 (setq notmuch-crypto-process-mime t) ; Automatically check signatures
