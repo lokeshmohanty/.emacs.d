@@ -9,7 +9,6 @@
 (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
 (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
 
-(setq-default savehist-mode t)                                       ; persist history over emacs restarts
 (setq-default tab-width 2
               ;; display-line-numbers-type 'relative
               use-short-answers t                     ; Replace yes/no prompts with y/n
@@ -207,7 +206,7 @@
 
 (use-package org
   :custom
-  ;; (org-startup-folded t)
+  (org-startup-folded 'content)
   (org-startup-indented t)
   (org-confim-babel-evaluate nil)
   (org-hide-emphasis-markers t)
@@ -580,6 +579,9 @@
 (use-package vertico
   :init (vertico-mode)
   :custom (vertico-cycle t))
+
+(use-package savehist
+  :init (savehist-mode))
 
 (use-package orderless
   :config (setq orderless-component-separator "[ &]") ; to search with multiple components in company
