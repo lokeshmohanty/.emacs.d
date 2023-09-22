@@ -152,21 +152,20 @@
 (use-package evil-mc
   :config (global-evil-mc-mode 1))
 
+(use-package posframe)
 (use-package evil-owl
+  :after posframe
   :config
-  (setq evil-owl-max-string-length 500)
-  (add-to-list 'display-buffer-alist
-               '("*evil-owl*"
-                 (display-buffer-in-side-window)
-                 (side . bottom)
-                 (window-height . 0.3)))
+  ;; (setq evil-owl-max-string-length 500)
+  ;; (add-to-list 'display-buffer-alist
+  ;;              '("*evil-owl*"
+  ;;                (display-buffer-in-side-window)
+  ;;                (side . bottom)
+  ;;                (window-height . 0.3)))
+  (setq evil-owl-display-method 'posframe
+        evil-owl-extra-posframe-args '(:width 50 :height 20)
+        evil-owl-max-string-length 50)
   (evil-owl-mode))
-;; (use-package evil-owl
-;;   :config
-;;   (setq evil-owl-display-method 'posframe
-;;         evil-owl-extra-posframe-args '(:width 50 :height 20)
-;;         evil-owl-max-string-length 50)
-;;   (evil-owl-mode))
 
 (use-package evil-lion
   :config (evil-lion-mode))
@@ -573,6 +572,10 @@
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
+;; got bored after some time
+;; (use-package vertico-posframe
+;;   :after posframe
+;;   :config (vertico-posframe-mode))
 
 (use-package savehist
   :init (savehist-mode))
