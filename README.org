@@ -20,6 +20,21 @@ or in your ~XDG_CONFIG_HOME~ as ~emacs~
   cd ~/.config && git clone https://github.com/lokesh1197/.emacs.d.git emacs
 #+end_src
 
+This configuration if for ~emacs-29~ built from ~emacs-29~ branch of the github mirror of ~emacs~.
+Make sure to have the dependencies before building. For fedora, run ~dnf builddep emacs~.
+For other distributions, check the ~INSTALL~ file in the root of the repository.
+
+Extra dependencies required for the below flags:
+- ~imagemagick~
+
+Here are the commands that I used to build. 
+
+#+begin_src shell
+  ./autogen.sh
+  ./configure --with-mailutils --with-native-compilation --with-json --with-imagemagick \
+    --with-cairo --with-tree-sitter --with-gif --with-png --with-jpeg --with-rsvg --with-tiff
+#+end_src
+
 * Early Init
 References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > setq]]
 
@@ -197,16 +212,20 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
 References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
 
 #+begin_src emacs-lisp
-	;; required as during daemon initialization, there are no frames
-	;; (use-package modus-themes
-	;; 	:config
-	;; 	(load-theme 'modus-vivendi-tinted t))
-	;; (use-package gruvbox-theme
-	;;   :config
-	;;   (load-theme 'gruvbox-dark-medium t))
-	(use-package doom-themes
-		:config
-			(load-theme 'doom-palenight t))
+  ;; required as during daemon initialization, there are no frames
+  ;; (use-package modus-themes
+  ;; 	:config
+  ;; 	(load-theme 'modus-vivendi-tinted t))
+  ;; (use-package gruvbox-theme
+  ;;   :config
+  ;;   (load-theme 'gruvbox-dark-medium t))
+  (use-package doom-themes
+    :config
+      (load-theme 'doom-palenight t))
+
+  (use-package mood-line
+    :config
+    (mood-line-mode))
 #+end_src
 
 ** Terminal fixes (emacs -nw)
@@ -411,7 +430,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
     :config
     ;; open pdfs with okular
     ;; (setq org-preview-latex-default-process 'dvisvgm)
-    ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
     ;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
     ;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
     (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
@@ -561,7 +580,7 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
 #+begin_src emacs-lisp
   (use-package org-roam
     :config
-    (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
+    (setq org-roam-directory (file-truename "~/Documents/Org/Roam"))
     (org-roam-db-autosync-mode))
 #+end_src
 
@@ -576,9 +595,20 @@ References: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 * Languages
 ** Tree Sitter (Syntax highlighter)
+Make sure to install the treesitter language grammars.
+You can do this by following the below steps:
+
+#+begin_src shell
+  git clone https://github.com/casouri/tree-sitter-module.git
+  cd tree-sitter-module
+  ./batch.sh
+  sudo mv dist /usr/local/lib/tree-sitter
+#+end_src
+
+Configuration:
 
 #+begin_src emacs-lisp
-  (setq treesit-extra-load-path '("/usr/local/lib"))
+  (setq treesit-extra-load-path '("/usr/local/lib/tree-sitter"))
 
   (setq major-mode-remap-alist
    '((yaml-mode       . yaml-ts-mode)
@@ -819,7 +849,9 @@ References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com
 
 #+begin_src emacs-lisp
   (use-package eglot
-    :hook (TeX-mode . eglot-ensure))
+    :hook ((LaTeX-mode . eglot-ensure)
+           (c-mode     . eglot-ensure)
+           (c++-mode   . eglot-ensure)))
 
   ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
@@ -887,31 +919,47 @@ References: [[https://github.com/zerolfx/copilot.el][copilot]]
   (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
 
-** OpenAPI (ChatGPT and Dall-E)
-References: [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]
-
-#+begin_src emacs-lisp
-  (use-package shell-maker
-    :straight (:host github :repo "xenodium/chatgpt-shell")
-    :config
-    (require 'ob-chatgpt-shell)
-    (require 'ob-dall-e-shell)
-    (setq chatgpt-shell-openai-key
-        (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi"))))
-    (setq dall-e-shell-openai-key
-        (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi")))))
-#+end_src
-
 ** Vertico (vertical interactive completion ui)
 References: [[https://github.com/minad/vertico][vertico]]
 
 #+begin_src emacs-lisp
   (use-package vertico
+    :straight (:files (:defaults "extensions/*")) ; load the extensions as well
     :init (vertico-mode)
-    :custom (vertico-cycle t))
+    :custom (vertico-cycle t)
+    :config (vertico-mouse-mode)					; enable mouse extension
+    ;; vertico-directory extension: delete parent directory on backspace
+    :bind (:map vertico-map
+                ("RET" . vertico-directory-enter)
+                ("DEL" . vertico-directory-delete-char)
+                ("M-DEL" . vertico-directory-delete-word))
+    :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
 
   (use-package savehist
     :init (savehist-mode))
+
+  ;; A few more useful configurations...
+  (use-package emacs
+    :init
+    ;; Add prompt indicator to `completing-read-multiple'.
+    ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+    (defun crm-indicator (args)
+      (cons (format "[CRM%s] %s"
+                    (replace-regexp-in-string
+                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                     crm-separator)
+                    (car args))
+            (cdr args)))
+    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+    ;; Do not allow the cursor in the minibuffer prompt
+    (setq minibuffer-prompt-properties
+          '(read-only t cursor-intangible t face minibuffer-prompt))
+    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+    ;; Enable recursive minibuffers
+    (setq enable-recursive-minibuffers t))
 #+end_src
 
 ** Orderless (completion style)
@@ -1083,9 +1131,9 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
 
 #+begin_src emacs-lisp
   (use-package yasnippet
-    :hook (prog-mode . yas-minor-mode)
+    ;; :hook (prog-mode . yas-minor-mode)
     :config (yas-reload-all))
-  ;; (add-hook 'prog-mode-hook #'yas-minor-mode)
+  (add-hook 'prog-mode-hook #'yas-minor-mode)
 
   (use-package yasnippet-snippets)
 #+end_src
@@ -1580,7 +1628,9 @@ References: [[https://github.com/Wilfred/deadgrep][deadgrep]]
 References: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://ledger-cli.org/][cli]]
 
 #+begin_src emacs-lisp
-  (use-package ledger-mode)
+  (use-package ledger-mode
+    :ensure-system-package ledger)
+
   (use-package evil-ledger
     :after ledger-mode
     :config
@@ -1622,11 +1672,6 @@ References: [[https://systemcrafters.net/emacs-tips/presentations-with-org-prese
   (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
 #+end_src
 
-** Reveal (Presentation using reveal.js)
-
-#+begin_src emacs-lisp
-  ;; (use-package ox-reveal)
-#+end_src
 * Shortcuts
 ** Hydra
 References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
@@ -2173,7 +2218,7 @@ Default: =C-x b=
     "bw"   '(consult-buffer-other-window    :which-key "in other window")
     "bf"   '(consult-buffer-other-frame    :which-key "in other frame")
     "bs"   '(consult-buffer   :which-key "switch")
-    "bk"   '(kill-current-buffer :which-key "kill") 
+    "bk"   '(kill-current-buffer :which-key "kill"))
 #+end_src
 
 *** Bookmark
@@ -2374,6 +2419,7 @@ Default: =C-x t=
   - org-noter, org-pdftools
   - org-ref, for managing references
   - ebib, for managing .bib files
+  - ccls vs clangd
 
 - Known bugs:
   - ~evil-insert-digraph~ keybinding is shadowed by vertico custom map

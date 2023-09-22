@@ -88,8 +88,12 @@
 ;;   :config
 ;;   (load-theme 'gruvbox-dark-medium t))
 (use-package doom-themes
-	:config
-		(load-theme 'doom-palenight t))
+  :config
+    (load-theme 'doom-palenight t))
+
+(use-package mood-line
+  :config
+  (mood-line-mode))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -216,7 +220,7 @@
   :config
   ;; open pdfs with okular
   ;; (setq org-preview-latex-default-process 'dvisvgm)
-  ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   ;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
   ;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
   (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
@@ -343,14 +347,14 @@
 
 (use-package org-roam
   :config
-  (setq org-roam-directory (file-truename "~/Documents/.Org-Roam"))
+  (setq org-roam-directory (file-truename "~/Documents/Org/Roam"))
   (org-roam-db-autosync-mode))
 
 (use-package org-auctex
   :straight (:type git :host github :repo "karthink/org-auctex")
   :hook (org-mode . org-auctex-mode))
 
-(setq treesit-extra-load-path '("/usr/local/lib"))
+(setq treesit-extra-load-path '("/usr/local/lib/tree-sitter"))
 
 (setq major-mode-remap-alist
  '((yaml-mode       . yaml-ts-mode)
@@ -517,7 +521,9 @@
   :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
 
 (use-package eglot
-  :hook (TeX-mode . eglot-ensure))
+  :hook ((LaTeX-mode . eglot-ensure)
+         (c-mode     . eglot-ensure)
+         (c++-mode   . eglot-ensure)))
 
 ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
@@ -566,22 +572,43 @@
 
 (add-hook 'prog-mode-hook 'copilot-mode)
 
-(use-package shell-maker
-  :straight (:host github :repo "xenodium/chatgpt-shell")
-  :config
-  (require 'ob-chatgpt-shell)
-  (require 'ob-dall-e-shell)
-  (setq chatgpt-shell-openai-key
-      (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi"))))
-  (setq dall-e-shell-openai-key
-      (lambda () (nth 0 (process-lines "pass" "show" "keys/openapi")))))
-
 (use-package vertico
+  :straight (:files (:defaults "extensions/*")) ; load the extensions as well
   :init (vertico-mode)
-  :custom (vertico-cycle t))
+  :custom (vertico-cycle t)
+  :config (vertico-mouse-mode)					; enable mouse extension
+  ;; vertico-directory extension: delete parent directory on backspace
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
 
 (use-package savehist
   :init (savehist-mode))
+
+;; A few more useful configurations...
+(use-package emacs
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t))
 
 (use-package orderless
   :config (setq orderless-component-separator "[ &]") ; to search with multiple components in company
@@ -726,9 +753,9 @@
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package yasnippet
-  :hook (prog-mode . yas-minor-mode)
+  ;; :hook (prog-mode . yas-minor-mode)
   :config (yas-reload-all))
-;; (add-hook 'prog-mode-hook #'yas-minor-mode)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
 
 (use-package yasnippet-snippets)
 
@@ -1096,7 +1123,9 @@
   (:states '(normal insert visual)
            "M-s s" 'deadgrep))
 
-(use-package ledger-mode)
+(use-package ledger-mode
+  :ensure-system-package ledger)
+
 (use-package evil-ledger
   :after ledger-mode
   :config
@@ -1131,8 +1160,6 @@
 (add-hook 'org-present-mode-hook #'my/org-present-start)
 (add-hook 'org-present-mode-quit-hook #'my/org-present-end)
 (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
-
-;; (use-package ox-reveal)
 
 (use-package hydra)
 
