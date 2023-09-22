@@ -709,25 +709,7 @@
   ;; Optionally make narrowing help available in the minibuffer.
   ;; You may want to use `embark-prefix-help-command' or which-key instead.
   ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-
-  ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-  ;; There are multiple reasonable alternatives to chose from.
-  ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-  ;;;; 3. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 4. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 )
-
-;; Asynchronous fuzzy finder
-;; (use-package affe
-;;   :config
-;;   (consult-customize affe-grep :preview-key "M-.")
 
 (use-package embark
   :init

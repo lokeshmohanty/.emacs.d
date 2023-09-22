@@ -138,7 +138,7 @@ all the fonts.
 
 * Package manager
 ** Straight
-*References*: [[https://github.com/radian-software/straight.el][straight]], [[https://github.com/jwiegley/use-package][use-package]]
+*References*: [[https://github.com/radian-software/straight.el][straight]], [[https://github.com/jwiegley/use-package][use-package]], [[https://github.com/jwiegley/use-package#use-package-ensure-system-package][ensure-system-package]]
 
 #+begin_src emacs-lisp
   ;; get latest version
@@ -979,7 +979,7 @@ Allows fuzzy search completion
 #+end_src
 
 ** Consult (practical commands based on completing-read)
-*References*: [[https://github.com/minad/consult][consult]], [[https://github.com/minad/affe][affe]]
+*References*: [[https://github.com/minad/consult][consult]]
 
 #+begin_src emacs-lisp
   (use-package consult
@@ -1076,25 +1076,7 @@ Allows fuzzy search completion
     ;; Optionally make narrowing help available in the minibuffer.
     ;; You may want to use `embark-prefix-help-command' or which-key instead.
     ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-
-    ;; By default `consult-project-function' uses `project-root' from project.el.
-    ;; Optionally configure a different project root function.
-    ;; There are multiple reasonable alternatives to chose from.
-    ;;;; 1. project.el (the default)
-    ;; (setq consult-project-function #'consult--default-project--function)
-    ;;;; 2. projectile.el (projectile-project-root)
-    ;; (autoload 'projectile-project-root "projectile")
-    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-    ;;;; 3. vc.el (vc-root-dir)
-    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-    ;;;; 4. locate-dominating-file
-    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
   )
-
-  ;; Asynchronous fuzzy finder
-  ;; (use-package affe
-  ;;   :config
-  ;;   (consult-customize affe-grep :preview-key "M-.")
 #+end_src
 
 ** Embark (run commands on target)
@@ -2394,10 +2376,10 @@ Default: =C-x t=
 - [[https://github.com/emacsmirror/spray][spray]]: speed reading emacs mode. Start with ~spray-mode~, ~SPC~ to pause/resume, ~f~ to increase speed, ~s~ to decrease speed, ~h~ for previous word, ~k~ for next word
 
 * Notes
-*Useful commands*:
+- Use ~ensure-system-package~ from ~use-package~ to check for existence OS binaries.
 - Profiler: =profiler-start=, =profiler-stop=, =profiler-report=
-- Run ~(all-the-icons-install-fonts)~ on new emacs config setup
 - Good packages to try:
+  - [[https://github.com/emacs-tw/awesome-emacs][awesome-emacs]]: list of emacs packages
   - [[https://github.com/redguardtoo/evil-nerd-commenter][evil-nerd-commenter]]: enhanced features for commenting
   - [[https://github.com/skeeto/impatient-mode][impatient-mode]]: live previews in browser
   - [[https://github.com/minad/consult][consult]]: practical commands based on completing-read
@@ -2405,18 +2387,13 @@ Default: =C-x t=
   - [[https://github.com/aperezdc/notmuch-addrlookup-c][notmuch-addrlookup-c]]: for fetch email address
   - [[https://github.com/afewmail/afew][afew]]: initial tagging script for notmuch (to handle moving mail to folders based on tags)
   - [[https://www.emacswiki.org/emacs/GnusAlias][gnus-alias]]: for switching identites in notmuch
-  - [[https://github.com/smihica/emmet-mode][emmet-mode]]: html code generation
-  - [[https://github.com/abo-abo/ace-window][ace-window]]: for window management (as a replacement for other-window/evil-window)
-  - org-noter, org-pdftools
   - org-ref, for managing references
-  - ebib, for managing .bib files
-  - ccls vs clangd
-
-- Known bugs:
-  - ~evil-insert-digraph~ keybinding is shadowed by vertico custom map
-* Tasks [1/5]
+  - ebib, for managing ~.bib~ files
+  - compare ~ccls~ and ~clangd~
+* Tasks [2/6]
 - [X] decide keybindings structure
+- [ ] try [[https://github.com/manateelazycat/lsp-bridge][lsp-bridge]] as an alternative to ~lsp~ and ~eglot~
 - [ ] sanitize custom hydras
 - [ ] sanitize consult
 - [ ] sanitize embark
-- [ ] fix notmuch
+- [X] fix notmuch
