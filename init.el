@@ -53,16 +53,11 @@
 ;; (package-refresh-contents)
 ;; M-x package-install RET use-package RET
 
+(use-package hydra)
 (use-package general
   :init
-  (setq general-override-states '(insert
-                                  emacs
-                                  hybrid
-                                  normal
-                                  visual
-                                  motion
-                                  operator
-                                  replace))
+  (setq general-override-states '(insert emacs hybrid normal
+                                  visual motion operator replace))
   :config
   (general-create-definer my/leader
     ;; :keymaps '(normal insert visual emacs override)
@@ -71,14 +66,305 @@
   (general-create-definer my/ctrl-c
     :prefix "C-c"))
 
-(my/leader :states 'normal :kemaps 'override
+(use-package which-key
+  :config (which-key-mode))
+
+(my/leader :states 'normal :keymaps 'override
+  "p"    (general-simulate-key "C-x p" :which-key "project")
   "."    '(find-file :which-key "find file")
-  "SPC"  (general-simulate-key "M-x" :which-key "M-x") 
-  "p"    (general-simulate-key "C-x p" :which-key "project"))
+  "s"    '(:ignore t                    :wk "shortcuts")
+  "s0"   '(0x0-dwim                     :wk "0x0 share")
+  "sa"   '(org-agenda                   :wk "org-agenda")
+  "sc"   '(org-capture                  :wk "org-capture")
+  "sd"   '(dirvish-dwim                 :wk "dirvish dwim")
+  "se"   '(eshell                       :wk "eshell")
+  "sg"   '(general-describe-keybindings :wk "general keybindings")
+  "sm"   '(notmuch                      :wk "mail")
+  "so"   '(org-present                  :wk "org present")
+  "sr"   '(consult-recent-file          :wk "recent files")
+  "ss"   '(dirvish-side                 :wk "dirvish side")
+  "sp"   '(multi-vterm-project          :wk "vterm")
+  "st"   '(multi-vterm-dedicated-toggle :wk "vterm"))
 
 (general-def :states 'normal
   "j"   'evil-next-visual-line
   "k"   'evil-previous-visual-line)
+
+(my/leader :states 'visual :keymaps 'override
+  "s"    '(:ignore t          :wk "shortcuts")
+  "s0"   '(0x0-dwim           :wk "0x0 share"))
+
+(general-def :states 'normal :keymaps 'Info-mode-map
+  "?" 'hydra-info/body)
+
+(my/leader :states 'normal
+  "h"   '(:ignore t :wk "help/hydra")
+  "he"  '(hydra-expand/body :wk "expand")
+  "ht"  '(hydra-tab-bar/body :wk "tab-bar")
+  "hm"  '(hydra-mu4e-headers/body :wk "mu4e")
+  "hi"  '(hydra-info/body :wk "info")
+  "hp"  '(hydra-pdftools/body :wk "pdftooks")
+  "hc"  '(hydra-org-clock/body :wk "org-clock")
+  "hs"  '(hydra-smartparens/body :wk "smartparens")
+  "hw"  '(hydra-window/body :wk "window")
+  "hr"  '((lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory))) :wk "Reload emacs config")
+  "hc"  '((lambda () (interactive) (find-file (expand-file-name "README.org" user-emacs-directory))) :wk "Goto emacs config"))
+
+(defhydra hydra-info (:color blue
+                      :hint nil)
+      "
+Info-mode:
+
+  ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
+  ^^_[_ backward (prev logical node)       ^^_r_eturn (→)      _m_enu (↓) (C-u for new window)      _i_ndex                  _d_irectory
+  ^^_n_ext (same level only)               ^^_H_istory         _g_oto (C-u for new window)          _,_ next index item      _c_opy node name
+  ^^_p_rev (same level only)               _<_/_t_op           _b_eginning of buffer                virtual _I_ndex          _C_lone buffer
+  regex _s_earch (_S_ case sensitive)      ^^_>_ final         _e_nd of buffer                      ^^                       _a_propos
+
+  _1_ .. _9_ Pick first .. ninth item in the node's menu.
+
+"
+      ("]"   Info-forward-node)
+      ("["   Info-backward-node)
+      ("n"   Info-next)
+      ("p"   Info-prev)
+      ("s"   Info-search)
+      ("S"   Info-search-case-sensitively)
+
+      ("l"   Info-history-back)
+      ("r"   Info-history-forward)
+      ("H"   Info-history)
+      ("t"   Info-top-node)
+      ("<"   Info-top-node)
+      (">"   Info-final-node)
+
+      ("u"   Info-up)
+      ("^"   Info-up)
+      ("m"   Info-menu)
+      ("g"   Info-goto-node)
+      ("b"   beginning-of-buffer)
+      ("e"   end-of-buffer)
+
+      ("f"   Info-follow-reference)
+      ("i"   Info-index)
+      (","   Info-index-next)
+      ("I"   Info-virtual-index)
+
+      ("T"   Info-toc)
+      ("d"   Info-directory)
+      ("c"   Info-copy-current-node-name)
+      ("C"   clone-buffer)
+      ("a"   info-apropos)
+
+      ("1"   Info-nth-menu-item)
+      ("2"   Info-nth-menu-item)
+      ("3"   Info-nth-menu-item)
+      ("4"   Info-nth-menu-item)
+      ("5"   Info-nth-menu-item)
+      ("6"   Info-nth-menu-item)
+      ("7"   Info-nth-menu-item)
+      ("8"   Info-nth-menu-item)
+      ("9"   Info-nth-menu-item)
+
+      ("?"   Info-summary "Info summary")
+      ("h"   Info-help "Info help")
+      ("q"   Info-exit "Info exit")
+      ("C-g" nil "cancel" :color blue))
+
+(my/leader :states 'normal :keymaps 'override
+  "b"    '(:ignore t        :wk "buffer")
+  "bi"   '(ibuffer          :wk "ibuffer")
+  "bf"   '(consult-buffer-other-frame    :wk "in other window")
+  "bg"   '(revert-buffer    :wk "revert")
+  "bw"   '(consult-buffer-other-window    :wk "in other window")
+  "bs"   '(consult-buffer   :wk "switch")
+  "bk"   '(kill-current-buffer :wk "kill"))
+
+(defhydra hydra-ibuffer-main (:color pink :hint nil)
+  "
+ ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
+-^----------^-+-^----^--------+-^-------^--------+-^----^-------
+  _k_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
+ _RET_: visit | _u_: unmark   | _S_: save        | _s_: sort
+  _j_:    v   | _*_: specific | _a_: all actions | _/_: filter
+-^----------^-+-^----^--------+-^-------^--------+-^----^-------
+"
+  ("j" ibuffer-forward-line)
+  ("RET" ibuffer-visit-buffer :color blue)
+  ("k" ibuffer-backward-line)
+
+  ("m" ibuffer-mark-forward)
+  ("u" ibuffer-unmark-forward)
+  ("*" hydra-ibuffer-mark/body :color blue)
+
+  ("D" ibuffer-do-delete)
+  ("S" ibuffer-do-save)
+  ("a" hydra-ibuffer-action/body :color blue)
+
+  ("g" ibuffer-update)
+  ("s" hydra-ibuffer-sort/body :color blue)
+  ("/" hydra-ibuffer-filter/body :color blue)
+
+  ("o" ibuffer-visit-buffer-other-window "other window" :color blue)
+  ("q" quit-window "quit ibuffer" :color blue)
+  ("." nil "toggle hydra" :color blue))
+
+(defhydra hydra-ibuffer-mark (:color teal :columns 5
+                              :after-exit (hydra-ibuffer-main/body))
+  "Mark"
+  ("*" ibuffer-unmark-all "unmark all")
+  ("M" ibuffer-mark-by-mode "mode")
+  ("m" ibuffer-mark-modified-buffers "modified")
+  ("u" ibuffer-mark-unsaved-buffers "unsaved")
+  ("s" ibuffer-mark-special-buffers "special")
+  ("r" ibuffer-mark-read-only-buffers "read-only")
+  ("/" ibuffer-mark-dired-buffers "dired")
+  ("e" ibuffer-mark-dissociated-buffers "dissociated")
+  ("h" ibuffer-mark-help-buffers "help")
+  ("z" ibuffer-mark-compressed-file-buffers "compressed")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
+
+(defhydra hydra-ibuffer-action (:color teal :columns 4
+                                :after-exit
+                                (if (eq major-mode 'ibuffer-mode)
+                                    (hydra-ibuffer-main/body)))
+  "Action"
+  ("A" ibuffer-do-view "view")
+  ("E" ibuffer-do-eval "eval")
+  ("F" ibuffer-do-shell-command-file "shell-command-file")
+  ("I" ibuffer-do-query-replace-regexp "query-replace-regexp")
+  ("H" ibuffer-do-view-other-frame "view-other-frame")
+  ("N" ibuffer-do-shell-command-pipe-replace "shell-cmd-pipe-replace")
+  ("M" ibuffer-do-toggle-modified "toggle-modified")
+  ("O" ibuffer-do-occur "occur")
+  ("P" ibuffer-do-print "print")
+  ("Q" ibuffer-do-query-replace "query-replace")
+  ("R" ibuffer-do-rename-uniquely "rename-uniquely")
+  ("T" ibuffer-do-toggle-read-only "toggle-read-only")
+  ("U" ibuffer-do-replace-regexp "replace-regexp")
+  ("V" ibuffer-do-revert "revert")
+  ("W" ibuffer-do-view-and-eval "view-and-eval")
+  ("X" ibuffer-do-shell-command-pipe "shell-command-pipe")
+  ("b" nil "back"))
+
+(defhydra hydra-ibuffer-sort (:color amaranth :columns 3)
+  "Sort"
+  ("i" ibuffer-invert-sorting "invert")
+  ("a" ibuffer-do-sort-by-alphabetic "alphabetic")
+  ("v" ibuffer-do-sort-by-recency "recently used")
+  ("s" ibuffer-do-sort-by-size "size")
+  ("f" ibuffer-do-sort-by-filename/process "filename")
+  ("m" ibuffer-do-sort-by-major-mode "mode")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
+
+(defhydra hydra-ibuffer-filter (:color amaranth :columns 4)
+  "Filter"
+  ("m" ibuffer-filter-by-used-mode "mode")
+  ("M" ibuffer-filter-by-derived-mode "derived mode")
+  ("n" ibuffer-filter-by-name "name")
+  ("c" ibuffer-filter-by-content "content")
+  ("e" ibuffer-filter-by-predicate "predicate")
+  ("f" ibuffer-filter-by-filename "filename")
+  (">" ibuffer-filter-by-size-gt "size")
+  ("<" ibuffer-filter-by-size-lt "size")
+  ("/" ibuffer-filter-disable "disable")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
+
+(use-package ibuffer :straight (:type built-in))
+(add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
+
+(defhydra hydra-window (:color blue :hint nil)
+  "
+                                                               ╭─────────┐
+   Move to               Size            Split           Do    │ Windows │
+╭──────────────────────────────────────────────────────────────┴─────────╯
+      ^_k_^           ^_K_^       ╭─┬─┐^ ^        ╭─┬─┐^ ^         ↺ [_u_] undo layout
+      ^^↑^^           ^^↑^^       │ │ │_v_ertical ├─┼─┤_b_alance   ↻ [_r_] restore layout
+  _h_ ←   → _l_   _H_ ←   → _L_   ╰─┴─╯^ ^        ╰─┴─╯^ ^         ✗ [_d_] close window
+      ^^↓^^           ^^↓^^       ╭───┐^ ^        ╭───┐^ ^         ⇋ [_w_] cycle window
+      ^_j_^           ^_J_^       ├───┤_s_tack    │   │_z_oom
+      ^^ ^^           ^^ ^^       ╰───╯^ ^        ╰───╯^ ^       
+--------------------------------------------------------------------------------
+          "
+  ("<ESC>" nil "quit")
+  ("b" balance-windows)
+  ("d" delete-window)
+  ("H" shrink-window-horizontally :color red)
+  ("h" windmove-left :color red)
+  ("J" shrink-window :color red)
+  ("j" windmove-down :color red)
+  ("K" enlarge-window :color red)
+  ("k" windmove-up :color red)
+  ("L" enlarge-window-horizontally :color red)
+  ("l" windmove-right :color red)
+  ("r" winner-redo :color red)
+  ("s" split-window-vertically :color red)
+  ("u" winner-undo :color red)
+  ("v" split-window-horizontally :color red)
+  ("w" other-window)
+  ("z" delete-other-windows))
+
+(my/leader :states 'normal :keymaps 'override
+  "t"    '(:ignore t :wk "tab")
+  "tb"   '(switch-to-buffer-other-tab :wk "buffer")
+  "tc"   '(tab-close                  :wk "close")
+  "tf"   '(find-file-other-tab        :wk "file")
+  "tr"   '(tab-rename                 :wk "close"))
+
+(defhydra hydra-tab-bar (:color amaranth)
+  "Tab Bar Operations"
+  ("n" tab-new "Create a new tab" :column "Creation")
+  ("d" dired-other-tab "Open Dired in another tab")
+  ("f" find-file-other-tab "Find file in another tab")
+  ("0" tab-close "Close current tab")
+  ("m" tab-move "Move current tab" :column "Management")
+  ("r" tab-rename "Rename Tab")
+  ("<return>" tab-bar-select-tab-by-name "Select tab by name" :column "Navigation")
+  ("l" tab-next "Next Tab")
+  ("h" tab-previous "Previous Tab")
+  ("q" nil "Exit" :exit t))
+
+(my/leader :states 'normal :keymaps 'override
+  "f"    '(:ignore t                  :wk "frame")
+  "fc"   '(clone-frame                :wk "clone")
+  "fc"   '(other-frame                :wk "other")
+  "fd"   '(delete-frame               :wk "delete")
+  "fu"   '(undelete-frame             :wk "undelete")
+  "fb"   '(consult-buffer-other-frame :wk "buffer")
+  "ff"   '(find-file-other-frame      :wk "file"))
+
+(my/leader :states 'normal :keymaps 'override
+  "z"   '(:ignore t                       :wk "toggle")
+  "zl"  '(custom/toggle-line-numbers-type :wk "relative line number")
+  "zw"  '(custom/toggle-tab-width         :wk "tab width")
+  "zi"  '(custom/toggle-indent-mode       :wk "tab indent")
+  "zo"  '(org-toggle-inline-images        :wk "toggle inline images")
+  "zt"  '(toggle-truncate-lines           :wk "toggle truncate lines"))
+
+(defun custom/toggle-line-numbers-type ()
+    "Toggle line numbers type between relative and absolute"
+    (interactive)
+    (setq display-line-numbers-type (if (eq display-line-numbers-type t) 'relative 't))
+    (display-line-numbers-mode)
+    (display-line-numbers-mode))
+(defun custom/toggle-tab-width ()
+    "Toggle setting tab widths between 2, 4 and 8"
+    (interactive)
+    (setq tab-width (if (= tab-width 8) 2 (if (= tab-width 4) 8 4)))
+    (redraw-display))
+(defun custom/toggle-indent-mode ()
+    "toggle indenting modes"
+    (interactive)
+    (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
+    (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
+;; Change opacity from input with empty as 100
+(defun custom/change-opacity (opacity)
+    "Change the opacity of the frame"
+    (interactive "nOpacity: ")
+    (set-frame-parameter (selected-frame) 'alpha
+                         (list (if (equal opacity 0)
+                               100
+                               (/ opacity 100.0)))))
 
 ;; required as during daemon initialization, there are no frames
 ;; (use-package modus-themes
@@ -121,8 +407,6 @@
                     :height 135
                     :slant 'italic)
 
-(use-package no-littering)
-
 (use-package evil
   :init
   (setq evil-want-keybinding nil) ;; required by evil-collection
@@ -150,6 +434,7 @@
   :init (evil-collection-init))
 
 (use-package evil-mc
+	:demand t
   :config (global-evil-mc-mode 1))
 
 (use-package posframe)
@@ -170,53 +455,56 @@
 (use-package evil-lion
   :config (evil-lion-mode))
 
-(use-package avy)
+(use-package avy
+  :general (:states 'normal
+                    "K" 'avy-goto-char-timer))
 
 (use-package evil-surround
   :config (global-evil-surround-mode 1))
 
 (use-package embrace
-  :commands embrace-commander)
+  :commands embrace-commander
+  :general (:states 'normal
+                    ;; "ys"   '(embrace-add    :wk "add surrounding")
+                    ;; "cs"   '(embrace-change :wk "change surrounding")
+                    ;; "ds"   '(embrace-delete :wk "delete surrounding")
+                    "s" 'embrace-commander))
 
 (use-package expand-region)
 
-(use-package helpful
-  :commands (helpful-callable	; for functions and macros
-            helpful-function	; for functions only
-            helpful-macro
-            helpful-command		; for interactive functions
-            helpful-key
-            helpful-variable
-            helpful-at-point)
-  :bind
-  ([remap describe-function] . helpful-callable)
-  ([remap Info-goto-emacs-command-node] . helpful-function)
-  ([remap describe-symbol] . helpful-symbol)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-key] . helpful-key)
-  ([remap describe-variable] . helpful-variable)
-  ([remap display-local-help] . helpful-at-point))
-
-(use-package which-key
-  :config (which-key-mode))
+(defhydra hydra-expand ()
+  "Zoom/Expand Region"
+  ("n" er/expand-region    "expand-region")
+  ("p" er/contract-region  "contract-region")
+  ("h" text-scale-increase "zoom in ")
+  ("l" text-scale-decrease "zoom out"))
 
 (use-package org
-  :custom
-  (org-startup-folded 'content)
-  (org-startup-indented t)
-  (org-confim-babel-evaluate nil)
-  (org-hide-emphasis-markers t)
-  (org-hidden-keywords nil)			; enabling it couases fontification error and problem with org-appear
-  ;; (org-pretty-entities t)		; "C-c C-x \" to toggle
-  (org-image-actual-width nil)
-  :config
-  ;; open pdfs with okular
-  ;; (setq org-preview-latex-default-process 'dvisvgm)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
-  ;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
-  ;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
-  (org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
-  (setq org-export-backends '(ascii html icalendar latex md odt)))
+	:custom
+	(org-startup-folded 'content)
+	(org-startup-indented t)
+	(org-confim-babel-evaluate nil)
+	(org-hide-emphasis-markers t)
+	(org-hidden-keywords nil)			; enabling it couases fontification error and problem with org-appear
+	;; (org-pretty-entities t)		; "C-c C-x \" to toggle
+	(org-image-actual-width nil)
+	:config
+	;; open pdfs with okular
+	;; (setq org-preview-latex-default-process 'dvisvgm)
+	(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+	;; (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal) "okular %s")
+	;; (setf (alist-get "\\.pdf::\\([0-9]+\\)?\\'" org-file-apps nil nil #'equal) "okular %s -p %1")
+	(org-add-link-type "xdg-open" (lambda (path) (browse-url-xdg-open path)))
+	(setq org-export-backends '(ascii html icalendar latex md odt)))
+
+;; from https://stackoverflow.com/a/47850858/6479297 to littering due to org export
+;; issue: doesn't respect "#+export_file_name" property
+(defun my/org-export-to-customized-location (orig-fun extension &optional subtreep pub-dir)
+  (unless pub-dir (setq pub-dir ".output")
+					(unless (file-directory-p pub-dir)
+						(make-directory pub-dir)))
+  (apply orig-fun extension subtreep pub-dir nil))
+(advice-add 'org-export-output-file-name :around #'my/org-export-to-customized-location)
 
 (setq org-directory "~/Documents/Org")
 
@@ -300,24 +588,19 @@
         ))
 
 (use-package org-bullets
-	:after org
-	:hook (org-mode . org-bullets-mode))
-
-;; latex fragments preview, toggle with "C-c C-x C-l"
-(use-package org-fragtog
-	:after org
-	:hook (org-mode . org-fragtog-mode))
+  :after org
+  :hook (org-mode . org-bullets-mode))
 
 (use-package org-appear
-	:after org
-	:hook (org-mode . org-appear-mode)
-	:custom
-	(org-appear-autoemphasis t)
-	(org-appear-autolinks t)
-	(org-appear-autoentities t)
-	(org-appear-autosubmarkers t)	; sub/super scripts
-	(org-appear-autokeywords t)	; kkywords in org-hidden-keywords
-	(org-appear-delay 0))
+  :after org
+  :hook (org-mode . org-appear-mode)
+  :custom
+  (org-appear-autoemphasis t)
+  (org-appear-autolinks t)
+  (org-appear-autoentities t)
+  (org-appear-autosubmarkers t)	; sub/super scripts
+  (org-appear-autokeywords t)	; kkywords in org-hidden-keywords
+  (org-appear-delay 0.3))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -342,9 +625,53 @@
   (setq org-roam-directory (file-truename "~/Documents/Org/Roam"))
   (org-roam-db-autosync-mode))
 
-(use-package org-auctex
-  :straight (:type git :host github :repo "karthink/org-auctex")
-  :hook (org-mode . org-auctex-mode))
+(my/ctrl-c
+  "l"   '(org-store-link                 :wk "org store link")
+  "n"   '(:ignore t                      :wk "org roam")
+  "nt"  '(org-roam-buffer-toggle         :wk "toggle backlinks")
+  "nf"  '(org-roam-node-find             :wk "find node")
+  "nd"  '(:ignore t                      :wk "dailies")
+  "nd1" '(org-roam-dailies-goto-today    :wk "today")
+  "nd2" '(org-roam-dailies-goto-tomorrow :wk "tomorrow")
+  "ng"  '(org-roam-graph                 :wk "node graph"))
+
+(my/ctrl-c :keymaps 'org-mode-map
+  "ni" '(org-roam-node-insert      :wk "insert")
+  "nI" '(org-roam-insert-immediate :wk "insert immediate"))
+
+;; (use-package org-auctex
+;;   :straight (:type git :host github :repo "karthink/org-auctex")
+;;   :hook (org-mode . org-auctex-mode))
+
+(defhydra hydra-org-clock (:color blue :hint nil)
+   "
+^Clock:^ ^In/out^     ^Edit^   ^Summary^    | ^Timers:^ ^Run^           ^Insert
+-^-^-----^-^----------^-^------^-^----------|--^-^------^-^-------------^------
+(_?_)    _i_n         _e_dit   _g_oto entry | (_z_)     _r_elative      ti_m_e
+ ^ ^     _c_ontinue   _q_uit   _d_isplay    |  ^ ^      cou_n_tdown     i_t_em
+ ^ ^     _o_ut        ^ ^      _r_eport     |  ^ ^      _p_ause toggle
+ ^ ^     ^ ^          ^ ^      ^ ^          |  ^ ^      _s_top
+"
+   ("i" org-clock-in)
+   ("c" org-clock-in-last)
+   ("o" org-clock-out)
+ 
+   ("e" org-clock-modify-effort-estimate)
+   ("q" org-clock-cancel)
+
+   ("g" org-clock-goto)
+   ("d" org-clock-display)
+   ("r" org-clock-report)
+   ("?" (org-info "Clocking commands"))
+
+  ("r" org-timer-start)
+  ("n" org-timer-set-timer)
+  ("p" org-timer-pause-or-continue)
+  ("s" org-timer-stop)
+
+  ("m" org-timer)
+  ("t" org-timer-item)
+  ("z" (org-info "Timers")))
 
 (setq treesit-extra-load-path '("/usr/local/lib/tree-sitter"))
 
@@ -382,6 +709,8 @@
             #'TeX-revert-document-buffer)
   ;; (add-hook 'TeX-after-TeX-LaTeX-command-finished-hook #'TeX-revert-document-buffer)
   (setq-default TeX-master nil))
+
+(add-hook 'LaTeX-mode-hook 'prettify-symbols-mode)
 
 (use-package cdlatex
   :hook
@@ -518,6 +847,12 @@
 (use-package consult-eglot
   :commands consult-eglot-symbols)
 
+(my/leader :states 'normal :keymaps 'eglot-mode-map
+  "l"    '(:ignore t :wk "language server")
+  "lfn"  '(flymake-goto-next-error :wk "buffer")
+  "lfp"  '(flymake-goto-prev-error :wk "close")
+  "lr"   '(eglot-rename            :wk "close"))
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :init (setq lsp-keymap-prefix "C-l")
@@ -577,7 +912,9 @@
 ;;   :after posframe
 ;;   :config (vertico-posframe-mode))
 
+; it needs to be set after no-littering to prevent issues
 (use-package savehist
+  :after no-littering
   :init (savehist-mode))
 
 ;; A few more useful configurations...
@@ -610,6 +947,8 @@
    '((file (styles basic partial-completion)))))
 
 (use-package marginalia
+  :general (:states '(normal insert) :keymaps 'minibuffer-local-map
+                    "M-a"   '(marginalia-cycle :wk "marginalia-cycle"))
   :init (marginalia-mode)
   ;; :config (add-hook 'marginalia-mode-hook
   ;;                   #'all-the-icons-completion-marginalia-setup)
@@ -712,6 +1051,10 @@
 )
 
 (use-package embark
+  :general
+  (:states '(normal visual insert) :keymaps 'override
+           "C-,"   '(embark-act  :wk "embark-act")
+           "C-;"   '(embark-dwim :wk "embark-dwim"))
   :init
   (setq prefix-help-command #'embark-prefix-help-command) ; supposed to replace which-key in the future
   :config
@@ -727,20 +1070,17 @@
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package yasnippet
-  ;; :hook (prog-mode . yas-minor-mode)
-  :config (yas-reload-all))
-(add-hook 'prog-mode-hook #'yas-minor-mode)
+	:hook (prog-mode . yas-minor-mode)
+	:config
+	(setq yas-snippet-dirs
+				(append yas-snippet-dirs
+								(list (expand-file-name "snippets" user-emacs-directory))))
+	(yas-reload-all))
 
 (use-package yasnippet-snippets)
 
-(use-package magit)
-
-(use-package vterm
-  :custom (vterm-shell "fish"))
-
-(use-package multi-vterm
-  :config
-  (setq multi-vterm-dedicated-window-height-percent 30))
+(my/ctrl-c
+	"y" '(yas-insert-snippet :wk "insert snippet"))
 
 (use-package dirvish
   :init
@@ -801,47 +1141,109 @@
 
 (use-package burly)
 
-;; auth-sources
-(setq auth-source-debug t)
-(setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
-;; (setq auth-sources '((:source "~/.authinfo.gpg")))
-(setq password-cache-expiry nil)
-(customize-set-variable 'ange-ftp-netrc-filename "~/.authinfo.gpg")
+(my/leader :states 'normal :keymaps 'override
+  "r"    '(:ignore t              :wk "register/bookmark")
+  "ri"   '(:ignore t              :wk "insert")
+  "rib"  '(bookmark-set           :wk "buffer")
+  "rif"  '(burly-bookmark-frames  :wk "frames")
+  "riw"  '(burly-bookmark-windows :wk "windows")
+  "rl"   '(consult-bookmark       :wk "list")
+  "rs"   '(bookmark-save          :wk "save"))
 
-;; access unix password store
-(use-package password-store)
+(use-package no-littering)
 
-(use-package pdf-tools
-  :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
-  ;; :hook ((pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
-  ;;        (pdf-view-mode . (setq mode-line-format nil))) ; hide mode-line
-  :demand t
+(use-package helpful
+  :commands (helpful-callable	; for functions and macros
+            helpful-function	; for functions only
+            helpful-macro
+            helpful-command		; for interactive functions
+            helpful-key
+            helpful-variable
+            helpful-at-point)
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap Info-goto-emacs-command-node] . helpful-function)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-variable] . helpful-variable)
+  ([remap display-local-help] . helpful-at-point))
+
+(use-package magit)
+
+(defun unpackaged/magit-status ()
+  "Open a `magit-status' buffer and close the other window so only Magit is visible.
+If a file was visited in the buffer that was active when this
+command was called, go to its unstaged changes section."
+  (interactive)
+  (let* ((buffer-file-path (when buffer-file-name
+                             (file-relative-name buffer-file-name
+                                                 (locate-dominating-file buffer-file-name ".git"))))
+         (section-ident `((file . ,buffer-file-path) (unstaged) (status))))
+    (call-interactively #'magit-status)
+    (delete-other-windows)
+    (when buffer-file-path
+      (goto-char (point-min))
+      (cl-loop until (when (equal section-ident (magit-section-ident (magit-current-section)))
+                       (magit-section-show (magit-current-section))
+                       (recenter)
+                       t)
+               do (condition-case nil
+                      (magit-section-forward)
+                    (error (cl-return (magit-status-goto-initial-section-1))))))))
+
+(use-package smerge-mode
+  :config
+  (defhydra hydra-smerge (:color pink :hint nil :post (smerge-auto-leave))
+    "
+  ^Move^       ^Keep^               ^Diff^                 ^Other^
+  ^^-----------^^-------------------^^---------------------^^-------
+  _n_ext       _b_ase               _<_: upper/base        _C_ombine
+  _p_rev       _u_pper              _=_: upper/lower       _r_esolve
+  ^^           _l_ower              _>_: base/lower        _k_ill current
+  ^^           _a_ll                _R_efine
+  ^^           _RET_: current       _E_diff
+  "
+    ("n" smerge-next)
+    ("p" smerge-prev)
+    ("b" smerge-keep-base)
+    ("u" smerge-keep-upper)
+    ("l" smerge-keep-lower)
+    ("a" smerge-keep-all)
+    ("RET" smerge-keep-current)
+    ("\C-m" smerge-keep-current)
+    ("<" smerge-diff-base-upper)
+    ("=" smerge-diff-upper-lower)
+    (">" smerge-diff-base-lower)
+    ("R" smerge-refine)
+    ("E" smerge-ediff)
+    ("C" smerge-combine-with-next)
+    ("r" smerge-resolve)
+    ("k" smerge-kill-current)
+    ("ZZ" (lambda ()
+            (interactive)
+            (save-buffer)
+            (bury-buffer))
+     "Save and bury buffer" :color blue)
+    ("q" nil "cancel" :color blue))
+  :hook (magit-diff-visit-file . (lambda ()
+                                   (when smerge-mode
+                                     (hydra-smerge/body)))))
+
+(use-package sudo-edit)
+
+(use-package vterm
+  :custom (vterm-shell "fish"))
+
+(use-package multi-vterm
   :general
-  (:states 'normal :keymaps 'pdf-view-mode-map
-           "C-s" 'isearch-forward)
-  :config
-  (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-page)
-  (setq pdf-annot-activate-created-annotations t)
-  (setq pdf-view-resize-factor 1.1))               ; finer zooming
-
-(use-package emms
-  ;; :init (add-hook 'emms-player-started-hook 'emms-show)
-  :config
-  (require 'emms-setup)
-  (emms-all)
-  (emms-default-players)
-  (setq emms-source-file-default-directory "~/Music/"))
-
-(use-package 0x0
-  :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
-
-(my/ctrl-c
-  "0"  '(:ignore t :which-key "0x0")
-  "0d"  '(0x0-dwim :which-key "dwim") ; upload file in dired buffer, upload text in buffer
-  "0p"  '(0x0-popup :which-key "popup")
-  "0s"  '(0x0-shorten-uri :which-key "shorten")
-  "0c"  '(0x0-upload-kill-ring :which-key "clipboard"))
+  (:states 'normal :keymaps 'vterm-mode-map
+           ",c"    'multi-vterm
+           ",n"    'multi-vterm-next
+           ",p"    'multi-vterm-prev
+           ",d"    'multi-vterm-dedicated-toggle
+           ",q"    'kill-this-buffer)
+  :config (setq multi-vterm-dedicated-window-height-percent 30))
 
 (setq message-kill-buffer-on-exit t)
 (setq send-mail-function 'sendmail-send-it
@@ -851,158 +1253,34 @@
       message-sendmail-envelope-from 'header
       mail-envelope-from 'header)
 
-;; (use-package mu4easy
-;;   ;; :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
-;;   :config
-;;   (mu4easy-mode))
+;; (with-eval-after-load 'mu4e
+;;   (defun my/make-mu4e-context (address &rest args)
+;;     (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
+;;            (context (if (plist-member args :context) (plist-get args :context) address))
+;;            (type (if (plist-member args :type) (plist-get args :type) 'other))
+;;            (dir (concat "/" address))
+;;            (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
+;;            (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
+;;       (make-mu4e-context
+;;        ;; first letter of context is used to switch contexts
+;;        :name context
+;;        ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
+;;        ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
+;;        :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
+;;        :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
+;;        :match-func (lambda (msg) (when msg (mu4e-message-contact-field-matches msg :to address)))
+;;        :vars
+;;        `((user-mail-address    . ,address)
+;;          (user-full-name       . ,name)
+;;          (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
+;;          (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
+;;          (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
+;;          (mu4e-refile-folder   . ,(concat prefix "/Archive"))
+;;          (mu4e-compose-signature . ,signature)))))
 
-;; (use-package mu4e
-;;   :straight (:host github
-;;                    :repo "djcb/mu"
-;;                    :branch "master"
-;;                    :files ("build/mu4e/*")
-;;                    :pre-build (("./autogen.sh") ("ninja" "-C" "build")))
-  ;; :custom (mu4e-mu-binary (expand-file-name "build/mu/mu" (straight--repos-dir "mu")))
-  ;; :config
-  ;; (setq mu4e-get-mail-command "mw -Y")
-  ;; (setq mu4e-root-maildir "~/.local/share/mail")
-
-;;   ;; Fixing duplicate UID errors when using mbsync and mu4e
-;;   (setq mu4e-change-filenames-when-moving t)
-
-;;   (setq mu4e-attachment-dir "~/Downloads")
-  ;; (setq mu4e-view-show-images t))
-
-;; use mu4e/notmuch for e-mail in emacs
-(setq mail-user-agent 'mu4e-user-agent)
-
-(with-eval-after-load 'mu4e
-  (defun my/make-mu4e-context (address &rest args)
-    (let* ((name (if (plist-member args :name) (plist-get args :name) "Lokesh Mohanty"))
-           (context (if (plist-member args :context) (plist-get args :context) address))
-           (type (if (plist-member args :type) (plist-get args :type) 'other))
-           (dir (concat "/" address))
-           (signature (if (plist-member args :signature) (plist-get args :signature) (concat "Thanks & Regards\n" name)))
-           (prefix (concat dir (pcase type ('gmail "/[Gmail]") (_ "")))))
-      (make-mu4e-context
-       ;; first letter of context is used to switch contexts
-       :name context
-       ;; :match-func `(lambda (msg) (when msg (string-match-p ,(concat "^" dir) (mu4e-message-field msg :maildir))))
-       ;; :match-func (lambda (msg) (when msg (string-prefix-p dir (mu4e-message-field msg :maildir))))
-       :enter-func (lambda () (mu4e-message (concat "Entering context: " "hi")))
-       :leave-func (lambda () (mu4e-message (concat "Leaving context: " "hi")))
-       :match-func (lambda (msg) (when msg (mu4e-message-contact-field-matches msg :to address)))
-       :vars
-       `((user-mail-address    . ,address)
-         (user-full-name       . ,name)
-         (mu4e-sent-folder     . ,(concat prefix (pcase type ('gmail "/Sent Mail") ('outlook "/Sent Items") (_ "/Sent"))))
-         (mu4e-trash-folder    . ,(concat prefix (pcase type ('outlook "/Deleted Items") (_ "/Trash"))))
-         (mu4e-drafts-folder   . ,(concat prefix "/Drafts"))
-         (mu4e-refile-folder   . ,(concat prefix "/Archive"))
-         (mu4e-compose-signature . ,signature)))))
-
-  (setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com" :context "home")
-                        ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
-                        ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook))))
-
-(with-eval-after-load 'mu4e
-  (setq mu4e-maildir-shortcuts
-        '(("/lokesh1197@gmail.com/INBOX"      . ?g)
-          ("/lokesh1197@yahoo.com/INBOX"      . ?y)
-          ("/lokeshm@iisc.ac.in/INBOX"        . ?w)
-          ("/lokeshm@iisc.ac.in/Sent Items"   . ?s)
-          ("/befreier19@gmail.com/INBOX"      . ?b)
-          ("/ineffable97@gmail.com/INBOX"     . ?i)))
-
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Work Inbox Unread"
-                       :query "maildir:/lokesh.mohanty@e-arc.com/INBOX not flag:trashed"
-                       :key ?w))
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Unread bulk messages"
-                       :query "flag:unread AND NOT flag:trashed"
-                       ;; :query "flag:unread NOT flag:trashed AND (flag:list OR from:lokesh1197@yahoo.com)"
-                       :key ?l))
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Messages with attachments for me"
-                       :query "mime:application/* AND NOT mime:application/pgp* AND (maildir:**/INBOX)"
-                       :key ?d))
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Important Messages"
-                       :query "flag:flagged"
-                       :key ?f)))
-
-;; (use-package nano-sidebar
-;;   :straight (:type git :host github :repo "rougier/nano-sidebar")
-;;   :config (require 'nano-sidebar-ibuffer))
-
-;; (use-package svg-tag-mode
-;;   :straight (:type git :host github :repo "rougier/svg-tag-mode")
-;;   :config
-;;   (setq svg-tag-tags
-;;       '((":TODO:" . ((lambda (tag) (svg-tag-make "TODO")))))))
-
-;; (use-package mu4e-thread-folding
-;;   :straight (:type git :host github :repo "rougier/mu4e-thread-folding"))
-
-(use-package mu4e-dashboard
-  :disabled t
-  :straight (:type git :host github :repo "rougier/mu4e-dashboard")
-  :after mu4e
-  :custom (mu4e-dashboard-file (expand-file-name "side-dashboard.org" user-emacs-directory)))
-
-(use-package svg-lib
-  :disabled t
-  :straight (:type git :host github :repo "rougier/svg-lib"))
-
-;; (require 'mu4e-dashboard)
-;; (require 'svg-lib)
-
-(setq mu4e-dashboard-propagate-keymap nil)
-
-(defun mu4e-dashboard ()
-  "Open the mu4e dashboard on the left side."
-
-  (interactive)
-  (with-selected-window
-      (split-window (selected-window) -34 'left)
-
-    (find-file (expand-file-name "side-dashboard.org" user-emacs-directory))
-    (mu4e-dashboard-mode)
-    (hl-line-mode)
-    (set-window-dedicated-p nil t)
-    (defvar svg-font-lock-keywords
-      `(("\\!\\([\\ 0-9]+\\)\\!"
-         (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))))
-    (defun svg-font-lock-tag (label)
-      (svg-lib-tag label nil
-                   :stroke 0 :margin 1 :font-weight 'bold
-                   :padding (max 0 (- 3 (length label)))
-                   :foreground (face-foreground 'nano-popout-i)
-                   :background (face-background 'nano-popout-i)))
-    (push 'display font-lock-extra-managed-props)
-    (font-lock-add-keywords nil svg-font-lock-keywords)
-    (font-lock-flush (point-min) (point-max))))
-
-(use-package org-msg
-  :disabled t
-  :after org
-  :config
-  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
-        org-msg-startup "hidestars indent inlineimages"
-        org-msg-greeting-fmt "\nHi%s,\n\n"
-        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
-        org-msg-greeting-name-limit 3
-        org-msg-default-alternatives '((new		. (text html))
-                                       (reply-to-html	. (text html))
-                                       (reply-to-text	. (text)))
-        org-msg-convert-citation t
-        org-msg-signature (concat
-                            "#+begin_signature\n"
-                            "Regards,\n"
-                            "*Lokesh Mohanty*\n"
-                            "#+end_signature"))
-  (org-msg-mode))
+;;   (setq mu4e-contexts `(,(my/make-mu4e-context "lokesh1197@yahoo.com" :context "home")
+;;                         ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
+;;                         ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook))))
 
 (use-package notmuch
 	:custom (mail-user-agent 'notmuch-user-agent))
@@ -1017,19 +1295,13 @@
 					 nil ;; extra headers
 					 nil ;; body
 					 "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
-					("lokesh1197@yahoo.com"
-					 nil
-					 "Lokesh Mohanty <lokesh1197@yahoo.com>"
-					 nil
-					 (("Bcc" . "lokesh1197@gmail.com"))
-					 nil
+					("lokesh1197@yahoo.com" nil
+					 "Lokesh Mohanty <lokesh1197@yahoo.com>" nil
+					 (("Bcc" . "lokesh1197@gmail.com")) nil
 					 "Thanks & Regards\nLokesh Mohanty\n\n")
-					("lokeshm@iisc.ac.in"
-					 nil
+					("lokeshm@iisc.ac.in" nil
 					 "Lokesh Mohanty <lokeshm@iisc.ac.in>"
-					 nil
-					 nil
-					 nil
+					 nil nil nil
 					 "Thanks & Regards\nLokesh Mohanty\n\n")))
 	(setq gnus-alias-default-identity "lokesh1197@gmail.com")
 	;; Determine identity when message-mode loads
@@ -1051,7 +1323,24 @@
 
 (use-package ol-notmuch)
 
-(use-package emacs-everywhere)
+(use-package org-msg
+  :after org
+  :config
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new		. (text html))
+                                       (reply-to-html	. (text html))
+                                       (reply-to-text	. (text)))
+        org-msg-convert-citation t
+        org-msg-signature (concat
+                            "#+begin_signature\n"
+                            "Regards,\n"
+                            "*Lokesh Mohanty*\n"
+                            "#+end_signature"))
+  (org-msg-mode))
 
 (use-package elfeed
   :bind ("C-x w" . elfeed)
@@ -1090,12 +1379,15 @@
   ;; update feed counts on elfeed-quit
   (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
 
-(use-package sudo-edit)
+;; auth-sources
+(setq auth-source-debug t)
+(setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
+;; (setq auth-sources '((:source "~/.authinfo.gpg")))
+(setq password-cache-expiry nil)
+(customize-set-variable 'ange-ftp-netrc-filename "~/.authinfo.gpg")
 
-(use-package deadgrep
-  :general
-  (:states '(normal insert visual)
-           "M-s s" 'deadgrep))
+;; access unix password store
+(use-package password-store)
 
 (use-package ledger-mode
   :ensure-system-package ledger)
@@ -1135,302 +1427,19 @@
 (add-hook 'org-present-mode-quit-hook #'my/org-present-end)
 (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
 
-(use-package hydra)
-
-;; (global-set-key (kbd "C-=") 'er/expand-region)
-;; (global-set-key (kbd "C--") 'er/contract-region)
-(defhydra hydra-expand ()
-  "Zoom/Expand Region"
-  ("n" er/expand-region    "expand-region")
-  ("p" er/contract-region  "contract-region")
-  ("h" text-scale-increase "zoom in ")
-  ("l" text-scale-decrease "zoom out"))
-
-(defhydra hydra-tab-bar (:color amaranth)
-  "Tab Bar Operations"
-  ("n" tab-new "Create a new tab" :column "Creation")
-  ("d" dired-other-tab "Open Dired in another tab")
-  ("f" find-file-other-tab "Find file in another tab")
-  ("0" tab-close "Close current tab")
-  ("m" tab-move "Move current tab" :column "Management")
-  ("r" tab-rename "Rename Tab")
-  ("<return>" tab-bar-select-tab-by-name "Select tab by name" :column "Navigation")
-  ("l" tab-next "Next Tab")
-  ("h" tab-previous "Previous Tab")
-  ("q" nil "Exit" :exit t))
-
-(defhydra hydra-ibuffer-main (:color pink :hint nil)
-  "
- ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
--^----------^-+-^----^--------+-^-------^--------+-^----^-------
-  _k_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
- _RET_: visit | _u_: unmark   | _S_: save        | _s_: sort
-  _j_:    v   | _*_: specific | _a_: all actions | _/_: filter
--^----------^-+-^----^--------+-^-------^--------+-^----^-------
-"
-  ("j" ibuffer-forward-line)
-  ("RET" ibuffer-visit-buffer :color blue)
-  ("k" ibuffer-backward-line)
-
-  ("m" ibuffer-mark-forward)
-  ("u" ibuffer-unmark-forward)
-  ("*" hydra-ibuffer-mark/body :color blue)
-
-  ("D" ibuffer-do-delete)
-  ("S" ibuffer-do-save)
-  ("a" hydra-ibuffer-action/body :color blue)
-
-  ("g" ibuffer-update)
-  ("s" hydra-ibuffer-sort/body :color blue)
-  ("/" hydra-ibuffer-filter/body :color blue)
-
-  ("o" ibuffer-visit-buffer-other-window "other window" :color blue)
-  ("q" quit-window "quit ibuffer" :color blue)
-  ("." nil "toggle hydra" :color blue))
-
-(defhydra hydra-ibuffer-mark (:color teal :columns 5
-                              :after-exit (hydra-ibuffer-main/body))
-  "Mark"
-  ("*" ibuffer-unmark-all "unmark all")
-  ("M" ibuffer-mark-by-mode "mode")
-  ("m" ibuffer-mark-modified-buffers "modified")
-  ("u" ibuffer-mark-unsaved-buffers "unsaved")
-  ("s" ibuffer-mark-special-buffers "special")
-  ("r" ibuffer-mark-read-only-buffers "read-only")
-  ("/" ibuffer-mark-dired-buffers "dired")
-  ("e" ibuffer-mark-dissociated-buffers "dissociated")
-  ("h" ibuffer-mark-help-buffers "help")
-  ("z" ibuffer-mark-compressed-file-buffers "compressed")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
-
-(defhydra hydra-ibuffer-action (:color teal :columns 4
-                                :after-exit
-                                (if (eq major-mode 'ibuffer-mode)
-                                    (hydra-ibuffer-main/body)))
-  "Action"
-  ("A" ibuffer-do-view "view")
-  ("E" ibuffer-do-eval "eval")
-  ("F" ibuffer-do-shell-command-file "shell-command-file")
-  ("I" ibuffer-do-query-replace-regexp "query-replace-regexp")
-  ("H" ibuffer-do-view-other-frame "view-other-frame")
-  ("N" ibuffer-do-shell-command-pipe-replace "shell-cmd-pipe-replace")
-  ("M" ibuffer-do-toggle-modified "toggle-modified")
-  ("O" ibuffer-do-occur "occur")
-  ("P" ibuffer-do-print "print")
-  ("Q" ibuffer-do-query-replace "query-replace")
-  ("R" ibuffer-do-rename-uniquely "rename-uniquely")
-  ("T" ibuffer-do-toggle-read-only "toggle-read-only")
-  ("U" ibuffer-do-replace-regexp "replace-regexp")
-  ("V" ibuffer-do-revert "revert")
-  ("W" ibuffer-do-view-and-eval "view-and-eval")
-  ("X" ibuffer-do-shell-command-pipe "shell-command-pipe")
-  ("b" nil "back"))
-
-(defhydra hydra-ibuffer-sort (:color amaranth :columns 3)
-  "Sort"
-  ("i" ibuffer-invert-sorting "invert")
-  ("a" ibuffer-do-sort-by-alphabetic "alphabetic")
-  ("v" ibuffer-do-sort-by-recency "recently used")
-  ("s" ibuffer-do-sort-by-size "size")
-  ("f" ibuffer-do-sort-by-filename/process "filename")
-  ("m" ibuffer-do-sort-by-major-mode "mode")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
-
-(defhydra hydra-ibuffer-filter (:color amaranth :columns 4)
-  "Filter"
-  ("m" ibuffer-filter-by-used-mode "mode")
-  ("M" ibuffer-filter-by-derived-mode "derived mode")
-  ("n" ibuffer-filter-by-name "name")
-  ("c" ibuffer-filter-by-content "content")
-  ("e" ibuffer-filter-by-predicate "predicate")
-  ("f" ibuffer-filter-by-filename "filename")
-  (">" ibuffer-filter-by-size-gt "size")
-  ("<" ibuffer-filter-by-size-lt "size")
-  ("/" ibuffer-filter-disable "disable")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
-
-(use-package ibuffer :straight (:type built-in))
-(add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
-
-(defhydra hydra-mu4e-headers (:color red :hint nil)
-  "
- ^General^   | ^Search^           | _!_: read    | _#_: deferred  | ^Switches^
--^^----------+-^^-----------------| _?_: unread  | _%_: pattern   |-^^------------------
-_n_: next    | _s_: search        | _r_: refile  | _&_: custom    | _O_: sorting
-_p_: prev    | _S_: edit prev qry | _u_: unmk    | _+_: flag      | _P_: threading
-_]_: n unred | _/_: narrow search | _U_: unmk *  | _-_: unflag    | _Q_: full-search
-_[_: p unred | _b_: search bkmk   | _d_: trash   | _T_: thr       | _V_: skip dups 
-_y_: sw view | _B_: edit bkmk     | _D_: delete  | _t_: subthr    | _W_: include-related
-_R_: reply   | _{_: previous qry  | _m_: move    |-^^-------------+-^^------------------ 
-_C_: compose | _}_: next query    | _a_: action  | _|_: thru shl  | _`_: update, reindex
-_F_: forward | _C-+_: show more   | _A_: mk4actn | _H_: help      | _;_: context-switch
-_o_: org-cap | _C--_: show less   | _*_: *thing  | _q_: quit hdrs | _J_: jump2maildir "
-
-  ;; general
-  ("n" mu4e-headers-next)
-  ("p" mu4e-headers-prev)
-  ("[" mu4e-select-next-unread)
-  ("]" mu4e-select-previous-unread)
-  ("y" mu4e-select-other-view)
-  ("R" mu4e-compose-reply)
-  ("C" mu4e-compose-new)
-  ("F" mu4e-compose-forward)
-  ("o" my/org-capture-mu4e)                  ; differs from built-in
-
-  ;; search
-  ("s" mu4e-headers-search)
-  ("S" mu4e-headers-search-edit)
-  ("/" mu4e-headers-search-narrow)
-  ("b" mu4e-headers-search-bookmark)
-  ("B" mu4e-headers-search-bookmark-edit)
-  ("{" mu4e-headers-query-prev)              ; differs from built-in
-  ("}" mu4e-headers-query-next)              ; differs from built-in
-  ("C-+" mu4e-headers-split-view-grow)
-  ("C--" mu4e-headers-split-view-shrink)
-
-  ;; mark stuff 
-  ("!" mu4e-headers-mark-for-read)
-  ("?" mu4e-headers-mark-for-unread)
-  ("r" mu4e-headers-mark-for-refile)
-  ("u" mu4e-headers-mark-for-unmark)
-  ("U" mu4e-mark-unmark-all)
-  ("d" mu4e-headers-mark-for-trash)
-  ("D" mu4e-headers-mark-for-delete)
-  ("m" mu4e-headers-mark-for-move)
-  ("a" mu4e-headers-action)                  ; not really a mark per-se
-  ("A" mu4e-headers-mark-for-action)         ; differs from built-in
-  ("*" mu4e-headers-mark-for-something)
-
-  ("#" mu4e-mark-resolve-deferred-marks)
-  ("%" mu4e-headers-mark-pattern)
-  ("&" mu4e-headers-mark-custom)
-  ("+" mu4e-headers-mark-for-flag)
-  ("-" mu4e-headers-mark-for-unflag)
-  ("t" mu4e-headers-mark-subthread)
-  ("T" mu4e-headers-mark-thread)
-
-  ;; miscellany
-  ("q" mu4e~headers-quit-buffer)
-  ("H" mu4e-display-manual)
-  ("|" mu4e-view-pipe)                       ; does not seem built-in any longer
-
-  ;; switches
-  ("O" mu4e-headers-change-sorting)
-  ("P" mu4e-headers-toggle-threading)
-  ("Q" mu4e-headers-toggle-full-search)
-  ("V" mu4e-headers-toggle-skip-duplicates)
-  ("W" mu4e-headers-toggle-include-related)
-
-  ;; more miscellany
-  ("`" mu4e-update-mail-and-index)           ; differs from built-in
-  (";" mu4e-context-switch)  
-  ("J" mu4e~headers-jump-to-maildir)
-
-  ("." nil))
-
-(defhydra hydra-info (:color blue
-                      :hint nil)
-      "
-Info-mode:
-
-  ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
-  ^^_[_ backward (prev logical node)       ^^_r_eturn (→)      _m_enu (↓) (C-u for new window)      _i_ndex                  _d_irectory
-  ^^_n_ext (same level only)               ^^_H_istory         _g_oto (C-u for new window)          _,_ next index item      _c_opy node name
-  ^^_p_rev (same level only)               _<_/_t_op           _b_eginning of buffer                virtual _I_ndex          _C_lone buffer
-  regex _s_earch (_S_ case sensitive)      ^^_>_ final         _e_nd of buffer                      ^^                       _a_propos
-
-  _1_ .. _9_ Pick first .. ninth item in the node's menu.
-
-"
-      ("]"   Info-forward-node)
-      ("["   Info-backward-node)
-      ("n"   Info-next)
-      ("p"   Info-prev)
-      ("s"   Info-search)
-      ("S"   Info-search-case-sensitively)
-
-      ("l"   Info-history-back)
-      ("r"   Info-history-forward)
-      ("H"   Info-history)
-      ("t"   Info-top-node)
-      ("<"   Info-top-node)
-      (">"   Info-final-node)
-
-      ("u"   Info-up)
-      ("^"   Info-up)
-      ("m"   Info-menu)
-      ("g"   Info-goto-node)
-      ("b"   beginning-of-buffer)
-      ("e"   end-of-buffer)
-
-      ("f"   Info-follow-reference)
-      ("i"   Info-index)
-      (","   Info-index-next)
-      ("I"   Info-virtual-index)
-
-      ("T"   Info-toc)
-      ("d"   Info-directory)
-      ("c"   Info-copy-current-node-name)
-      ("C"   clone-buffer)
-      ("a"   info-apropos)
-
-      ("1"   Info-nth-menu-item)
-      ("2"   Info-nth-menu-item)
-      ("3"   Info-nth-menu-item)
-      ("4"   Info-nth-menu-item)
-      ("5"   Info-nth-menu-item)
-      ("6"   Info-nth-menu-item)
-      ("7"   Info-nth-menu-item)
-      ("8"   Info-nth-menu-item)
-      ("9"   Info-nth-menu-item)
-
-      ("?"   Info-summary "Info summary")
-      ("h"   Info-help "Info help")
-      ("q"   Info-exit "Info exit")
-      ("C-g" nil "cancel" :color blue))
-
-(defhydra hydra-window (:color blue :hint nil)
-  "
-                                                               ╭─────────┐
-   Move to               Size            Split           Do    │ Windows │
-╭──────────────────────────────────────────────────────────────┴─────────╯
-      ^_k_^           ^_K_^       ╭─┬─┐^ ^        ╭─┬─┐^ ^         ↺ [_u_] undo layout
-      ^^↑^^           ^^↑^^       │ │ │_v_ertical ├─┼─┤_b_alance   ↻ [_r_] restore layout
-  _h_ ←   → _l_   _H_ ←   → _L_   ╰─┴─╯^ ^        ╰─┴─╯^ ^         ✗ [_d_] close window
-      ^^↓^^           ^^↓^^       ╭───┐^ ^        ╭───┐^ ^         ⇋ [_w_] cycle window
-      ^_j_^           ^_J_^       ├───┤_s_tack    │   │_z_oom
-      ^^ ^^           ^^ ^^       ╰───╯^ ^        ╰───╯^ ^       
---------------------------------------------------------------------------------
-          "
-  ("<ESC>" nil "quit")
-  ("b" balance-windows)
-  ("d" delete-window)
-  ("H" shrink-window-horizontally :color red)
-  ("h" windmove-left :color red)
-  ("J" shrink-window :color red)
-  ("j" windmove-down :color red)
-  ("K" enlarge-window :color red)
-  ("k" windmove-up :color red)
-  ("L" enlarge-window-horizontally :color red)
-  ("l" windmove-right :color red)
-  ("r" winner-redo :color red)
-  ("s" split-window-vertically :color red)
-  ("u" winner-undo :color red)
-  ("v" split-window-horizontally :color red)
-  ("w" other-window)
-  ("z" delete-other-windows))
-
-(defhydra hydra-flycheck
-    (:pre (flycheck-list-errors)
-     :post (quit-windows-on "*Flycheck errors*")
-     :hint nil)
-  "Errors"
-  ("f" flycheck-error-list-set-filter "Filter")
-  ("j" flycheck-next-error "Next")
-  ("k" flycheck-previous-error "Previous")
-  ("gg" flycheck-first-error "First")
-  ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-  ("q" nil))
+(use-package pdf-tools
+  :hook (pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+  ;; :hook ((pdf-view-mode . (lambda () (cua-mode 0))) ; turn off cua mode to make copy work
+  ;;        (pdf-view-mode . (setq mode-line-format nil))) ; hide mode-line
+  :demand t
+  :general
+  (:states 'normal :keymaps 'pdf-view-mode-map
+           "C-s" 'isearch-forward)
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  (setq pdf-view-resize-factor 1.1))               ; finer zooming
 
 (defhydra hydra-pdftools (:color blue :hint nil)
         "
@@ -1481,250 +1490,22 @@ Info-mode:
         ("l" image-forward-hscroll :color red)
         ("h" image-backward-hscroll :color red))
 
-(bind-key "C-c w" 'hydra-org-clock/body)
- (defhydra hydra-org-clock (:color blue :hint nil)
-   "
-^Clock:^ ^In/out^     ^Edit^   ^Summary^    | ^Timers:^ ^Run^           ^Insert
--^-^-----^-^----------^-^------^-^----------|--^-^------^-^-------------^------
-(_?_)    _i_n         _e_dit   _g_oto entry | (_z_)     _r_elative      ti_m_e
- ^ ^     _c_ontinue   _q_uit   _d_isplay    |  ^ ^      cou_n_tdown     i_t_em
- ^ ^     _o_ut        ^ ^      _r_eport     |  ^ ^      _p_ause toggle
- ^ ^     ^ ^          ^ ^      ^ ^          |  ^ ^      _s_top
-"
-   ("i" org-clock-in)
-   ("c" org-clock-in-last)
-   ("o" org-clock-out)
- 
-   ("e" org-clock-modify-effort-estimate)
-   ("q" org-clock-cancel)
+(use-package emms
+  ;; :init (add-hook 'emms-player-started-hook 'emms-show)
+  :config
+  (require 'emms-setup)
+  (emms-all)
+  (emms-default-players)
+  (setq emms-source-file-default-directory "~/Music/"))
 
-   ("g" org-clock-goto)
-   ("d" org-clock-display)
-   ("r" org-clock-report)
-   ("?" (org-info "Clocking commands"))
-
-  ("r" org-timer-start)
-  ("n" org-timer-set-timer)
-  ("p" org-timer-pause-or-continue)
-  ("s" org-timer-stop)
-
-  ("m" org-timer)
-  ("t" org-timer-item)
-  ("z" (org-info "Timers")))
-
-(defhydra hydra-smartparens (:hint nil)
-  "
- Moving^^^^                       Slurp & Barf^^   Wrapping^^            Sexp juggling^^^^               Destructive
-------------------------------------------------------------------------------------------------------------------------
- [_a_] beginning  [_n_] down      [_h_] bw slurp   [_R_]   rewrap        [_S_] split   [_t_] transpose   [_c_] change inner  [_w_] copy
- [_e_] end        [_N_] bw down   [_H_] bw barf    [_u_]   unwrap        [_s_] splice  [_A_] absorb      [_C_] change outer
- [_f_] forward    [_p_] up        [_l_] slurp      [_U_]   bw unwrap     [_r_] raise   [_E_] emit        [_k_] kill          [_g_] quit
- [_b_] backward   [_P_] bw up     [_L_] barf       [_(__{__[_] wrap (){}[]   [_j_] join    [_o_] convolute   [_K_] bw kill       [_q_] quit"
-  ;; Moving
-  ("a" sp-beginning-of-sexp)
-  ("e" sp-end-of-sexp)
-  ("f" sp-forward-sexp)
-  ("b" sp-backward-sexp)
-  ("n" sp-down-sexp)
-  ("N" sp-backward-down-sexp)
-  ("p" sp-up-sexp)
-  ("P" sp-backward-up-sexp)
-
-  ;; Slurping & barfing
-  ("h" sp-backward-slurp-sexp)
-  ("H" sp-backward-barf-sexp)
-  ("l" sp-forward-slurp-sexp)
-  ("L" sp-forward-barf-sexp)
-
-  ;; Wrapping
-  ("R" sp-rewrap-sexp)
-  ("u" sp-unwrap-sexp)
-  ("U" sp-backward-unwrap-sexp)
-  ("(" sp-wrap-round)
-  ("{" sp-wrap-curly)
-  ("[" sp-wrap-square)
-
-  ;; Sexp juggling
-  ("S" sp-split-sexp)
-  ("s" sp-splice-sexp)
-  ("r" sp-raise-sexp)
-  ("j" sp-join-sexp)
-  ("t" sp-transpose-sexp)
-  ("A" sp-absorb-sexp)
-  ("E" sp-emit-sexp)
-  ("o" sp-convolute-sexp)
-
-  ;; Destructive editing
-  ("c" sp-change-inner :exit t)
-  ("C" sp-change-enclosing :exit t)
-  ("k" sp-kill-sexp)
-  ("K" sp-backward-kill-sexp)
-  ("w" sp-copy-sexp)
-
-  ("q" nil)
-  ("g" nil))
-
-(defun custom/toggle-line-numbers-type ()
-    "Toggle line numbers type between relative and absolute"
-    (interactive)
-    (setq display-line-numbers-type (if (eq display-line-numbers-type t) 'relative 't))
-    (display-line-numbers-mode)
-    (display-line-numbers-mode))
-(defun custom/toggle-tab-width ()
-    "Toggle setting tab widths between 2, 4 and 8"
-    (interactive)
-    (setq tab-width (if (= tab-width 8) 2 (if (= tab-width 4) 8 4)))
-    (redraw-display))
-(defun custom/toggle-indent-mode ()
-    "toggle indenting modes"
-    (interactive)
-    (setq indent-tabs-mode (if (eq indent-tabs-mode t) nil t))
-    (message "Indenting using %s." (if (eq indent-tabs-mode t) "tabs" "spaces")))
-;; Change opacity from input with empty as 100
-(defun custom/change-opacity (opacity)
-    "Change the opacity of the frame"
-    (interactive "nOpacity: ")
-    (set-frame-parameter (selected-frame) 'alpha
-                         (list (if (equal opacity 0)
-                               100
-                               (/ opacity 100.0)))))
-
-(general-def :states 'emacs :keymaps 'isearch-mode-map
-  "M-f" 'avy-isearch)
-
-(general-def :states 'normal
-  "K"   'avy-goto-char-timer
-  "M-k" 'avy-pop-mark)
-
-(my/leader :states 'normal :kemaps 'override
-  "b"    '(:ignore t        :which-key "buffer")
-  "bg"   '(revert-buffer    :which-key "revert")
-  "bw"   '(consult-buffer-other-window    :which-key "in other window")
-  "bf"   '(consult-buffer-other-frame    :which-key "in other frame")
-  "bs"   '(consult-buffer   :which-key "switch")
-  "bk"   '(kill-current-buffer :which-key "kill"))
-
-(my/leader :states 'normal :kemaps 'override
-  "r"    '(:ignore t              :which-key "register/bookmark")
-  "ri"   '(:ignore t              :which-key "insert")
-  "rib"  '(bookmark-set           :which-key "buffer")
-  "rif"  '(burly-bookmark-frames  :which-key "frames")
-  "riw"  '(burly-bookmark-windows :which-key "windows")
-  "rl"   '(consult-bookmark       :which-key "list")
-  "rs"   '(bookmark-save          :which-key "save"))
-
-(general-define-key :states 'normal
-  "s"   '(embrace-commander :which-key "embrace commander"))
-;; (general-define-key :states 'normal :kemaps 'override
-;;   "ys"   '(embrace-add    :which-key "add surrounding")
-;;   "cs"   '(embrace-change :which-key "change surrounding")
-;;   "ds"   '(embrace-delete :which-key "delete surrounding"))
-
-(general-define-key :states '(normal visual insert) :kemaps 'override
-  "C-,"   '(embark-act  :which-key "embark-act")
-  "C-;"   '(embark-dwim :which-key "embark-dwim"))
-
-(my/leader :states 'normal :kemaps 'override
-  "f"    '(:ignore t                  :which-key "frame")
-  "fc"   '(clone-frame                :which-key "clone")
-  "fc"   '(other-frame                :which-key "other")
-  "fd"   '(delete-frame               :which-key "delete")
-  "fu"   '(undelete-frame             :which-key "undelete")
-  "fb"   '(consult-buffer-other-frame :which-key "buffer")
-  "ff"   '(find-file-other-frame      :which-key "file"))
-
-(my/leader :states 'normal :kemaps 'eglot-mode-map
-  "l"    '(:ignore t :which-key "language server")
-  "lfn"  '(flymake-goto-next-error :which-key "buffer")
-  "lfp"  '(flymake-goto-prev-error :which-key "close")
-  "lr"   '(eglot-rename            :which-key "close"))
-
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>ca") 'TeX-command-run-all)
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>=") 'reftex-toc)
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>(") 'reftex-label)
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>)") 'reftex-reference)
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>[") 'reftex-citation)
-;; (evil-define-key 'normal 'latex-mode
-;;   (kbd "<leader>{") 'cdlatex-environment)
-
-(general-def :states 'normal :keymaps 'Info-mode-map
-  "?" 'hydra-info/body)
-
-(my/leader :states 'normal
-  "h"   '(:ignore t :which-key "help/hydra")
-  "he"  '(hydra-expand/body :which-key "expand")
-  "ht"  '(hydra-tab-bar/body :which-key "tab-bar")
-  "hm"  '(hydra-mu4e-headers/body :which-key "mu4e")
-  "hi"  '(hydra-info/body :which-key "info")
-  "hp"  '(hydra-pdftools/body :which-key "pdftooks")
-  "hc"  '(hydra-org-clock/body :which-key "org-clock")
-  "hs"  '(hydra-smartparens/body :which-key "smartparens")
-  "hw"  '(hydra-window/body :which-key "window")
-  "hr"  '((lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory))) :which-key "Reload emacs config")
-  "hc"  '((lambda () (interactive) (find-file (expand-file-name "README.org" user-emacs-directory))) :which-key "Goto emacs config"))
-
-(general-define-key :states '(normal insert) :kemaps 'minibuffer-local-map
-  "M-a"   '(marginalia-cycle :which-key "marginalia-cycle"))
-
-(my/leader :states 'normal :kemaps 'override
-  "t"    '(:ignore t :which-key "tab")
-  "tb"   '(switch-to-buffer-other-tab :which-key "buffer")
-  "tc"   '(tab-close                  :which-key "close")
-  "tf"   '(find-file-other-tab        :which-key "file")
-  "tr"   '(tab-rename                 :which-key "close"))
+(use-package 0x0
+  :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
 
 (my/ctrl-c
-  "l"   '(org-store-link                 :which-key "org roam")
-  "n"   '(:ignore t                      :which-key "org roam")
-  "nt"  '(org-roam-buffer-toggle         :which-key "toggle backlinks")
-  "nf"  '(org-roam-node-find             :which-key "find node")
-  "nd"  '(:ignore t                      :which-key "dailies")
-  "nd1" '(org-roam-dailies-goto-today    :which-key "today")
-  "nd2" '(org-roam-dailies-goto-tomorrow :which-key "tomorrow")
-  "ng"  '(org-roam-graph                 :which-key "node graph"))
+  "0"  '(:ignore t :wk "0x0")
+  "0d"  '(0x0-dwim :wk "dwim") ; upload file in dired buffer, upload text in buffer
+  "0p"  '(0x0-popup :wk "popup")
+  "0s"  '(0x0-shorten-uri :wk "shorten")
+  "0c"  '(0x0-upload-kill-ring :wk "clipboard"))
 
-(my/ctrl-c :keymaps 'org-mode-map
-  "ni" '(org-roam-node-insert      :which-key "insert")
-  "nI" '(org-roam-insert-immediate :which-key "insert immediate"))
-
-(my/ctrl-c
-  "y" '(yas-insert-snippet :which-key "insert snippet"))
-
-(my/leader :states 'normal :kemaps 'override
-  "s"    '(:ignore t                    :which-key "shortcuts")
-  "s0"   '(0x0-dwim                     :which-key "0x0 share")
-  "sa"   '(org-agenda                   :which-key "org-agenda")
-  "sc"   '(org-capture                  :which-key "org-capture")
-  "sd"   '(dirvish-dwim                 :which-key "dirvish dwim")
-  "se"   '(eshell                       :which-key "eshell")
-  "sg"   '(general-describe-keybindings :which-key "general keybindings")
-  "sm"   '(notmuch                      :which-key "mail")
-  "so"   '(org-present                  :which-key "org present")
-  "sr"   '(consult-recent-file          :which-key "recent files")
-  "ss"   '(dirvish-side                 :which-key "dirvish side")
-  "sp"   '(multi-vterm-project          :which-key "vterm")
-  "st"   '(multi-vterm-dedicated-toggle :which-key "vterm"))
-
-(my/leader :states 'visual :kemaps 'override
-  "s"    '(:ignore t          :which-key "shortcuts")
-  "s0"   '(0x0-dwim           :which-key "0x0 share"))
-
-(general-def :states 'normal :kemaps 'vterm-mode-map
-  ",c"    'multi-vterm
-  ",n"    'multi-vterm-next
-  ",p"    'multi-vterm-prev
-  ",d"    'multi-vterm-dedicated-toggle
-  ",q"    'kill-this-buffer)
-
-(my/leader :states 'normal :kemaps 'override
-  "z"   '(:ignore t                       :which-key "toggle")
-  "zl"  '(custom/toggle-line-numbers-type :which-key "relative line number")
-  "zw"  '(custom/toggle-tab-width         :which-key "tab width")
-  "zi"  '(custom/toggle-indent-mode       :which-key "tab indent")
-  "zo"  '(org-toggle-inline-images        :which-key "toggle inline images")
-  "zt"  '(toggle-truncate-lines           :which-key "toggle truncate lines"))
+(use-package emacs-everywhere)
