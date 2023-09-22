@@ -35,8 +35,11 @@ Here are the commands that I used to build.
     --with-cairo --with-tree-sitter --with-gif --with-png --with-jpeg --with-rsvg --with-tiff
 #+end_src
 
+After pulling all the emacs plugins, run interactively ~all-the-icons-install-fonts~ to get/update
+all the fonts.
+
 * Early Init
-References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > setq]]
+*References*: [[https://emacs.stackexchange.com/a/106][customize-set-variable > setq]]
 
 ** Native Compilation
 
@@ -135,7 +138,7 @@ References: [[https://emacs.stackexchange.com/a/106][customize-set-variable > se
 
 * Package manager
 ** Straight
-References: [[https://github.com/radian-software/straight.el][straight]], [[https://github.com/jwiegley/use-package][use-package]]
+*References*: [[https://github.com/radian-software/straight.el][straight]], [[https://github.com/jwiegley/use-package][use-package]]
 
 #+begin_src emacs-lisp
   ;; get latest version
@@ -174,7 +177,7 @@ References: [[https://github.com/radian-software/straight.el][straight]], [[http
 #+end_src
 
 * General (key-bindings helper)
-References: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]
+*References*: [[https://github.com/noctuid/general.el#evil-command-properties][general evil command properties]]
 
 Use =general-describe-keybindings= to view all keybindings defined using =general.=
 
@@ -209,7 +212,7 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
 
 * Graphics
 ** Theme
-References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
+*References*: [[https://github.com/doomemacs/themes][doom-themes]], [[https://github.com/doomemacs/themes/tree/screenshots][doom-theme-screenshots]], [[https://github.com/lokesh1197/nano-splash][nano-splash]]
 
 #+begin_src emacs-lisp
   ;; required as during daemon initialization, there are no frames
@@ -246,7 +249,8 @@ References: [[https://github.com/doomemacs/themes][doom-themes]], [[https://gith
 #+end_src
 
 ** Icons
-References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[https://github.com/iyefrat/all-the-icons-completion][all-the-icons-completion]]
+*References*: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[https://github.com/iyefrat/all-the-icons-completion][all-the-icons-completion]]
+*Note*: run ~all-the-icons-install-fonts~ interactively to fix font errors
 
 #+begin_src emacs-lisp
   (use-package all-the-icons
@@ -255,17 +259,10 @@ References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[h
   (use-package all-the-icons-completion
     :after all-the-icons
     :config (all-the-icons-completion-mode))
-
-  ;; (use-package all-the-icons-dired
-  ;;   :if (display-graphic-p)
-  ;;   :hook (dired-mode . all-the-icons-dired-mode))
-
-  ;; run the below command to install fonts
-  ;; (all-the-icons-install-fonts)
 #+end_src
 
 ** Font
-=Preferred fonts=:
+*Preferred fonts*:
 - Source Code Pro
 - Iosevka Fixed SS07
 
@@ -278,7 +275,7 @@ References: [[https://github.com/domtronn/all-the-icons.el][all-the-icons]], [[h
 #+end_src
 
 * No littering
-References: [[https://github.com/emacscollective/no-littering][no-littering]]
+*References*: [[https://github.com/emacscollective/no-littering][no-littering]]
 
 #+begin_src emacs-lisp
   (use-package no-littering)
@@ -286,7 +283,7 @@ References: [[https://github.com/emacscollective/no-littering][no-littering]]
 
 * Text Edit/Jump
 ** Evil (edit text like in vim)
-References: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[https://github.com/emacs-evil/evil-collection][evil-collection]], [[https://github.com/emacs-evil/evil/blob/master/evil-maps.el][evil maps]]
+*References*: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[https://github.com/emacs-evil/evil-collection][evil-collection]], [[https://github.com/emacs-evil/evil/blob/master/evil-maps.el][evil maps]]
 | =C-x= =C-z= | toggle Emacs state | evil-toggle-key |
 
   #+begin_src emacs-lisp
@@ -318,7 +315,7 @@ References: [[https://evil.readthedocs.io/en/latest/overview.html][evil]], [[htt
   #+end_src
 
 ** Evil Multiple Cursors
-References: [[https://github.com/gabesoft/evil-mc][evil-mc]]
+*References*: [[https://github.com/gabesoft/evil-mc][evil-mc]]
 Commands Prefix: g.
 
   #+begin_src emacs-lisp
@@ -327,7 +324,7 @@ Commands Prefix: g.
   #+end_src
 
 ** Evil Owl (view registers and marks on the fly)
-References: [[https://github.com/mamapanda/evil-owl][evil-owl]]
+*References*: [[https://github.com/mamapanda/evil-owl][evil-owl]]
 
 #+begin_src emacs-lisp
   (use-package evil-owl
@@ -348,7 +345,7 @@ References: [[https://github.com/mamapanda/evil-owl][evil-owl]]
 #+end_src
 
 ** Evil Lion (aligning text)
-References: [[https://github.com/edkolev/evil-lion][evil-lion]]
+*References*: [[https://github.com/edkolev/evil-lion][evil-lion]]
 Commands: =gl (left align)=, =gL (right align)=
 
 #+begin_src emacs-lisp
@@ -363,7 +360,7 @@ Commands: =gl (left align)=, =gL (right align)=
 #+end_src
 
 ** Add surroundings in pairs
-References: [[https://github.com/emacs-evil/evil-surround][evil-surround]], [[https://github.com/cute-jumper/embrace.el][embrace]]
+*References*: [[https://github.com/emacs-evil/evil-surround][evil-surround]], [[https://github.com/cute-jumper/embrace.el][embrace]]
 
 #+begin_src emacs-lisp
   (use-package evil-surround
@@ -374,14 +371,14 @@ References: [[https://github.com/emacs-evil/evil-surround][evil-surround]], [[ht
 #+end_src
 
 ** Expand Region (increase selected region by semantics)
-References: [[https://github.com/magnars/expand-region.el][expand-region]]
+*References*: [[https://github.com/magnars/expand-region.el][expand-region]]
 
 #+begin_src emacs-lisp
   (use-package expand-region)
 #+end_src
 
 * Helpful (more information in help)
-References: [[https://github.com/Wilfred/helpful][helpful]]
+*References*: [[https://github.com/Wilfred/helpful][helpful]]
 Replace default help functions with this package as it provides far more information with syntax highlighting
 
 #+begin_src emacs-lisp
@@ -406,7 +403,7 @@ Replace default help functions with this package as it provides far more informa
 #+end_src
 
 * Which Key (display options for an incomplete key-binding)
-References: [[https://github.com/justbur/emacs-which-key][which-key]]
+*References*: [[https://github.com/justbur/emacs-which-key][which-key]]
 
 #+begin_src emacs-lisp
   (use-package which-key
@@ -415,7 +412,7 @@ References: [[https://github.com/justbur/emacs-which-key][which-key]]
 
 * Org mode (one of the best features of emacs)
 ** Settings
-References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
+*References*: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
 
 #+begin_src emacs-lisp
   (use-package org
@@ -523,7 +520,7 @@ References: [[https://orgmode.org/worg/org-tutorials/index.html][tutorials]]
 #+end_src
 
 ** Visual (bullets, fragtog, appear)
-References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12/org-fragtog][org-fragtog]], [[https://github.com/awth13/org-appear][org-appear]]
+*References*: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12/org-fragtog][org-fragtog]], [[https://github.com/awth13/org-appear][org-appear]]
 
 #+begin_src emacs-lisp
 	(use-package org-bullets
@@ -562,7 +559,7 @@ References: [[https://github.com/sabof/org-bullets][org-bullets]], [[github:io12
 #+end_src
 
 ** Evil Org (evil kebindings for org)
-References: [[https://github.com/Somelauw/evil-org-mode][evil-org]]
+*References*: [[https://github.com/Somelauw/evil-org-mode][evil-org]]
 
 #+begin_src emacs-lisp
   (use-package evil-org
@@ -575,7 +572,7 @@ References: [[https://github.com/Somelauw/evil-org-mode][evil-org]]
 #+end_src
 
 ** Roam (for note taking)
-References: [[https://www.orgroam.com/manual.html][org-roam]]
+*References*: [[https://www.orgroam.com/manual.html][org-roam]]
 
 #+begin_src emacs-lisp
   (use-package org-roam
@@ -585,7 +582,7 @@ References: [[https://www.orgroam.com/manual.html][org-roam]]
 #+end_src
 
 ** Auctex (for better latex fragements preview)
-References: [[https://github.com/karthink/org-auctex][org-auctex]]
+*References*: [[https://github.com/karthink/org-auctex][org-auctex]]
 
 #+begin_src emacs-lisp
   (use-package org-auctex
@@ -625,7 +622,7 @@ Configuration:
 #+end_src
 
 ** Latex
-References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], [[https://www.gnu.org/software/auctex/manual/auctex.html#Indices][auctex(shortcuts)]], [[https://github.com/cdominik/cdlatex][cdlatex]](abbreviations), [[https://www.gnu.org/software/auctex/manual/reftex.html][reftex]](references, labels, ...)
+*References*: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], [[https://www.gnu.org/software/auctex/manual/auctex.html#Indices][auctex(shortcuts)]], [[https://github.com/cdominik/cdlatex][cdlatex]](abbreviations), [[https://www.gnu.org/software/auctex/manual/reftex.html][reftex]](references, labels, ...)
 
 *** AucTeX
 
@@ -740,7 +737,7 @@ References: [[https://www.gnu.org/software/auctex/manual/auctex.html][auctex]], 
 #+end_src
 
 ** Markdown
-References: [[https://jblevins.org/projects/markdown-mode/][markdown-mode]], [[https://github.com/Somelauw/evil-markdown][evil-markdown]], [[https://github.com/markedjs/marked][marked]](for preview)[not implemented yet]
+*References*: [[https://jblevins.org/projects/markdown-mode/][markdown-mode]], [[https://github.com/Somelauw/evil-markdown][evil-markdown]], [[https://github.com/markedjs/marked][marked]](for preview)[not implemented yet]
 
 #+begin_src emacs-lisp
   (use-package markdown-mode
@@ -755,7 +752,7 @@ References: [[https://jblevins.org/projects/markdown-mode/][markdown-mode]], [[h
 #+end_src
 
 ** C/C++
-References: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
+*References*: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
 
 #+begin_src shell
   pip install cmake-language-server
@@ -767,7 +764,7 @@ References: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
 #+end_src
 
 ** Python
-References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode]], [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
+*References*: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode]], [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
 
 #+begin_src shell
   # pip install "ptvsd>=4.2"
@@ -808,17 +805,8 @@ References: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https:/
   (use-package haskell-mode)
 #+end_src
 
-** Smart Parenthesis
-References: [[https://github.com/Fuco1/smartparens][smartparens]], [[https://github.com/Fuco1/smartparens/wiki/Installation][wiki]]
-
-#+begin_src emacs-lisp
-  ;; (use-package smartparens
-  ;;   :config
-  ;;   (smartparens-global-mode 1))
-#+end_src
-
 ** Ctags Frontend
-References: [[https://github.com/universal-ctags/citre][citre]]
+*References*: [[https://github.com/universal-ctags/citre][citre]]
 ~M-l~ : extra bindings in peek minor mode
 
 #+begin_src emacs-lisp
@@ -841,7 +829,7 @@ References: [[https://github.com/universal-ctags/citre][citre]]
 #+end_src
 
 ** Language Server Protocol (LSP)
-References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
+*References*: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
 
 | xref-find-definitions | M-. |
 | xref-pop-marker-stack | M-, |
@@ -870,7 +858,7 @@ References: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com
 #+end_src
 
 ** Debug Adapter Protocol (DAP)
-References: [[https://emacs-lsp.github.io/dap-mode/page/configuration/][dap]]
+*References*: [[https://emacs-lsp.github.io/dap-mode/page/configuration/][dap]]
 
 run the respective setup function of the dap language on first time setup
 
@@ -888,7 +876,7 @@ run the respective setup function of the dap language on first time setup
 
 * Completion
 ** Company (text completion framework)
-References: [[http://company-mode.github.io/][company]], [[https://github.com/sebastiencs/company-box][company-box]]
+*References*: [[http://company-mode.github.io/][company]], [[https://github.com/sebastiencs/company-box][company-box]]
 
 #+begin_src emacs-lisp
   (use-package company
@@ -902,7 +890,7 @@ References: [[http://company-mode.github.io/][company]], [[https://github.com/se
 #+end_src
 
 ** Github Copilot
-References: [[https://github.com/zerolfx/copilot.el][copilot]]
+*References*: [[https://github.com/zerolfx/copilot.el][copilot]]
 
 #+begin_src emacs-lisp
   (use-package copilot
@@ -920,7 +908,7 @@ References: [[https://github.com/zerolfx/copilot.el][copilot]]
 #+end_src
 
 ** Vertico (vertical interactive completion ui)
-References: [[https://github.com/minad/vertico][vertico]]
+*References*: [[https://github.com/minad/vertico][vertico]]
 
 #+begin_src emacs-lisp
   (use-package vertico
@@ -963,7 +951,7 @@ References: [[https://github.com/minad/vertico][vertico]]
 #+end_src
 
 ** Orderless (completion style)
-References: [[https://github.com/oantolin/orderless][orderless]]
+*References*: [[https://github.com/oantolin/orderless][orderless]]
 
 Allows fuzzy search completion
 
@@ -977,7 +965,7 @@ Allows fuzzy search completion
 #+end_src
 
 ** Marginalia (enable rich annotations for completions)
-References: [[https://github.com/minad/marginalia][marginalia]]
+*References*: [[https://github.com/minad/marginalia][marginalia]]
 
 #+begin_src emacs-lisp
   (use-package marginalia
@@ -988,7 +976,7 @@ References: [[https://github.com/minad/marginalia][marginalia]]
 #+end_src
 
 ** Consult (practical commands based on completing-read)
-References: [[https://github.com/minad/consult][consult]], [[https://github.com/minad/affe][affe]]
+*References*: [[https://github.com/minad/consult][consult]], [[https://github.com/minad/affe][affe]]
 
 #+begin_src emacs-lisp
   (use-package consult
@@ -1107,7 +1095,7 @@ References: [[https://github.com/minad/consult][consult]], [[https://github.com/
 #+end_src
 
 ** Embark (run commands on target)
-References: [[https://github.com/oantolin/embark][embark]]
+*References*: [[https://github.com/oantolin/embark][embark]]
 
 #+begin_src emacs-lisp
   (use-package embark
@@ -1127,7 +1115,7 @@ References: [[https://github.com/oantolin/embark][embark]]
 #+end_src
 
 ** Snippets
-References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joaotavora.github.io/yasnippet/][yasnippet-docs]], [[https://github.com/AndreaCrotti/yasnippet-snippets][yasnippet-snippets]]
+*References*: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joaotavora.github.io/yasnippet/][yasnippet-docs]], [[https://github.com/AndreaCrotti/yasnippet-snippets][yasnippet-snippets]]
 
 #+begin_src emacs-lisp
   (use-package yasnippet
@@ -1145,7 +1133,7 @@ References: [[https://github.com/joaotavora/yasnippet][yasnippet]], [[http://joa
 #+end_src
 
 * Vterm (terminal within emacs)
-References: [[https://github.com/suonlight/multi-vterm][multi-vterm]]
+*References*: [[https://github.com/suonlight/multi-vterm][multi-vterm]]
 
 #+begin_src emacs-lisp
   (use-package vterm
@@ -1157,7 +1145,7 @@ References: [[https://github.com/suonlight/multi-vterm][multi-vterm]]
 #+end_src
 
 * Directory Viewer
-References: [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.org][dirvish]], [[https://github.com/alexluigit/dirvish/blob/main/docs/EXTENSIONS.org][dirvish-extensions]]
+*References*: [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.org][dirvish]], [[https://github.com/alexluigit/dirvish/blob/main/docs/EXTENSIONS.org][dirvish-extensions]]
 
 #+begin_src emacs-lisp
   (use-package dirvish
@@ -1219,7 +1207,7 @@ References: [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.o
 #+end_src
 
 * Burly (Bookmarks extension)
-References: [[https://github.com/alphapapa/burly.el][burly]], [[info:burly#Top][burly info]]
+*References*: [[https://github.com/alphapapa/burly.el][burly]], [[info:burly#Top][burly info]]
 Bookmark frame, window positions
 
 #+begin_src emacs-lisp
@@ -1241,7 +1229,7 @@ Bookmark frame, window positions
 #+end_src
 
 * PDF
-References: [[https://pdftools.wiki/][pdf-tools]], [[https://github.com/emacs-evil/evil-collection/blob/master/modes/pdf/evil-collection-pdf.el][evil-collection]]
+*References*: [[https://pdftools.wiki/][pdf-tools]], [[https://github.com/emacs-evil/evil-collection/blob/master/modes/pdf/evil-collection-pdf.el][evil-collection]]
 
 #+begin_src emacs-lisp
   (use-package pdf-tools
@@ -1272,7 +1260,7 @@ References: [[https://pdftools.wiki/][pdf-tools]], [[https://github.com/emacs-ev
 #+end_src
 
 * Sharing
-References: [[https://github.com/emacsmirror/0x0][0x0]]
+*References*: [[https://github.com/emacsmirror/0x0][0x0]]
 =C-u= prefix allows choosing server to upload to
 
 #+begin_src emacs-lisp
@@ -1301,7 +1289,7 @@ References: [[https://github.com/emacsmirror/0x0][0x0]]
 #+end_src
 
 ** Mu4e (email frontend for mu)
-References: [[https://www.emacswiki.org/emacs/mu4e][mu4e-wiki]], [[https://github.com/djcb/mu][mu]], [[https://www.djcbsoftware.nl/code/mu/mu4e/index.html][mu4e-documentation]]
+*References*: [[https://www.emacswiki.org/emacs/mu4e][mu4e-wiki]], [[https://github.com/djcb/mu][mu]], [[https://www.djcbsoftware.nl/code/mu/mu4e/index.html][mu4e-documentation]]
 *** Initialize mu for new email address
 
 #+begin_src shell :results verbatim
@@ -1466,7 +1454,7 @@ References: [[https://www.emacswiki.org/emacs/mu4e][mu4e-wiki]], [[https://githu
 #+end_src
 
 *** Org Msg (outlook style email and replies)
-References: [[https://github.com/jeremy-compostella/org-msg][org-msg]]
+*References*: [[https://github.com/jeremy-compostella/org-msg][org-msg]]
 
 | C-c C-e | org-msg-preview      |
 | C-c C-k | message-kill-buffer  |
@@ -1501,7 +1489,7 @@ References: [[https://github.com/jeremy-compostella/org-msg][org-msg]]
 #+end_src
 
 ** Notmuch (email frontend for notmuch)
-References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]], [[https://git.sr.ht/~inwit/org-notmuch-hello][notmuch-dashboard]], [[https://git.sr.ht/~tarsius/ol-notmuch][ol-notmuch]]
+*References*: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmuchmail.org/emacstips][tips & tricks]], [[https://git.sr.ht/~inwit/org-notmuch-hello][notmuch-dashboard]], [[https://git.sr.ht/~tarsius/ol-notmuch][ol-notmuch]]
 
 #+begin_src emacs-lisp
 	(use-package notmuch
@@ -1553,17 +1541,17 @@ References: [[https://notmuchmail.org/notmuch-emacs/][notmuch]], [[https://notmu
 #+end_src
 
 * Emacs Everywhere
-References: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
+*References*: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
 
 #+begin_src emacs-lisp
   (use-package emacs-everywhere)
 #+end_src
 
 * Spell check
-References: [[https://github.com/hunspell/hunspell][hunspell]]
+*References*: [[https://github.com/hunspell/hunspell][hunspell]]
 
 * Elfeed (Manage RSS feeds)
-References: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/remyhonig/elfeed-org][elfeed-org]], [[https://github.com/jeetelongname/elfeed-goodies][elfeed-goodies]], [[https://github.com/karthink/elfeed-tube][elfeed-tube]], [[https://github.com/manojm321/elfeed-dashboard][elfeed-dashboard]]
+*References*: [[https://github.com/skeeto/elfeed/][elfeed]], [[https://github.com/remyhonig/elfeed-org][elfeed-org]], [[https://github.com/jeetelongname/elfeed-goodies][elfeed-goodies]], [[https://github.com/karthink/elfeed-tube][elfeed-tube]], [[https://github.com/manojm321/elfeed-dashboard][elfeed-dashboard]]
 
 Fix: [[https://github.com/manojm321/elfeed-dashboard/issues/13#issuecomment-1072962002][elfeed-dashboard: github issues]]
 Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-keymap~
@@ -1615,7 +1603,7 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
 #+end_src
 
 ** Deadgrep (Easy and friendly search)
-References: [[https://github.com/Wilfred/deadgrep][deadgrep]]
+*References*: [[https://github.com/Wilfred/deadgrep][deadgrep]]
 
 #+begin_src emacs-lisp
   (use-package deadgrep
@@ -1625,7 +1613,7 @@ References: [[https://github.com/Wilfred/deadgrep][deadgrep]]
 #+end_src
 
 ** Ledger (Accounting)
-References: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://ledger-cli.org/][cli]]
+*References*: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://ledger-cli.org/][cli]]
 
 #+begin_src emacs-lisp
   (use-package ledger-mode
@@ -1639,7 +1627,7 @@ References: [[https://github.com/atheriel/evil-ledger][evil-ledger]], [[https://
 #+end_src
 
 ** Presentation
-References: [[https://systemcrafters.net/emacs-tips/presentations-with-org-present/][system-crafters]]
+*References*: [[https://systemcrafters.net/emacs-tips/presentations-with-org-present/][system-crafters]]
 
 #+begin_src emacs-lisp
   (use-package org-present)
@@ -1674,7 +1662,7 @@ References: [[https://systemcrafters.net/emacs-tips/presentations-with-org-prese
 
 * Shortcuts
 ** Hydra
-References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
+*References*: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/jerrypnz/major-mode-hydra.el][major-mode-hydra]](for making hydra pretty)
 
 *** Setup
 
@@ -1696,7 +1684,7 @@ References: [[https://github.com/abo-abo/hydra][hydra]], [[https://github.com/je
 #+end_src
 
 *** Tab Bar
-References: [[https://github.com/abo-abo/hydra/wiki/Emacs-27-tab-bar-mode][tab-bar-mode]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/Emacs-27-tab-bar-mode][tab-bar-mode]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-tab-bar (:color amaranth)
@@ -1714,7 +1702,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/Emacs-27-tab-bar-mode][tab-b
 #+end_src
 
 *** Ibuffer
-References: [[https://github.com/abo-abo/hydra/wiki/Ibuffer][ibuffer]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/Ibuffer][ibuffer]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-ibuffer-main (:color pink :hint nil)
@@ -1814,7 +1802,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/Ibuffer][ibuffer]]
 #+end_src
 
 *** Mu4e
-References: [[https://github.com/abo-abo/hydra/wiki/mu4e][hydra-mu4e]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/mu4e][hydra-mu4e]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-mu4e-headers (:color red :hint nil)
@@ -1895,7 +1883,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/mu4e][hydra-mu4e]]
 #+end_src
 
 *** Info
-References: [[https://github.com/abo-abo/hydra/wiki/Info][info-summary]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/Info][info-summary]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-info (:color blue
@@ -1997,7 +1985,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/Info][info-summary]]
 #+end_src
 
 *** Flycheck
-References: [[https://github.com/abo-abo/hydra/wiki/Flycheck][flycheck]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/Flycheck][flycheck]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-flycheck
@@ -2014,7 +2002,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/Flycheck][flycheck]]
 #+end_src
 
 *** Pdf-Tools
-References: [[https://github.com/abo-abo/hydra/wiki/PDF-Tools][pdf-tools]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/PDF-Tools][pdf-tools]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-pdftools (:color blue :hint nil)
@@ -2068,7 +2056,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/PDF-Tools][pdf-tools]]
 #+end_src
 
 *** Org clock & timer
-References: [[https://github.com/abo-abo/hydra/wiki/Org-clock-and-timers][org-clock]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/Org-clock-and-timers][org-clock]]
 
 #+begin_src emacs-lisp
    (bind-key "C-c w" 'hydra-org-clock/body)
@@ -2104,7 +2092,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/Org-clock-and-timers][org-cl
 #+end_src
 
 *** Smartparens
-References: [[https://github.com/abo-abo/hydra/wiki/smartparens][smartparens]]
+*References*: [[https://github.com/abo-abo/hydra/wiki/smartparens][smartparens]]
 
 #+begin_src emacs-lisp
   (defhydra hydra-smartparens (:hint nil)
@@ -2191,7 +2179,7 @@ References: [[https://github.com/abo-abo/hydra/wiki/smartparens][smartparens]]
 #+end_src
 
 ** Key-bindings
-References: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][evil keymaps]], [[https://www.emacswiki.org/emacs/IbufferMode][ibuffer]]
+*References*: [[https://evil.readthedocs.io/en/latest/keymaps.html#leader-keys][evil keymaps]], [[https://www.emacswiki.org/emacs/IbufferMode][ibuffer]]
 
 | Key-binding | Action |
 |-------------+--------|

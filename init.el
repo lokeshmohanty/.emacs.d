@@ -115,13 +115,6 @@
   :after all-the-icons
   :config (all-the-icons-completion-mode))
 
-;; (use-package all-the-icons-dired
-;;   :if (display-graphic-p)
-;;   :hook (dired-mode . all-the-icons-dired-mode))
-
-;; run the below command to install fonts
-;; (all-the-icons-install-fonts)
-
 (set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
 (set-face-attribute 'font-lock-comment-face nil
                     :family "Iosevka Fixed SS07"
@@ -498,10 +491,6 @@
 ;; (use-package pyvenv)
 
 (use-package haskell-mode)
-
-;; (use-package smartparens
-;;   :config
-;;   (smartparens-global-mode 1))
 
 (use-package citre
   :defer t
@@ -1520,7 +1509,7 @@ Info-mode:
    ("i" org-clock-in)
    ("c" org-clock-in-last)
    ("o" org-clock-out)
-
+ 
    ("e" org-clock-modify-effort-estimate)
    ("q" org-clock-cancel)
 
