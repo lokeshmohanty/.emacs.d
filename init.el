@@ -853,15 +853,17 @@ Info-mode:
   "lfp"  '(flymake-goto-prev-error :wk "close")
   "lr"   '(eglot-rename            :wk "close"))
 
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :init (setq lsp-keymap-prefix "C-l")
-  :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
-  :hook
-  ;; (c-mode . lsp-deferred)
-  ;; (c++-mode . lsp-deferred)
-  ;; (cmake-mode . lsp-deferred)
-  (lsp-mode . lsp-enable-which-key-integration))
+;; (use-package lsp-mode
+;;   :commands (lsp lsp-deferred)
+;;   :init (setq lsp-keymap-prefix "C-l")
+;;   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+;;   :hook
+;;   ;; (c-mode . lsp-deferred)
+;;   ;; (c++-mode . lsp-deferred)
+;;   ;; (cmake-mode . lsp-deferred)
+;;   (lsp-mode . lsp-enable-which-key-integration))
+
+;; (use-package lsp-bridge)
 
 ;; (use-package dap-mode
 ;;   :after lsp-mode
@@ -1252,6 +1254,7 @@ command was called, go to its unstaged changes section."
       mail-specify-envelope-from t
       message-sendmail-envelope-from 'header
       mail-envelope-from 'header)
+(setq mail-user-agent 'gnus-user-agent)
 
 ;; (with-eval-after-load 'mu4e
 ;;   (defun my/make-mu4e-context (address &rest args)
@@ -1282,36 +1285,36 @@ command was called, go to its unstaged changes section."
 ;;                         ,(my/make-mu4e-context "lokesh1197@gmail.com" :context "personal" :type 'gmail)
 ;;                         ,(my/make-mu4e-context "lokeshm@iisc.ac.in"   :context "work"     :type 'outlook))))
 
-(use-package notmuch
-	:custom (mail-user-agent 'notmuch-user-agent))
+(use-package notmuch)
 
 (use-package gnus-alias
 	:config
 	(setq gnus-alias-identity-alist
-				'(("lokesh1197@gmail.com"
+				'(("home"
 					 nil ;; parent identity
 					 "Lokesh Mohanty <lokesh1197@gmail.com>" ;; from
 					 nil ;; organization
 					 nil ;; extra headers
 					 nil ;; body
 					 "Thanks & Regards\nLokesh Mohanty\n\n") ;; signature
-					("lokesh1197@yahoo.com" nil
+					("personal" nil
 					 "Lokesh Mohanty <lokesh1197@yahoo.com>" nil
 					 (("Bcc" . "lokesh1197@gmail.com")) nil
 					 "Thanks & Regards\nLokesh Mohanty\n\n")
-					("lokeshm@iisc.ac.in" nil
+					("work" nil
 					 "Lokesh Mohanty <lokeshm@iisc.ac.in>"
 					 nil nil nil
 					 "Thanks & Regards\nLokesh Mohanty\n\n")))
-	(setq gnus-alias-default-identity "lokesh1197@gmail.com")
+	(setq gnus-alias-default-identity "home")
+  (setq gnus-alias-identity-rules
+				'(("work" ("any" "lokeshm@iisc\\.ac\\.in" both) "work")
+					("personal" ("any" "lokesh1197@yahoo\\.com" both) "personal")))
 	;; Determine identity when message-mode loads
 	(add-hook 'message-setup-hook 'gnus-alias-determine-identity))
 
-;; (setq message-directory "Drafts") ; stores postponed messages to the specified directory
-;; (setq notmuch-fcc-dirs "Sent") ; sent mail directory
+(setq message-directory "Drafts") ; stores postponed messages to the specified directory
+(setq notmuch-fcc-dirs "Sent") ; sent mail directory
 ;; (setq notmuch-hello-hide-tags (quote ("killed"))) ; settings for main screen
-
-;; (setq mail-user-agent 'message-user-agent)
 
 (setq message-kill-buffer-on-exit t) ; kill buffer after sending mail)
 (setq mail-specify-envelope-from t) ; Settings to work with msmtp
@@ -1321,15 +1324,13 @@ command was called, go to its unstaged changes section."
 (add-hook 'message-setup-hook 'mml-secure-sign-pgpmime)
 (setq epg-gpg-program "/usr/bin/gpg2")
 
-(use-package ol-notmuch)
-
 (use-package org-msg
   :after org
   :config
   (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
         org-msg-startup "hidestars indent inlineimages"
         org-msg-greeting-fmt "\nHi%s,\n\n"
-        org-msg-recipient-names '(("lokesh.mohanty@e-arc.com" . "Lokesh Mohanty"))
+        org-msg-recipient-names '(("lokeshm@iisc.ac.in" . "Lokesh Mohanty"))
         org-msg-greeting-name-limit 3
         org-msg-default-alternatives '((new		. (text html))
                                        (reply-to-html	. (text html))
