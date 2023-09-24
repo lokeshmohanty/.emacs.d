@@ -704,6 +704,7 @@ Info-mode:
   (TeX-source-correlate-mode t)
   (TeX-source-correlate-start-server t)
   (TeX-view-program-selection '((output-pdf "PDF Tools")))
+  (TeX-output-dir "output")
   :config
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer)

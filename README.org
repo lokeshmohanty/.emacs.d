@@ -20,7 +20,7 @@ or in your ~XDG_CONFIG_HOME~ as ~emacs~
   cd ~/.config && git clone https://github.com/lokesh1197/.emacs.d.git emacs
 #+end_src
 
-This configuration if for ~emacs-29~ built from ~emacs-29~ branch of the github mirror of ~emacs~.
+This configuration is for ~emacs-29~ built from ~emacs-29~ branch of the github mirror of ~emacs~.
 Make sure to have the dependencies before building. For fedora, run ~dnf builddep emacs~.
 For other distributions, check the ~INSTALL~ file in the root of the repository.
 
@@ -1002,6 +1002,7 @@ Configuration:
     (TeX-source-correlate-mode t)
     (TeX-source-correlate-start-server t)
     (TeX-view-program-selection '((output-pdf "PDF Tools")))
+    (TeX-output-dir "output")
     :config
     (add-hook 'TeX-after-compilation-finished-functions
               #'TeX-revert-document-buffer)
