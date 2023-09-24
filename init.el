@@ -377,9 +377,14 @@ Info-mode:
   :config
     (load-theme 'doom-palenight t))
 
-(use-package mood-line
-  :config
-  (mood-line-mode))
+;; very minimal modeline
+;; (use-package mood-line
+;;   :config
+;;   (mood-line-mode))
+
+;; run (nerd-icons-install-fonts) to install fonts
+(use-package doom-modeline
+  :init (doom-modeline-mode 1))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
