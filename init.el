@@ -366,6 +366,19 @@ Info-mode:
                                100
                                (/ opacity 100.0)))))
 
+(set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
+(set-face-attribute 'font-lock-comment-face nil
+                    :family "Iosevka Fixed SS07"
+                    :height 135
+                    :slant 'italic)
+
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package all-the-icons-completion
+  :after all-the-icons
+  :config (all-the-icons-completion-mode))
+
 ;; required as during daemon initialization, there are no frames
 ;; (use-package modus-themes
 ;; 	:config
@@ -384,7 +397,41 @@ Info-mode:
 
 ;; run (nerd-icons-install-fonts) to install fonts
 (use-package doom-modeline
-  :init (doom-modeline-mode 1))
+  :init
+	;; If the actual char height is larger, it respects the actual height.
+	(setq doom-modeline-height 25)
+	(setq doom-modeline-bar-width 4)
+	(setq doom-modeline-window-width-limit 85)
+
+	;; Whether display icons in the mode-line.
+	;; While using the server mode in GUI, should set the value explicitly.
+	(setq doom-modeline-icon t)
+
+	(setq doom-modeline-unicode-fallback t)
+	(setq doom-modeline-minor-modes t)
+
+	;; If non-nil, a word count will be added to the selection-info modeline segment.
+	(setq doom-modeline-enable-word-count nil)
+
+	;; Major modes in which to display word count continuously.
+	;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
+	;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
+	;; remove the modes from `doom-modeline-continuous-word-count-modes'.
+	(setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+
+	;; Whether display the indentation information.
+	(setq doom-modeline-indent-info nil)
+
+	;; Whether display the total line number。
+	(setq doom-modeline-total-line-number nil)
+
+	;; When non-nil, always show the register name when recording an evil macro.
+	(setq doom-modeline-always-show-macro-register t)
+
+	;; By default, almost all segments are displayed only in the active window. To
+	;; display such segments in all windows, specify e.g.
+	(setq doom-modeline-always-visible-segments '(mu4e irc))
+	(doom-modeline-mode 1))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -398,19 +445,6 @@ Info-mode:
 
 ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-
-(use-package all-the-icons
-  :if (display-graphic-p))
-
-(use-package all-the-icons-completion
-  :after all-the-icons
-  :config (all-the-icons-completion-mode))
-
-(set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
-(set-face-attribute 'font-lock-comment-face nil
-                    :family "Iosevka Fixed SS07"
-                    :height 135
-                    :slant 'italic)
 
 (use-package evil
   :init
@@ -643,10 +677,6 @@ Info-mode:
 (my/ctrl-c :keymaps 'org-mode-map
   "ni" '(org-roam-node-insert      :wk "insert")
   "nI" '(org-roam-insert-immediate :wk "insert immediate"))
-
-;; (use-package org-auctex
-;;   :straight (:type git :host github :repo "karthink/org-auctex")
-;;   :hook (org-mode . org-auctex-mode))
 
 (defhydra hydra-org-clock (:color blue :hint nil)
    "
