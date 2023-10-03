@@ -1030,7 +1030,6 @@ Info-mode:
   :after markdown-mode
   :hook (markdown-mode . evil-markdown-mode))
 
-;; (use-package cmake-mode) ; facing git errors
 (use-package cuda-mode)
 
 (use-package conda
@@ -1060,29 +1059,19 @@ Info-mode:
 	:straight nil
 	:load-path "lisp/")
 
-(use-package citre
-  :defer t
-  :init (require 'citre-config)
-  :general
-  (:states 'normal :keymaps '(citre-mode-map override)
-           "gd"  'citre-jump
-           "gD"  'citre-jump-back
-           "gp"  'citre-peek
-           "gP"  'citre-ace-peek
-           "gc"  '(:ignore t :which-key "citre")
-           "gcj"  'citre-peek-next-line
-           "gck"  'citre-peek-prev-line
-           "gcc"  'citre-create-tags-file
-           "gcu"  'citre-update-this-tags-file
-           "gcU"  'citre-update-tags-file)
-  :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
-
 (use-package eglot
   :commands (eglot eglot-ensure)
-  ;; :hook ((LaTeX-mode . eglot-ensure)
   :hook ((c-mode     . eglot-ensure)
-         (c++-mode   . eglot-ensure)))
+         (c++-mode   . eglot-ensure))
+	;; :general
+	;; (:states 'normal :keymaps 'eglot-mode-map
+	;; 				 "C-c r" 'eglot-rename
+	;; 				 "C-c o" 'eglot-code-actoin-roganize-imports
+	;; 				 "C-c h" 'eldoc
+	;; 				 "<f6>"  'xref-find-definitions)
+	:custom (eglot-extend-to-xref t))
 
+(add-hook 'eglot-server-initialized-hook (lambda () (eldoc)))
 ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
 (use-package consult-eglot
@@ -1405,7 +1394,12 @@ Info-mode:
   "rl"   '(consult-bookmark       :wk "list")
   "rs"   '(bookmark-save          :wk "save"))
 
-(use-package no-littering)
+(use-package no-littering
+  :config
+  ;; no-littering doesn't set this by default so we must place
+  ;; auto save files in the same path as it uses for sessions
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
 (use-package helpful
   :commands (helpful-callable	; for functions and macros

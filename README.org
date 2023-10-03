@@ -1355,15 +1355,12 @@ You can do this by following the below steps:
     :hook (markdown-mode . evil-markdown-mode))
 #+end_src
 
-** C/C++
-*References*: [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
+** C/C++ and cuda
+*References*: [[https://clang.llvm.org/docs/HowToSetupToolingForLLVM.html][clangd for cmake project]]
 
-#+begin_src shell
-  pip install cmake-language-server
-#+end_src
+Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root folder for ~eglot~
 
 #+begin_src emacs-lisp
-  ;; (use-package cmake-mode) ; facing git errors
   (use-package cuda-mode)
 #+end_src
 
@@ -1415,43 +1412,29 @@ You can do this by following the below steps:
   	:load-path "lisp/")
 #+end_src
 
-** Ctags Frontend
-*References*: [[https://github.com/universal-ctags/citre][citre]]
-~M-l~ : extra bindings in peek minor mode
-
-#+begin_src emacs-lisp
-  (use-package citre
-    :defer t
-    :init (require 'citre-config)
-    :general
-    (:states 'normal :keymaps '(citre-mode-map override)
-             "gd"  'citre-jump
-             "gD"  'citre-jump-back
-             "gp"  'citre-peek
-             "gP"  'citre-ace-peek
-             "gc"  '(:ignore t :which-key "citre")
-             "gcj"  'citre-peek-next-line
-             "gck"  'citre-peek-prev-line
-             "gcc"  'citre-create-tags-file
-             "gcu"  'citre-update-this-tags-file
-             "gcU"  'citre-update-tags-file)
-    :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
-#+end_src
-
 ** Language Server Protocol (LSP)
-*References*: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]], [[https://github.com/manateelazycat/lsp-bridge][lsp-bridge]]
+*** Eglot
+*References*: [[https://github.com/joaotavora/eglot][eglot]], [[https://joaotavora.github.io/eglot][eglot-documentation]]
 
-| xref-find-definitions | M-. |
-| xref-pop-marker-stack | M-, |
-| xref-find-references  | M-? |
+| xref-find-definitions | M-.   |
+| xref-pop-marker-stack | M-,   |
+| xref-find-references  | M-?   |
+| eldoc-doc-buffer      | C-h . |
 
 #+begin_src emacs-lisp
   (use-package eglot
     :commands (eglot eglot-ensure)
-    ;; :hook ((LaTeX-mode . eglot-ensure)
     :hook ((c-mode     . eglot-ensure)
-           (c++-mode   . eglot-ensure)))
+           (c++-mode   . eglot-ensure))
+  	;; :general
+  	;; (:states 'normal :keymaps 'eglot-mode-map
+  	;; 				 "C-c r" 'eglot-rename
+  	;; 				 "C-c o" 'eglot-code-actoin-roganize-imports
+  	;; 				 "C-c h" 'eldoc
+  	;; 				 "<f6>"  'xref-find-definitions)
+  	:custom (eglot-extend-to-xref t))
 
+  (add-hook 'eglot-server-initialized-hook (lambda () (eldoc)))
   ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
 
   (use-package consult-eglot
@@ -1464,6 +1447,9 @@ You can do this by following the below steps:
     "lr"   '(eglot-rename            :wk "close"))
 #+end_src
 
+*** LSP
+*References*: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
+
 #+begin_src emacs-lisp
   ;; (use-package lsp-mode
   ;;   :commands (lsp lsp-deferred)
@@ -1475,6 +1461,9 @@ You can do this by following the below steps:
   ;;   ;; (cmake-mode . lsp-deferred)
   ;;   (lsp-mode . lsp-enable-which-key-integration))
 #+end_src
+
+*** LSP Bridge
+*References*: [[https://github.com/manateelazycat/lsp-bridge][lsp-bridge]]
 
 #+begin_src emacs-lisp
   ;; (use-package lsp-bridge)
@@ -1846,7 +1835,12 @@ Default: =C-x r=
 *References*: [[https://github.com/emacscollective/no-littering][no-littering]]
 
 #+begin_src emacs-lisp
-  (use-package no-littering)
+  (use-package no-littering
+    :config
+    ;; no-littering doesn't set this by default so we must place
+    ;; auto save files in the same path as it uses for sessions
+    (setq auto-save-file-name-transforms
+          `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 #+end_src
 
 ** More information in help (helpful)
@@ -2473,7 +2467,8 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
 - Use ~ensure-system-package~ from ~use-package~ to check for existence OS binaries.
 - Profiler: =profiler-start=, =profiler-stop=, =profiler-report=
 - Try ~pkill -SIGUSR2 emacs~ when emacs hangs, it can get your control back.
-  Make sure to run ~M-x toggle-debug-on-quit~ right after.
+- Make sure to run ~M-x toggle-debug-on-quit~ right after.
+- ~C-q <tab>~ can be used to insert a tab irrespective of what a tab is assigned to. 
 ** Good packages to try:
   - [[https://github.com/emacs-tw/awesome-emacs][awesome-emacs]]: list of emacs packages
   - [[https://github.com/redguardtoo/evil-nerd-commenter][evil-nerd-commenter]]: enhanced features for commenting
@@ -2491,4 +2486,5 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
 - [[https://github.com/etu/webpaste.el][webpaste]]: plugin for pasting text online
 - [[https://github.com/emacsmirror/spray][spray]]: speed reading emacs mode. Start with ~spray-mode~, ~SPC~ to pause/resume, ~f~ to increase speed, ~s~ to decrease speed, ~h~ for previous word, ~k~ for next word
 - [[https://github.com/alphapapa/plz.el][plz]]: http library for emacs
+- =daemons=: manage ~systemctl~ daemons from emacs
 
