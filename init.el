@@ -862,6 +862,10 @@ Info-mode:
 ;; (use-package pyvenv)
 
 (use-package haskell-mode)
+(use-package hindent)
+(use-package hs-lint
+	:straight nil
+	:load-path "lisp/")
 
 (use-package citre
   :defer t

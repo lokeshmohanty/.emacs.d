@@ -1207,8 +1207,14 @@ You can do this by following the below steps:
 
 ** Others
 
+- haskell-mode(C-c C-l), hlint, ghcid, cabal, hindent(M-q)
+
 #+begin_src emacs-lisp
   (use-package haskell-mode)
+  (use-package hindent)
+  (use-package hs-lint
+  	:straight nil
+  	:load-path "lisp/")
 #+end_src
 
 ** Ctags Frontend
