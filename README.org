@@ -111,6 +111,10 @@ all the fonts. Similarly, run interactively ~nerd-icons-install-fonts~ for ~doom
 * Settings
 
 #+begin_src emacs-lisp
+
+  ;; Do this tp prevent slow down (from org-superstar
+  ;; (setq inhibit-compacting-font-caches t)
+
   (context-menu-mode)											              ; show context menu on right click
   (column-number-mode)                                  ; display position on modeline
   ;; (global-visual-line-mode t)                           ; wrap lines
@@ -213,18 +217,19 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
     "p"    (general-simulate-key "C-x p" :which-key "project")
     "."    '(find-file :which-key "find file")
     "s"    '(:ignore t                    :wk "shortcuts")
-    "s0"   '(0x0-dwim                     :wk "0x0 share")
+    "sE"   '(elfeed                       :wk "elfeed")
+    "sM"   '(notmuch                      :wk "mail")
     "sa"   '(org-agenda                   :wk "org-agenda")
     "sc"   '(org-capture                  :wk "org-capture")
     "sd"   '(dirvish-dwim                 :wk "dirvish dwim")
     "se"   '(eshell                       :wk "eshell")
     "sg"   '(general-describe-keybindings :wk "general keybindings")
-    "sm"   '(notmuch                      :wk "mail")
+    "sm"   '(magit-status                 :wk "magit status")
     "so"   '(org-present                  :wk "org present")
     "sr"   '(consult-recent-file          :wk "recent files")
     "ss"   '(dirvish-side                 :wk "dirvish side")
-    "sp"   '(multi-vterm-project          :wk "vterm")
-    "st"   '(multi-vterm-dedicated-toggle :wk "vterm"))
+    "sp"   '(multi-vterm-project          :wk "vterm-project")
+    "st"   '(vterm                        :wk "vterm"))
 
   (general-def :states 'normal
     "j"   'evil-next-visual-line
@@ -882,12 +887,12 @@ Commands: =gl (left align)=, =gL (right align)=
 #+end_src
 
 ** Visual (bullets, fragtog, appear)
-*References*: [[https://github.com/sabof/org-bullets][org-bullets]], [[https://github.com/awth13/org-appear][org-appear]]
+*References*: [[https://github.com/integral-dw/org-superstar-mode][org-superstar]], [[https://github.com/awth13/org-appear][org-appear]]
 
 #+begin_src emacs-lisp
-  (use-package org-bullets
+  (use-package org-superstar
     :after org
-    :hook (org-mode . org-bullets-mode))
+    :hook (org-mode . org-superstar-mode))
 
   (use-package org-appear
     :after org
@@ -912,7 +917,8 @@ Commands: =gl (left align)=, =gL (right align)=
           (latex      . t)
           (js         . t)
           (sql        . t)
-          (haskell    . t)))
+          (haskell    . t)
+          (emacs-lisp . t)))
 #+end_src
 
 ** Evil Org (evil kebindings for org)
@@ -1292,11 +1298,18 @@ run the respective setup function of the dap language on first time setup
 
 #+begin_src emacs-lisp
   (use-package company
-    :custom (company-minimum-prefix-length 1)
-    :config (global-company-mode)
-    :custom (company-idle-delay 0.5))
+  	:config (global-company-mode)
+  	:general
+  	(:keymaps 'company-active-map
+  					 "M-n" nil										; free up keybinding
+  					 "M-p" nil										; free up keybinding
+  					 "M-j" nil										; free up keybinding
+  					 "M-k" nil)                   ; free up keybinding
+  	:custom
+  	(company-minimum-prefix-length 1)
+  	(company-idle-delay 0.5))
 
-  ;; company front-end with icons
+  ;; company front-end with a posframe and icons
   (use-package company-box
     :hook (company-mode . company-box-mode))
 #+end_src
@@ -1307,16 +1320,16 @@ run the respective setup function of the dap language on first time setup
 #+begin_src emacs-lisp
   (use-package copilot
     :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+    :defer t
+  	:hook (prog-mode . copilot-mode)
     :general
-    (:states 'insert :keymaps 'copilot-mode-map
+    (:states 'insert :keymaps '(copilot-mode-map override)
              "M-h"  'copilot-complete
              "M-n"  'copilot-next-completion
              "M-p"  'copilot-previous-completion
              "M-l"  'copilot-accept-completion-by-word
              "M-j"  'copilot-accept-completion-by-line
              "M-<return>"  'copilot-accept-completion))
-
-  (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
 
 ** Vertico (vertical interactive completion ui)
@@ -1525,7 +1538,8 @@ Allows fuzzy search completion
 
 #+begin_src emacs-lisp
   (use-package yasnippet
-  	:hook (prog-mode . yas-minor-mode)
+  	:hook ((prog-mode . yas-minor-mode)
+  				 (org-mode  . yas-minor-mode))
   	:general
   	(:states 'insert :keymaps 'yas-keymap
   					 "<tab>" 'yas-expand
@@ -1539,7 +1553,7 @@ Allows fuzzy search completion
   (use-package yasnippet-snippets)
 
   (my/ctrl-c
-  	"y" '(yas-insert-snippet :wk "insert snippet"))
+  	"y" '(yas-describe-tables :wk "show snippets"))
 #+end_src
 
 * Directory Viewer (dirvish)
@@ -2176,6 +2190,8 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
   (use-package 0x0
     :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
 
+  (general-def :keymaps 'embark-region-map
+  	"U"   '0x0-dwim)
   (my/ctrl-c
     "0"  '(:ignore t :wk "0x0")
     "0d"  '(0x0-dwim :wk "dwim") ; upload file in dired buffer, upload text in buffer
@@ -2207,7 +2223,10 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
   - org-ref, for managing references
   - ebib, for managing ~.bib~ files
   - compare ~ccls~ and ~clangd~
+  - [[https://github.com/mpedramfar/zotra][zotra]] : zotero functionality in emacs
+  - [[https://github.com/progfolio/elpaca][elpaca]] (asynchronous), [[https://www.youtube.com/watch?v=5Ud-TE3iIQY][video]] : ~straight.el~ replacement
 ** Packages to use when required
 - [[https://github.com/etu/webpaste.el][webpaste]]: plugin for pasting text online
 - [[https://github.com/emacsmirror/spray][spray]]: speed reading emacs mode. Start with ~spray-mode~, ~SPC~ to pause/resume, ~f~ to increase speed, ~s~ to decrease speed, ~h~ for previous word, ~k~ for next word
+- [[https://github.com/alphapapa/plz.el][plz]]: http library for emacs
 

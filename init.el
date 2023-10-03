@@ -1,3 +1,6 @@
+;; Do this tp prevent slow down (from org-superstar
+;; (setq inhibit-compacting-font-caches t)
+
 (context-menu-mode)											              ; show context menu on right click
 (column-number-mode)                                  ; display position on modeline
 ;; (global-visual-line-mode t)                           ; wrap lines
@@ -74,18 +77,19 @@
   "p"    (general-simulate-key "C-x p" :which-key "project")
   "."    '(find-file :which-key "find file")
   "s"    '(:ignore t                    :wk "shortcuts")
-  "s0"   '(0x0-dwim                     :wk "0x0 share")
+  "sE"   '(elfeed                       :wk "elfeed")
+  "sM"   '(notmuch                      :wk "mail")
   "sa"   '(org-agenda                   :wk "org-agenda")
   "sc"   '(org-capture                  :wk "org-capture")
   "sd"   '(dirvish-dwim                 :wk "dirvish dwim")
   "se"   '(eshell                       :wk "eshell")
   "sg"   '(general-describe-keybindings :wk "general keybindings")
-  "sm"   '(notmuch                      :wk "mail")
+  "sm"   '(magit-status                 :wk "magit status")
   "so"   '(org-present                  :wk "org present")
   "sr"   '(consult-recent-file          :wk "recent files")
   "ss"   '(dirvish-side                 :wk "dirvish side")
-  "sp"   '(multi-vterm-project          :wk "vterm")
-  "st"   '(multi-vterm-dedicated-toggle :wk "vterm"))
+  "sp"   '(multi-vterm-project          :wk "vterm-project")
+  "st"   '(vterm                        :wk "vterm"))
 
 (general-def :states 'normal
   "j"   'evil-next-visual-line
@@ -628,9 +632,9 @@ Info-mode:
 
         ))
 
-(use-package org-bullets
+(use-package org-superstar
   :after org
-  :hook (org-mode . org-bullets-mode))
+  :hook (org-mode . org-superstar-mode))
 
 (use-package org-appear
   :after org
@@ -651,7 +655,8 @@ Info-mode:
         (latex      . t)
         (js         . t)
         (sql        . t)
-        (haskell    . t)))
+        (haskell    . t)
+        (emacs-lisp . t)))
 
 (use-package evil-org
   :after org
@@ -914,26 +919,33 @@ Info-mode:
 ;;   (fmakunbound 'gdb-enable-debug))
 
 (use-package company
-  :custom (company-minimum-prefix-length 1)
-  :config (global-company-mode)
-  :custom (company-idle-delay 0.5))
+	:config (global-company-mode)
+	:general
+	(:keymaps 'company-active-map
+					 "M-n" nil										; free up keybinding
+					 "M-p" nil										; free up keybinding
+					 "M-j" nil										; free up keybinding
+					 "M-k" nil)                   ; free up keybinding
+	:custom
+	(company-minimum-prefix-length 1)
+	(company-idle-delay 0.5))
 
-;; company front-end with icons
+;; company front-end with a posframe and icons
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :defer t
+	:hook (prog-mode . copilot-mode)
   :general
-  (:states 'insert :keymaps 'copilot-mode-map
+  (:states 'insert :keymaps '(copilot-mode-map override)
            "M-h"  'copilot-complete
            "M-n"  'copilot-next-completion
            "M-p"  'copilot-previous-completion
            "M-l"  'copilot-accept-completion-by-word
            "M-j"  'copilot-accept-completion-by-line
            "M-<return>"  'copilot-accept-completion))
-
-(add-hook 'prog-mode-hook 'copilot-mode)
 
 (use-package vertico
   :straight (:files (:defaults "extensions/*")) ; load the extensions as well
@@ -1110,7 +1122,8 @@ Info-mode:
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package yasnippet
-	:hook (prog-mode . yas-minor-mode)
+	:hook ((prog-mode . yas-minor-mode)
+				 (org-mode  . yas-minor-mode))
 	:general
 	(:states 'insert :keymaps 'yas-keymap
 					 "<tab>" 'yas-expand
@@ -1124,7 +1137,7 @@ Info-mode:
 (use-package yasnippet-snippets)
 
 (my/ctrl-c
-	"y" '(yas-insert-snippet :wk "insert snippet"))
+	"y" '(yas-describe-tables :wk "show snippets"))
 
 (use-package dirvish
   :init
@@ -1631,6 +1644,8 @@ command was called, go to its unstaged changes section."
 (use-package 0x0
   :commands (0x0-shorten-uri 0x0-dwim 0x0-upload-kill-ring 0x0-popup))
 
+(general-def :keymaps 'embark-region-map
+	"U"   '0x0-dwim)
 (my/ctrl-c
   "0"  '(:ignore t :wk "0x0")
   "0d"  '(0x0-dwim :wk "dwim") ; upload file in dired buffer, upload text in buffer
