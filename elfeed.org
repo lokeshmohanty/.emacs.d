@@ -1,5 +1,12 @@
+#+title: Elfeed Sources
+#+author: Lokesh Mohanty
+
+Get twitter rss feeds from [[https://github.com/zedeus/nitter/wiki/Instances][nitter wiki instances]].
+Currently using [[https://twiiit.com/][twiiit]] which picks a random nitter instance each time.
+
 * Elfeed                                                             :elfeed:
 ** Blogs                                                             :blogs:
+*** [[https://tony-zorman.com/atom.xml][tony-zorman]]                                              :xmonad:emacs:
 *** [[https://karthinks.com/index.xml][karthink]]                                                        :emacs:
 *** [[https://planet.emacslife.com/atom.xml][planetemacs]]                                                     :emacs:
 *** [[http://pragmaticemacs.com/feed/][pragmaticemacs]]                                                  :emacs:
@@ -7,21 +14,21 @@
 *** [[https://xkcd.com/atom.xml][xkcd]]                                                            :memes:
 *** [[https://systemcrafters.net/rss/news.xml][systemcrafters]]                                                  :emacs:
 ** Twitter                                                         :twitter:
-*** [[https://nitter.net/iiscbangalore/rss][iisc]]                                                             :iisc:
-*** [[https://nitter.net/cdsiisc/rss][iisc cds]]                                                         :iisc:
-*** [[https://nitter.net/SashikumaarG/rss][sashikumaar_ganesan]]                                              :iisc:
-*** [[https://nitter.net/deepakns/rss][deepak subramani]]                                                 :iisc:
-*** [[https://nitter.net/dair_ai/rss][dair]]                                                               :ai:
-*** [[https://nitter.net/huggingface/rss][hugging_face]]                                                       :ai:
-*** [[https://nitter.net/MetaAI/rss][meta]]                                                               :ai:
-*** [[https://nitter.net/midjourney/rss][midjourney]]                                                         :ai:
-*** [[https://nitter.net/AndrewYNg/rss][andrew_ng]]                                                          :ai:
-*** [[https://nitter.net/ylecun/rss][yann lecun]]                                                         :ai:
-*** [[https://nitter.net/goodfellow_ian/rss][goodfellow]]                                                         :ai:
-*** [[https://nitter.net/ilyasut/rss][ilya_sutskever]]                                                     :ai:
-*** [[https://nitter.net/XAI_Research/rss][xai_research]]                                                       :ai:
-*** [[https://nitter.net/ExplainableML/rss][explainable_ml]]                                                     :ai:
-*** https://nitter.net/xmonad/rss                                  :xmonad:
+*** [[https://twiiit.com/iiscbangalore/rss][iisc]]                                                             :iisc:
+*** [[https://twiiit.com/cdsiisc/rss][iisc cds]]                                                         :iisc:
+*** [[https://twiiit.com/SashikumaarG/rss][sashikumaar-ganesan]]                                              :iisc:
+*** [[https://twiiit.com/deepakns/rss][deepak-subramani]]                                                 :iisc:
+*** [[https://twiiit.com/dair_ai/rss][dair]]                                                               :ai:
+*** [[https://twiiit.com/huggingface/rss][hugging-face]]                                                       :ai:
+*** [[https://twiiit.com/MetaAI/rss][meta]]                                                               :ai:
+*** [[https://twiiit.com/midjourney/rss][midjourney]]                                                         :ai:
+*** [[https://twiiit.com/AndrewYNg/rss][andrew-ng]]                                                          :ai:
+*** [[https://twiiit.com/ylecun/rss][yann-lecun]]                                                         :ai:
+*** [[https://twiiit.com/goodfellow_ian/rss][goodfellow]]                                                         :ai:
+*** [[https://twiiit.com/ilyasut/rss][ilya-sutskever]]                                                     :ai:
+*** [[https://twiiit.com/XAI_Research/rss][xai-research]]                                                       :ai:
+*** [[https://twiiit.com/ExplainableML/rss][explainable-ml]]                                                     :ai:
+*** [[https://twiiit.com/xmonad/rss][xmonad]]                                                           :xmonad:
 ** Youtube                                                         :youtube:
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw][3b1b]]                                                            :maths:
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg][2-minute-papers]]                                               :science:
@@ -30,4 +37,8 @@
 ** Reddit                                                           :reddit:
 *** [[http://www.reddit.com/r/xmonad/.rss][xmonad]]                                                         :ignore:
 *** [[http://www.reddit.com/r/MachineLearning/.rss][machinelearning]]                                                :ignore:
-
+** ArXiv                                                             :arxiv:
+*** [[http://arxiv.org/rss/cs.AI][Artificial Intelligence]]
+*** [[http://arxiv.org/rss/cs.LG][Machine Learning]]
+*** [[http://arxiv.org/rss/cs.MA][Multiagent Systems]]
+*** [[http://arxiv.org/rss/cs.NE][Neural, Evolutionary Computing]]

@@ -1289,6 +1289,44 @@ command was called, go to its unstaged changes section."
 
 (use-package sudo-edit)
 
+(use-package popper
+	:bind (("C-`"   . popper-toggle)
+				 ("M-`"   . popper-cycle)
+				 ("C-M-`" . popper-toggle-type))
+	:init
+	(setq popper-reference-buffers
+				'("\\*Messages\\*"
+					"Output\\*$"
+					("^\\*Warnings\\*$" . hide)
+					("^\\*Compile-Log\\*$" . hide)
+					"^\\*Matlab Help.*\\*$"
+					"^\\*Backtrace\\*"
+					"^\\*evil-registers\\*"
+					"^\\*Apropos"
+					"^Calc:"
+					"^\\*eldoc\\*"
+					"^\\*TeX errors\\*"
+					"^\\*ielm\\*"
+					"^\\*TeX Help\\*"
+					"^\\*ChatGPT\\*"
+					"^\\*gptel-quick\\*"
+					"\\*Shell Command Output\\*"
+					("\\*Async Shell Command\\*" . hide)
+					("\\*Detached Shell Command\\*" . hide)
+					"\\*Completions\\*"
+					help-mode
+					compilation-mode))
+	(setq popper-reference-buffers
+				(append popper-reference-buffers
+								'("^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
+									"^\\*shell.*\\*$"  shell-mode  ;shell as a popup
+									"^\\*term.*\\*$"   term-mode   ;term as a popup
+									"^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+									)))
+	(setq popper-group-function #'popper-group-by-project) ; project.el projects
+	(popper-mode +1)
+	(popper-echo-mode +1))                ; For echo area hints
+
 (use-package vterm
   :custom (vterm-shell "fish"))
 
@@ -1486,7 +1524,24 @@ command was called, go to its unstaged changes section."
   (org-msg-mode))
 
 (use-package elfeed
-  :bind ("C-x w" . elfeed)
+	:preface
+	;; source: https://gitlab.com/slotThe/dotfiles/-/blob/master/emacs/.config/emacs/lisp/hopf-rss.el
+	(defun slot/elfeed-browser (&optional arg)
+		(interactive "P")
+		(let* ((entry (if (eq major-mode 'elfeed-show-mode)
+											elfeed-show-entry
+										(elfeed-search-selected :ignore-region)))
+					 (link (elfeed-entry-link entry)))
+			(if arg
+					(call-process "firefox" nil 0 nil link)
+				(when (eq major-mode 'elfeed-search-mode)
+					(elfeed-search-show-entry entry))
+				(eww link)
+				(add-hook 'eww-after-render-hook 'eww-readable nil t))))
+  ;; :bind ("C-x w" . elfeed)
+	:general
+	(:states 'normal :keymaps '(elfeed-show-mode-map elfeed-search-mode-map)
+						"C-c C-o" 'slot/elfeed-browser)
   :custom (use-shr-fonts nil))
 
 (use-package elfeed-org
@@ -1499,20 +1554,17 @@ command was called, go to its unstaged changes section."
 (use-package elfeed-tube
   :after elfeed
   :demand t
+	:general
+	(:states 'normal :keymaps '(elfeed-search-mode-map elfeed-show-mode-map override)
+					 "F" 'elfeed-tube-fetch
+	         [remap save-buffer] 'elfeed-tube-save)
   :config
   (setq elfeed-tube-auto-save-p t) ; default value: nil
-  ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
-  (elfeed-tube-setup)
-
-  :bind (:map elfeed-show-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)
-         :map elfeed-search-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)))
+  (elfeed-tube-setup))
 
 (use-package elfeed-tube-mpv
   :bind (:map elfeed-show-mode-map
+              ("C-c C-m" . elfeed-tube-mpv)
               ("C-c C-f" . elfeed-tube-mpv-follow-mode)
               ("C-c C-w" . elfeed-tube-mpv-where)))
 
