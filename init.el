@@ -730,64 +730,256 @@ Info-mode:
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
 
-(use-package tex
-  :straight auctex
-  :general
-  (:states '(normal insert visual emacs) :keymaps 'TeX-mode-map
-           "C-c C-g" '(pdf-sync-forward-search)
-           "<f2>" 'preview-document)
-  :custom
-  (TeX-auto-save t)
-  (TeX-parse-self t)
-  (TeX-PDF-mode t)
-  (preview-auto-cache-preamble t)
-  ;; (TeX-view-program-selection '((output-pdf "xdg-open")))
-  (TeX-source-correlate-method (quote synctex))
-  (TeX-source-correlate-mode t)
-  (TeX-source-correlate-start-server t)
-  (TeX-view-program-selection '((output-pdf "PDF Tools")))
-  (TeX-output-dir "output")
-  :config
-  (add-hook 'TeX-after-compilation-finished-functions
-            #'TeX-revert-document-buffer)
-  ;; (add-hook 'TeX-after-TeX-LaTeX-command-finished-hook #'TeX-revert-document-buffer)
-  (setq-default TeX-master nil))
+(use-package latex
+	:after tex
+	:straight auctex
+	:hook ((LaTeX-mode . prettify-symbols-mode))
+	:bind (:map LaTeX-mode-map
+							("C-S-e" . latex-math-from-calc))
+	:custom
+	(TeX-auto-save t)
+	(TeX-parse-self t)
+	(TeX-PDF-mode t)
+	(TeX-source-correlate-method (quote synctex))
+	(TeX-source-correlate-mode t)
+	(TeX-output-dir "output")
+	(TeX-source-correlate-start-server t)
+	(TeX-view-program-selection '((output-pdf "PDF Tools")))
+	(TeX-error-overview-open-after-TeX-run nil)
+	(LaTeX-command "latex")
+	(TeX-newline-function 'reindent-then-newline-and-indent)
+	(TeX-view-program-selection
+	 '(((output-dvi has-no-display-manager) "dvi2tty")
+		 ((output-dvi style-pstricks) "dvips and gv")
+		 (output-dvi "xdvi")
+		 (output-pdf "PDF Tools")
+		 ;; (output-pdf "Zathura")
+		 (output-html "xdg-open")))
+	:preface
+	;; Format math as a Latex string with Calc
+	(defun latex-math-from-calc ()
+		"Evaluate `calc' on the contents of line at point."
+		(interactive)
+		(cond ((region-active-p)
+					 (let* ((beg (region-beginning))
+									(end (region-end))
+									(string (buffer-substring-no-properties beg end)))
+						 (kill-region beg end)
+						 (insert (calc-eval `(,string calc-language latex
+																					calc-prefer-frac t
+																					calc-angle-mode rad)))))
+					(t (let ((l (thing-at-point 'line)))
+							 (end-of-line 1) (kill-line 0) 
+							 (insert (calc-eval `(,l
+																		calc-language latex
+																		calc-prefer-frac t
+																		calc-angle-mode rad)))))))
+	:config
+	(defvar my-preamble-file (concat (expand-file-name
+																		(file-name-as-directory "~/Documents/Projects/LatexTemplate"))
+																	 "texstyle.tex")
+		"File containing my stock preamble for LaTeX documents")
+	(add-hook 'TeX-after-compilation-finished-functions
+						#'TeX-revert-document-buffer))
 
-(add-hook 'LaTeX-mode-hook 'prettify-symbols-mode)
+(use-package preview
+  :straight nil
+  :after latex
+  :hook ((LaTeX-mode . preview-larger-previews))
+  :config
+  (defun preview-larger-previews ()
+    (setq preview-scale-function
+          (lambda () (* 1.25
+												(funcall (preview-scale-from-face)))))))
 
 (use-package cdlatex
-  :hook
-  (LaTeX-mode . turn-on-cdlatex)
-  ;; (LaTeX-mode . cdlatex-mode)
-  (org-mode . org-cdlatex-mode)
-  :bind (:map cdlatex-mode-map ("<tab>" . cdlatex-tab))
-  :config
-  (dolist (cmd '(("vc" "Insert \\vect{}" "\\vect{?}"
-                  cdlatex-position-cursor nil nil t)
-                 ("equ*" "Insert equation* env"
-                  "\\begin{equation*}\n?\n\\end{equation*}"
-                  cdlatex-position-cursor nil t nil)
-                 ("sn*" "Insert section* env"
-                  "\\section*{?}"
-                  cdlatex-position-cursor nil t nil)
-                 ("ss*" "Insert subsection* env"
-                  "\\subsection*{?}"
-                  cdlatex-position-cursor nil t nil)
-                 ("sss*" "Insert subsubsection* env"
-                  "\\subsubsection*{?}"
-                  cdlatex-position-cursor nil t nil)))
-    (push cmd cdlatex-command-alist))
+	:hook ((LaTeX-mode . turn-on-cdlatex)
+				 (org-mode . org-cdlatex-mode))
+	:general
+	(:states 'insert :keymaps 'cdlatex-mode-map
+					 "<tab>" 'cdlatex-tab)
+  :init
+  (setq cdlatex-command-alist
+        '(("vc" "Insert \\vect{}" "\\vect{?}"
+            cdlatex-position-cursor nil nil t)
+          ("smat" "Insert smallmatrix env"
+            "\\left( \\begin{smallmatrix} ? \\end{smallmatrix} \\right)"
+            cdlatex-position-cursor nil nil t)
+          ("bmat" "Insert bmatrix env"
+            "\\begin{bmatrix} ? \\end{bmatrix}"
+            cdlatex-position-cursor nil nil t)
+          ("pmat" "Insert pmatrix env"
+            "\\begin{pmatrix} ? \\end{pmatrix}"
+            cdlatex-position-cursor nil nil t)
+          ("equ*" "Insert equation* env"
+            "\\begin{equation*}\n?\n\\end{equation*}"
+            cdlatex-position-cursor nil t nil)
+          ("sn*" "Insert section* env"
+            "\\section*{?}"
+            cdlatex-position-cursor nil t nil)
+          ("ss*" "Insert subsection* env"
+            "\\subsection*{?}"
+            cdlatex-position-cursor nil t nil)
+          ("sss*" "Insert subsubsection* env"
+            "\\subsubsection*{?}"
+            cdlatex-position-cursor nil t nil)))
+		:config
+		(setq cdlatex-math-symbol-alist '((?F ("\\Phi"))
+																			(?o ("\\omega" "\\mho" "\\mathcal{O}"))
+																			(?. ("\\cdot" "\\circ"))
+																			(?6 ("\\partial"))
+																			(?v ("\\vee" "\\forall"))
+																			(?^ ("\\uparrow" "\\Updownarrow" "\\updownarrow"))))
+		(setq cdlatex-math-modify-alist '((?b "\\mathbf" "\\textbf" t nil nil)
+																			(?B "\\mathbb" "\\textbf" t nil nil)
+																			(?t "\\text" nil t nil nil))))
 
-  (setq cdlatex-math-symbol-alist '((?F ("\\Phi"))
-                                    (?o ("\\omega" "\\mho" "\\mathcal{O}"))
-                                    (?6 ("\\partial"))
-                                    (?v ("\\vee" "\\forall"))
-                                    (?^ ("\\uparrow" "\\Updownarrow" "\\updownarrow"))))
-  (setq cdlatex-math-modify-alist '((?B "\\mathbb" "\\textbf" t nil nil)
-                                    ;; (?t "\\text" nil t nil nil)
-                                    ))
-  (setq cdlatex-paired-parens "$[{(")
-  (cdlatex-reset-mode))
+
+
+;; Yasnippet settings
+(use-package yasnippet
+  :hook ((LaTeX-mode . yas-minor-mode)
+         (post-self-insert . my/yas-try-expanding-auto-snippets))
+  :config
+  (use-package warnings
+    :config
+    (cl-pushnew '(yasnippet backquote-change)
+                warning-suppress-types
+                :test 'equal))
+
+  (setq yas-triggers-in-field t)
+  
+  ;; Function that tries to autoexpand YaSnippets
+  ;; The double quoting is NOT a typo!
+  (defun my/yas-try-expanding-auto-snippets ()
+    (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+      (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
+        (yas-expand)))))
+
+;; CDLatex integration with YaSnippet: Allow cdlatex tab to work inside Yas
+;; fields
+(use-package cdlatex
+  :hook ((cdlatex-tab . yas-expand)
+         (cdlatex-tab . cdlatex-in-yas-field))
+  :config
+  (use-package yasnippet
+    :general
+		(:states 'insert :keymaps 'yas-keymap
+								"<tab>" 'yas-next-field-or-cdlatex
+								"TAB" 'yas-next-field-or-cdlatex)
+    :config
+    (defun cdlatex-in-yas-field ()
+      ;; Check if we're at the end of the Yas field
+      (when-let* ((_ (overlayp yas--active-field-overlay))
+                  (end (overlay-end yas--active-field-overlay)))
+        (if (>= (point) end)
+            ;; Call yas-next-field if cdlatex can't expand here
+            (let ((s (thing-at-point 'sexp)))
+              (unless (and s (assoc (substring-no-properties s)
+                                    cdlatex-command-alist-comb))
+                (yas-next-field-or-maybe-expand)
+                t))
+          ;; otherwise expand and jump to the correct location
+          (let (cdlatex-tab-hook minp)
+            (setq minp
+                  (min (save-excursion (cdlatex-tab)
+                                       (point))
+                       (overlay-end yas--active-field-overlay)))
+            (goto-char minp) t))))
+
+    (defun yas-next-field-or-cdlatex nil
+      (interactive)
+      "Jump to the next Yas field correctly with cdlatex active."
+      (if
+          (or (bound-and-true-p cdlatex-mode)
+              (bound-and-true-p org-cdlatex-mode))
+          (cdlatex-tab)
+        (yas-next-field-or-maybe-expand)))))
+
+;; Array/tabular input with org-tables and cdlatex 
+(use-package org-table
+  :straight nil
+  :after cdlatex
+  :general
+	(:states 'insert :keymaps 'orgtbl-mode-map
+              "<tab>" 'lazytab-org-table-next-field-maybe
+              "TAB" 'lazytab-org-table-next-field-maybe)
+  :init
+  (add-hook 'cdlatex-tab-hook 'lazytab-cdlatex-or-orgtbl-next-field 90)
+  ;; Tabular environments using cdlatex
+  (add-to-list 'cdlatex-command-alist '("smat" "Insert smallmatrix env"
+																				"\\left( \\begin{smallmatrix} ? \\end{smallmatrix} \\right)"
+																				lazytab-position-cursor-and-edit
+																				nil nil t))
+  (add-to-list 'cdlatex-command-alist '("bmat" "Insert bmatrix env"
+																				"\\begin{bmatrix} ? \\end{bmatrix}"
+																				lazytab-position-cursor-and-edit
+																				nil nil t))
+  (add-to-list 'cdlatex-command-alist '("pmat" "Insert pmatrix env"
+																				"\\begin{pmatrix} ? \\end{pmatrix}"
+																				lazytab-position-cursor-and-edit
+																				nil nil t))
+  (add-to-list 'cdlatex-command-alist '("tbl" "Insert table"
+                                        "\\begin{table}\n\\centering ? \\caption{}\n\\end{table}\n"
+																				lazytab-position-cursor-and-edit
+																				nil t nil))
+  :config
+  ;; Tab handling in org tables
+  (defun lazytab-position-cursor-and-edit ()
+    ;; (if (search-backward "\?" (- (point) 100) t)
+    ;;     (delete-char 1))
+    (cdlatex-position-cursor)
+    (lazytab-orgtbl-edit))
+
+  (defun lazytab-orgtbl-edit ()
+    (advice-add 'orgtbl-ctrl-c-ctrl-c :after #'lazytab-orgtbl-replace)
+    (orgtbl-mode 1)
+    (open-line 1)
+    (insert "\n|"))
+
+  (defun lazytab-orgtbl-replace (_)
+    (interactive "P")
+    (unless (org-at-table-p) (user-error "Not at a table"))
+    (let* ((table (org-table-to-lisp))
+           params
+           (replacement-table
+            (if (texmathp)
+                (lazytab-orgtbl-to-amsmath table params)
+              (orgtbl-to-latex table params))))
+      (kill-region (org-table-begin) (org-table-end))
+      (open-line 1)
+      (push-mark)
+      (insert replacement-table)
+      (align-regexp (region-beginning) (region-end) "\\([:space:]*\\)& ")
+      (orgtbl-mode -1)
+      (advice-remove 'orgtbl-ctrl-c-ctrl-c #'lazytab-orgtbl-replace)))
+  
+  (defun lazytab-orgtbl-to-amsmath (table params)
+    (orgtbl-to-generic
+     table
+     (org-combine-plists
+      '(:splice t
+                :lstart ""
+                :lend " \\\\"
+                :sep " & "
+                :hline nil
+                :llend "")
+      params)))
+
+  (defun lazytab-cdlatex-or-orgtbl-next-field ()
+    (when (and (bound-and-true-p orgtbl-mode)
+               (org-table-p)
+               (looking-at "[[:space:]]*\\(?:|\\|$\\)")
+               (let ((s (thing-at-point 'sexp)))
+                 (not (and s (assoc s cdlatex-command-alist-comb)))))
+      (call-interactively #'org-table-next-field)
+      t))
+
+  (defun lazytab-org-table-next-field-maybe ()
+    (interactive)
+    (if (bound-and-true-p cdlatex-mode)
+        (cdlatex-tab)
+      (org-table-next-field))))
 
 (use-package reftex
   :after latex
@@ -795,6 +987,7 @@ Info-mode:
   :commands turn-on-reftex
   :hook ((latex-mode LaTeX-mode) . turn-on-reftex)
   :config
+  (setq reftex-default-bibliography '("~/Documents/Research/Papers/bibliography.bib"))
   (setq reftex-insert-label-flags '("sf" "sfte"))
   (setq reftex-plug-into-AUCTeX t)
   (setq reftex-use-multiple-selection-buffers t))
@@ -885,8 +1078,9 @@ Info-mode:
   :config (setq citre-auto-enable-citre-mode-modes '(prog-mode)))
 
 (use-package eglot
-  :hook ((LaTeX-mode . eglot-ensure)
-         (c-mode     . eglot-ensure)
+  :commands (eglot eglot-ensure)
+  ;; :hook ((LaTeX-mode . eglot-ensure)
+  :hook ((c-mode     . eglot-ensure)
          (c++-mode   . eglot-ensure)))
 
 ;; (add-to-list 'eglot-server-programs '((c++-mode c++-ts-mode c-mode c-ts-mode) "clangd"))
@@ -943,7 +1137,7 @@ Info-mode:
   :defer t
 	:hook (prog-mode . copilot-mode)
   :general
-  (:states 'insert :keymaps '(copilot-mode-map override)
+  (:states 'insert :keymaps 'copilot-mode-map
            "M-h"  'copilot-complete
            "M-n"  'copilot-next-completion
            "M-p"  'copilot-previous-completion
