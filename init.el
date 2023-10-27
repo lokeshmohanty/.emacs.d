@@ -12,6 +12,11 @@
 (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
 (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
 
+;; enable automatic line breaking
+(setq-default fill-column 90)
+(add-hook 'text-mode-hook #'auto-fill-mode)
+(add-hook 'prog-mode-hook #'auto-fill-mode)
+
 (setq-default tab-width 2
               ;; display-line-numbers-type 'relative
               use-short-answers t                     ; Replace yes/no prompts with y/n
@@ -110,6 +115,7 @@
   "hi"  '(hydra-info/body :wk "info")
   "hp"  '(hydra-pdftools/body :wk "pdftooks")
   "hc"  '(hydra-org-clock/body :wk "org-clock")
+  "hd"  '(hydra-dumb-jump/body :wk "dump-jump")
   "hs"  '(hydra-smartparens/body :wk "smartparens")
   "hw"  '(hydra-window/body :wk "window")
   "hr"  '((lambda () (interactive) (load-file (expand-file-name "init.el" user-emacs-directory))) :wk "Reload emacs config")
@@ -462,14 +468,14 @@ Info-mode:
   :config
   (evil-mode 1)
   ;; replace <C-z> with <C-x C-z> to use <C-z> to suspend frame instead
-  (define-key evil-motion-state-map (kbd "C-z") 'suspend-frame)
-  (define-key evil-motion-state-map (kbd "C-x C-z") 'evil-emacs-state)
-  (define-key evil-emacs-state-map (kbd "C-z") 'suspend-frame)
-  (define-key evil-emacs-state-map (kbd "C-x C-z") 'evil-exit-emacs-state)
+  ;; (define-key evil-motion-state-map (kbd "C-z") 'suspend-frame)
+  ;; (define-key evil-motion-state-map (kbd "C-x C-z") 'evil-emacs-state)
+  ;; (define-key evil-emacs-state-map (kbd "C-z") 'suspend-frame)
+  ;; (define-key evil-emacs-state-map (kbd "C-x C-z") 'evil-exit-emacs-state)
   ;; make <C-z> emulate vim in insert/replace mode 
-  (define-key evil-insert-state-map (kbd "C-z") (kbd "C-q C-z"))
-  (define-key evil-insert-state-map (kbd "C-x C-z") 'evil-emacs-state)
-  (define-key evil-replace-state-map (kbd "C-z") (kbd "C-q C-z"))
+  ;; (define-key evil-insert-state-map (kbd "C-z") (kbd "C-q C-z"))
+  ;; (define-key evil-insert-state-map (kbd "C-x C-z") 'evil-emacs-state)
+  ;; (define-key evil-replace-state-map (kbd "C-z") (kbd "C-q C-z"))
   )
 
 (use-package evil-collection
@@ -501,8 +507,10 @@ Info-mode:
 
 (use-package avy
 	:custom (avy-timeout-seconds 0.3)
-  :general (:states 'normal :keymaps 'override
-                    "K" 'avy-goto-char-timer))
+  :general (:states '(normal visual insert) :keymaps 'override
+                    "C-k" 'avy-goto-char-timer))
+  ;; :general (:states '(normal visual) :keymaps 'override
+  ;;                   "K" 'avy-goto-char-timer)
 
 (use-package evil-surround
   :config (global-evil-surround-mode 1))
@@ -519,10 +527,24 @@ Info-mode:
 
 (defhydra hydra-expand ()
   "Zoom/Expand Region"
-  ("n" er/expand-region    "expand-region")
-  ("p" er/contract-region  "contract-region")
-  ("h" text-scale-increase "zoom in ")
-  ("l" text-scale-decrease "zoom out"))
+  ("m" er/expand-region    "expand-region")
+  ("l" er/contract-region  "contract-region")
+  ("+" text-scale-increase "zoom in ")
+  ("-" text-scale-decrease "zoom out"))
+
+(use-package dumb-jump)
+;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+;; (setq xref-backend-functions '(dumb-jump-xref-activate))
+
+(defhydra hydra-dumb-jump (:color blue :columns 3)
+  "Dumb Jump"
+  ("j" dumb-jump-go "Go")
+  ("o" dumb-jump-go-other-window "Other window")
+  ("e" dumb-jump-go-prefer-external "Go external")
+  ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
+  ("i" dumb-jump-go-prompt "Prompt")
+  ("l" dumb-jump-quick-look "Quick look")
+  ("b" dumb-jump-back "Back"))
 
 (use-package org
 	:custom
@@ -727,6 +749,7 @@ Info-mode:
    (cmake-mode      . cmake-ts-mode)
    (python-mode     . python-ts-mode)))
 
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
 
@@ -1021,14 +1044,15 @@ Info-mode:
                   :command (list "tikzit" filename))))
 
 (use-package markdown-mode
-  :mode ("README\\.md\\'" . gfm-mode))
+	:mode (("README\\.md\\'" . gfm-mode)
+				 ("\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\|rst\\)\\'" . markdown-mode)))
 
 (use-package evil-markdown
-  :straight '(evil-markdown
-               :host github
-               :repo "Somelauw/evil-markdown")
-  :after markdown-mode
-  :hook (markdown-mode . evil-markdown-mode))
+	:straight '(evil-markdown
+							:host github
+							:repo "Somelauw/evil-markdown")
+	:after markdown-mode
+	:hook (markdown-mode . evil-markdown-mode))
 
 (use-package cuda-mode)
 
@@ -1058,6 +1082,8 @@ Info-mode:
 (use-package hs-lint
 	:straight nil
 	:load-path "lisp/")
+
+(use-package lua-mode)
 
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -1124,7 +1150,7 @@ Info-mode:
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :defer t
-	:hook (prog-mode . copilot-mode)
+	;; :hook (prog-mode . copilot-mode)
   :general
   (:states 'insert :keymaps 'copilot-mode-map
            "M-h"  'copilot-complete
@@ -1206,6 +1232,8 @@ Info-mode:
          ("C-M-#" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("M-o" . evil-collection-consult-jump-list)
+         ("M-O" . consult-org-agenda)
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
@@ -1638,7 +1666,7 @@ command was called, go to its unstaged changes section."
 				(gen "lokesh1197@gmail.com"))
 		(setq notmuch-fcc-dirs
 					`((,prv . ,(concat prv "/Sent"))
-						(,pub . ,(concat pub "/Sent Items"))
+						(,pub . ,(concat pub "/Sent\ Items"))
 						(,gen . ,(concat gen "/Sent"))))))
 
 (use-package gnus-alias
@@ -1747,7 +1775,7 @@ command was called, go to its unstaged changes section."
   :after elfeed
   :demand t
 	:general
-	(:states 'normal :keymaps '(elfeed-search-mode-map elfeed-show-mode-map override)
+	(:states 'normal :keymaps '(elfeed-search-mode-map elfeed-show-mode-map)
 					 "F" 'elfeed-tube-fetch
 	         [remap save-buffer] 'elfeed-tube-save)
   :config
