@@ -83,7 +83,7 @@ all the fonts. Similarly, run interactively ~nerd-icons-install-fonts~ for ~doom
     (add-to-list 'default-frame-alist '(tooltip-lines . 0))    ; disable the toolbar
     (add-to-list 'default-frame-alist '(menu-bar-lines . 0))   ; disalbe the menu bar
     (add-to-list 'default-frame-alist '(vertical-scroll-bars)) ; disable scroll bars
-    (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
+    ;; (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
 
     ;; Example of setting a frame parameter manually
     ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -118,13 +118,14 @@ all the fonts. Similarly, run interactively ~nerd-icons-install-fonts~ for ~doom
   (context-menu-mode)											              ; show context menu on right click
   (column-number-mode)                                  ; display position on modeline
   ;; (global-visual-line-mode t)                           ; wrap lines
+  (add-hook 'org-mode-hook  'visual-line-mode)
   (global-auto-revert-mode)
   (setq blink-cursor-mode nil)
   (add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
   (add-hook 'TeX-mode-hook 'hs-minor-mode)              ; enable folding for latex mode
   (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
   (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
-  (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
+  ;; (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
 
   ;; enable automatic line breaking
   (setq-default fill-column 90)
@@ -234,7 +235,7 @@ Use =general-describe-keybindings= to view all keybindings defined using =genera
     "sr"   '(consult-recent-file          :wk "recent files")
     "ss"   '(dirvish-side                 :wk "dirvish side")
     "sp"   '(multi-vterm-project          :wk "vterm-project")
-    "st"   '(vterm                        :wk "vterm"))
+    "st"   '(multi-vterm-dedicated-toggle :wk "vterm-dedicated"))
 
   (general-def :states 'normal
     "j"   'evil-next-visual-line
@@ -562,9 +563,9 @@ Default: =C-x 5=
 - Iosevka Fixed SS07
 
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
+  (set-face-attribute 'default nil :family "Iosevka Comfy Duo" :height 135)
   (set-face-attribute 'font-lock-comment-face nil
-                      :family "Iosevka Fixed SS07"
+                      :family "Iosevka Comfy Duo"
                       :height 135
                       :slant 'italic)
 #+end_src
@@ -595,7 +596,7 @@ Default: =C-x 5=
   ;;   (load-theme 'gruvbox-dark-medium t))
   (use-package doom-themes
     :config
-      (load-theme 'doom-palenight t))
+      (load-theme 'doom-gruvbox t))				; others: palenight
 #+end_src
 
 ** Modeline
@@ -644,6 +645,9 @@ Default: =C-x 5=
   	;; display such segments in all windows, specify e.g.
   	(setq doom-modeline-always-visible-segments '(mu4e irc))
   	(doom-modeline-mode 1))
+
+  (use-package minions
+  	:config (minions-mode 1))
 #+end_src
 
 ** Terminal fixes (emacs -nw)
@@ -1440,6 +1444,7 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
   	:load-path "lisp/")
 
   (use-package lua-mode)
+  (use-package nix-mode)
 #+end_src
 
 ** Language Server Protocol (LSP)
@@ -2030,8 +2035,8 @@ You can manually activate the hydra with the command ~unpackaged/smerge-hydra/bo
 *References*: [[https://github.com/suonlight/multi-vterm][multi-vterm]]
 
 #+begin_src emacs-lisp
-  (use-package vterm
-    :custom (vterm-shell "fish"))
+  ;; (use-package vterm
+  ;;   :custom (vterm-shell "fish"))
 
   (use-package multi-vterm
     :general
@@ -2360,6 +2365,7 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
 #+begin_src emacs-lisp
   (use-package org-present)
   (use-package visual-fill-column
+  	:hook (org-mode . visual-fill-column-mode)
     :custom
     (visual-fill-column-width 110)
     (visual-fill-column-center-text t))
@@ -2372,16 +2378,18 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
   (defun my/org-present-start ()
     (setq header-line-format " ") ; set a blank header line string to create blank space at the top
     (org-display-inline-images)
-    (display-line-numbers-mode 0)
-    (visual-line-mode 1)
-    (visual-fill-column-mode 1))
+    ;; (display-line-numbers-mode 0)
+    ;; (visual-line-mode 1)
+    ;; (visual-fill-column-mode 1)
+  	)
 
   (defun my/org-present-end ()
     (setq header-line-format nil) ; clear the header line string so that it isn't displayed
     (org-remove-inline-images)
-    (display-line-numbers-mode 1)
-    (visual-line-mode 0)
-    (visual-fill-column-mode 0))
+    ;; (display-line-numbers-mode 1)
+    ;; (visual-line-mode 0)
+    ;; (visual-fill-column-mode 0)
+  	)
 
   (add-hook 'org-present-mode-hook #'my/org-present-start)
   (add-hook 'org-present-mode-quit-hook #'my/org-present-end)

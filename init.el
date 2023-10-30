@@ -4,13 +4,14 @@
 (context-menu-mode)											              ; show context menu on right click
 (column-number-mode)                                  ; display position on modeline
 ;; (global-visual-line-mode t)                           ; wrap lines
+(add-hook 'org-mode-hook  'visual-line-mode)
 (global-auto-revert-mode)
 (setq blink-cursor-mode nil)
 (add-hook 'prog-mode-hook 'hs-minor-mode)             ; enable folding
 (add-hook 'TeX-mode-hook 'hs-minor-mode)              ; enable folding for latex mode
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; enable line numbers for all programming modes
 (add-hook 'TeX-mode-hook  'display-line-numbers-mode) ; enable line numbers for latex mode
-(add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
+;; (add-hook 'org-mode-hook  'display-line-numbers-mode) ; enable line numbers for org mode
 
 ;; enable automatic line breaking
 (setq-default fill-column 90)
@@ -94,7 +95,7 @@
   "sr"   '(consult-recent-file          :wk "recent files")
   "ss"   '(dirvish-side                 :wk "dirvish side")
   "sp"   '(multi-vterm-project          :wk "vterm-project")
-  "st"   '(vterm                        :wk "vterm"))
+  "st"   '(multi-vterm-dedicated-toggle :wk "vterm-dedicated"))
 
 (general-def :states 'normal
   "j"   'evil-next-visual-line
@@ -377,9 +378,9 @@ Info-mode:
                                100
                                (/ opacity 100.0)))))
 
-(set-face-attribute 'default nil :family "Iosevka Fixed SS07" :height 135)
+(set-face-attribute 'default nil :family "Iosevka Comfy Duo" :height 135)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Iosevka Fixed SS07"
+                    :family "Iosevka Comfy Duo"
                     :height 135
                     :slant 'italic)
 
@@ -399,7 +400,7 @@ Info-mode:
 ;;   (load-theme 'gruvbox-dark-medium t))
 (use-package doom-themes
   :config
-    (load-theme 'doom-palenight t))
+    (load-theme 'doom-gruvbox t))				; others: palenight
 
 ;; very minimal modeline
 ;; (use-package mood-line
@@ -443,6 +444,9 @@ Info-mode:
 	;; display such segments in all windows, specify e.g.
 	(setq doom-modeline-always-visible-segments '(mu4e irc))
 	(doom-modeline-mode 1))
+
+(use-package minions
+	:config (minions-mode 1))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -1084,6 +1088,7 @@ Info-mode:
 	:load-path "lisp/")
 
 (use-package lua-mode)
+(use-package nix-mode)
 
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -1547,8 +1552,8 @@ command was called, go to its unstaged changes section."
 	(popper-mode +1)
 	(popper-echo-mode +1))                ; For echo area hints
 
-(use-package vterm
-  :custom (vterm-shell "fish"))
+;; (use-package vterm
+;;   :custom (vterm-shell "fish"))
 
 (use-package multi-vterm
   :general
@@ -1815,6 +1820,7 @@ command was called, go to its unstaged changes section."
 
 (use-package org-present)
 (use-package visual-fill-column
+	:hook (org-mode . visual-fill-column-mode)
   :custom
   (visual-fill-column-width 110)
   (visual-fill-column-center-text t))
@@ -1827,16 +1833,18 @@ command was called, go to its unstaged changes section."
 (defun my/org-present-start ()
   (setq header-line-format " ") ; set a blank header line string to create blank space at the top
   (org-display-inline-images)
-  (display-line-numbers-mode 0)
-  (visual-line-mode 1)
-  (visual-fill-column-mode 1))
+  ;; (display-line-numbers-mode 0)
+  ;; (visual-line-mode 1)
+  ;; (visual-fill-column-mode 1)
+	)
 
 (defun my/org-present-end ()
   (setq header-line-format nil) ; clear the header line string so that it isn't displayed
   (org-remove-inline-images)
-  (display-line-numbers-mode 1)
-  (visual-line-mode 0)
-  (visual-fill-column-mode 0))
+  ;; (display-line-numbers-mode 1)
+  ;; (visual-line-mode 0)
+  ;; (visual-fill-column-mode 0)
+	)
 
 (add-hook 'org-present-mode-hook #'my/org-present-start)
 (add-hook 'org-present-mode-quit-hook #'my/org-present-end)

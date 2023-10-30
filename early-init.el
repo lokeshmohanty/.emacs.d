@@ -32,7 +32,7 @@
   (add-to-list 'default-frame-alist '(tooltip-lines . 0))    ; disable the toolbar
   (add-to-list 'default-frame-alist '(menu-bar-lines . 0))   ; disalbe the menu bar
   (add-to-list 'default-frame-alist '(vertical-scroll-bars)) ; disable scroll bars
-  (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
+  ;; (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
 
   ;; Example of setting a frame parameter manually
   ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
