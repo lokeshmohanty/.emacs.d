@@ -378,9 +378,9 @@ Info-mode:
                                100
                                (/ opacity 100.0)))))
 
-(set-face-attribute 'default nil :family "Iosevka Comfy Duo" :height 135)
+(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Iosevka Comfy Duo"
+                    :family "Iosevka Comfy Fixed"
                     :height 135
                     :slant 'italic)
 

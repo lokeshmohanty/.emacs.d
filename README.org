@@ -560,12 +560,12 @@ Default: =C-x 5=
 ** Font
 *Preferred fonts*:
 - Source Code Pro
-- Iosevka Fixed SS07
+- Iosevka
 
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Iosevka Comfy Duo" :height 135)
+  (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
   (set-face-attribute 'font-lock-comment-face nil
-                      :family "Iosevka Comfy Duo"
+                      :family "Iosevka Comfy Fixed"
                       :height 135
                       :slant 'italic)
 #+end_src
