@@ -2503,11 +2503,11 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
     "0c"  '(0x0-upload-kill-ring :wk "clipboard"))
 #+end_src
 
-** Emacs Everywhere
-*References*: [[https://github.com/tecosaur/emacs-everywhere][emacs-everywhere]]
+* Emacs Server
 
 #+begin_src emacs-lisp
-  (use-package emacs-everywhere)
+  (load "server")
+  (unless (server-running-p) (server-start))
 #+end_src
 
 * Notes

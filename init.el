@@ -1939,4 +1939,5 @@ command was called, go to its unstaged changes section."
   "0s"  '(0x0-shorten-uri :wk "shorten")
   "0c"  '(0x0-upload-kill-ring :wk "clipboard"))
 
-(use-package emacs-everywhere)
+(load "server")
+(unless (server-running-p) (server-start))
