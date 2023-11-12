@@ -29,7 +29,7 @@
 (recentf-mode 1)                                      ; Allow storing of recent files list
 (setq recentf-max-menu-items 200)
 (setq recentf-max-saved-items 200)
-(setq ispell-dictionary "british")
+;; (setq ispell-dictionary "british")
 
 (undelete-frame-mode)										              ; allows recovering a deleted frame (emacs 29)
 
@@ -378,11 +378,15 @@ Info-mode:
                                100
                                (/ opacity 100.0)))))
 
-(set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
-(set-face-attribute 'font-lock-comment-face nil
-                    :family "Iosevka Comfy Fixed"
-                    :height 135
-                    :slant 'italic)
+(condition-case nil
+		;; (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
+		(set-face-attribute 'default nil :family "Victor Mono" :height 150 :slant 'italic)
+	(error (set-frame-font "Monospace-14")))
+
+;; (set-face-attribute 'font-lock-comment-face nil
+;; 										:family "Iosevka Comfy Fixed"
+;; 										:height 135
+;; 										:slant 'italic)
 
 (use-package all-the-icons
   :if (display-graphic-p))
@@ -533,8 +537,9 @@ Info-mode:
   "Zoom/Expand Region"
   ("m" er/expand-region    "expand-region")
   ("l" er/contract-region  "contract-region")
-  ("+" text-scale-increase "zoom in ")
-  ("-" text-scale-decrease "zoom out"))
+  ("a" text-scale-adjust   "zoom in/out")
+  ("i" text-scale-increase "zoom in")
+  ("o" text-scale-decrease "zoom out"))
 
 (use-package dumb-jump)
 ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
@@ -1404,7 +1409,8 @@ Info-mode:
         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group"))
+        "-l --human-readable --group-directories-first --no-group"))
+        ;; "-l --almost-all --human-readable --group-directories-first --no-group"))
 
 (setq dired-auto-revert-buffer t)
 (setq dired-mouse-drag-files t)                   ; added in Emacs 29
