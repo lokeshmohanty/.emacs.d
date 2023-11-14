@@ -1440,6 +1440,11 @@ Info-mode:
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
+(add-to-list 'recentf-exclude
+             (recentf-expand-file-name no-littering-var-directory))
+(add-to-list 'recentf-exclude
+             (recentf-expand-file-name no-littering-etc-directory))
+
 (use-package helpful
   :commands (helpful-callable	; for functions and macros
             helpful-function	; for functions only
@@ -1824,6 +1829,8 @@ command was called, go to its unstaged changes section."
   (setq evil-ledger-sort-key "S")
   (add-hook 'ledger-mode-hook #'evil-ledger-mode))
 
+(use-package ox-reveal)
+
 (use-package org-present)
 (use-package visual-fill-column
 	:hook (org-mode . visual-fill-column-mode)
@@ -1939,5 +1946,5 @@ command was called, go to its unstaged changes section."
   "0s"  '(0x0-shorten-uri :wk "shorten")
   "0c"  '(0x0-upload-kill-ring :wk "clipboard"))
 
-(load "server")
-(unless (server-running-p) (server-start))
+;; (load "server")
+;; (unless (server-running-p) (server-start))
