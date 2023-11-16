@@ -746,19 +746,25 @@ Info-mode:
   ("t" org-timer-item)
   ("z" (org-info "Timers")))
 
-(setq treesit-extra-load-path '("/usr/local/lib/tree-sitter"))
+;; (setq treesit-extra-load-path '("/usr/local/lib/tree-sitter"))
+(setq treesit-extra-load-path
+			(list (expand-file-name
+				"tree-sitter-module/dist"
+				user-emacs-directory)))
 
 (setq major-mode-remap-alist
  '((yaml-mode       . yaml-ts-mode)
    (bash-mode       . bash-ts-mode)
    (js2-mode        . js-ts-mode)
    (typescript-mode . typescript-ts-mode)
+   (dockerfile-mode . dockerfile-ts-mode)
    (json-mode       . json-ts-mode)
    (css-mode        . css-ts-mode)
    (cmake-mode      . cmake-ts-mode)
    (python-mode     . python-ts-mode)))
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.jsonc\\'" . json-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
 
