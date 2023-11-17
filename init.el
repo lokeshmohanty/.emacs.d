@@ -380,8 +380,13 @@ Info-mode:
 
 (condition-case nil
 		;; (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
-		(set-face-attribute 'default nil :family "Victor Mono" :height 150 :slant 'italic)
+		(set-face-attribute 'default nil
+												:family "Victor Mono"
+												:height 150
+												:slant 'italic)
 	(error (set-frame-font "Monospace-14")))
+
+;; (set-fontset-font t nil "Noto Color Emoji" nil 'append)
 
 ;; (set-face-attribute 'font-lock-comment-face nil
 ;; 										:family "Iosevka Comfy Fixed"
@@ -767,6 +772,7 @@ Info-mode:
 (add-to-list 'auto-mode-alist '("\\.jsonc\\'" . json-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\Dockerfile\\'" . dockerfile-ts-mode))
 
 (use-package latex
 	:after tex
