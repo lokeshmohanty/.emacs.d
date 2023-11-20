@@ -31,7 +31,23 @@
 (setq recentf-max-saved-items 200)
 ;; (setq ispell-dictionary "british")
 
-(undelete-frame-mode)										              ; allows recovering a deleted frame (emacs 29)
+(undelete-frame-mode)
+(setq split-window-keep-point nil)
+(setq split-window-preferred-function ' split-window-vertically)
+
+;; Nixos path issues
+;; (add-to-list 'exec-path "/home/lokesh/.nix-profile/bin")
+;; (add-to-list 'exec-path "/run/current-system/sw/bin")
+
+;; (use-package exec-path-from-shell
+;; 	:config
+;;   (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "NIX_SSL_CERT_FILE" "NIX_PATH"))
+;;     (add-to-list 'exec-path-from-shell-variables var)))
+
+;; (when (or (memq window-system '(mac ns x pgtk))
+;;           (unless (memq system-type '(ms-dos windows-nt))
+;;             (daemonp)))
+;;   (exec-path-from-shell-initialize))
 
 ;; get latest version
 (setq straight-repository-branch "develop")
@@ -769,6 +785,7 @@ Info-mode:
    (python-mode     . python-ts-mode)))
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.jsonc\\'" . json-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 (add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
@@ -825,6 +842,15 @@ Info-mode:
 		"File containing my stock preamble for LaTeX documents")
 	(add-hook 'TeX-after-compilation-finished-functions
 						#'TeX-revert-document-buffer))
+
+(defun framesMenus-display-buffer-use-some-frame (fun &rest args)
+  "Use `display-buffer-use-some-frame' as `display-buffer-overriding-action'.
+Then run FUN with ARGS."
+  (let ((display-buffer-overriding-action '(display-buffer-use-some-frame)))
+    (apply fun args)))
+
+(advice-add 'TeX-pdf-tools-sync-view :around #'framesMenus-display-buffer-use-some-frame)
+(advice-add 'pdf-sync-backward-search-mouse :around #'framesMenus-display-buffer-use-some-frame)
 
 (use-package preview
   :straight nil
