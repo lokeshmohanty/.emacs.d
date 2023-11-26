@@ -94,7 +94,7 @@ might not be upto date. It will be removed once my emacs setup on =NixOS= is com
     (add-to-list 'default-frame-alist '(tooltip-lines . 0))    ; disable the toolbar
     (add-to-list 'default-frame-alist '(menu-bar-lines . 0))   ; disalbe the menu bar
     (add-to-list 'default-frame-alist '(vertical-scroll-bars)) ; disable scroll bars
-    (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
+    ;; (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
 
     ;; Example of setting a frame parameter manually
     ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -596,7 +596,7 @@ Default: =C-x 5=
   		;; (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
   		(set-face-attribute 'default nil
   												:family "Victor Mono"
-  												:height 150
+  												:height 135
   												:slant 'italic)
   	(error (set-frame-font "Monospace-14")))
 
@@ -863,7 +863,7 @@ Commands: =gl (left align)=, =gL (right align)=
   ;; from https://stackoverflow.com/a/47850858/6479297 to littering due to org export
   ;; issue: doesn't respect "#+export_file_name" property
   (defun my/org-export-to-customized-location (orig-fun extension &optional subtreep pub-dir)
-    (unless pub-dir (setq pub-dir ".output")
+    (unless pub-dir (setq pub-dir "output")
   					(unless (file-directory-p pub-dir)
   						(make-directory pub-dir)))
     (apply orig-fun extension subtreep pub-dir nil))
@@ -2536,6 +2536,17 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
           ("N" pdf-history-forward :color red)
           ("l" image-forward-hscroll :color red)
           ("h" image-backward-hscroll :color red))
+#+end_src
+
+** REST Client (verb, restclient)
+*References*: [[https://github.com/federicotdn/verb][verb]]
+
+#+begin_src emacs-lisp
+  (use-package restclient)
+
+  (use-package verb
+  	:after org
+  	:config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 #+end_src
 
 ** Music (emms)

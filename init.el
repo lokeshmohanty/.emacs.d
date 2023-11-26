@@ -398,7 +398,7 @@ Info-mode:
 		;; (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
 		(set-face-attribute 'default nil
 												:family "Victor Mono"
-												:height 150
+												:height 135
 												:slant 'italic)
 	(error (set-frame-font "Monospace-14")))
 
@@ -597,7 +597,7 @@ Info-mode:
 ;; from https://stackoverflow.com/a/47850858/6479297 to littering due to org export
 ;; issue: doesn't respect "#+export_file_name" property
 (defun my/org-export-to-customized-location (orig-fun extension &optional subtreep pub-dir)
-  (unless pub-dir (setq pub-dir ".output")
+  (unless pub-dir (setq pub-dir "output")
 					(unless (file-directory-p pub-dir)
 						(make-directory pub-dir)))
   (apply orig-fun extension subtreep pub-dir nil))
@@ -1963,6 +1963,12 @@ command was called, go to its unstaged changes section."
         ("N" pdf-history-forward :color red)
         ("l" image-forward-hscroll :color red)
         ("h" image-backward-hscroll :color red))
+
+(use-package restclient)
+
+(use-package verb
+	:after org
+	:config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 
 (use-package emms
   ;; :init (add-hook 'emms-player-started-hook 'emms-show)
