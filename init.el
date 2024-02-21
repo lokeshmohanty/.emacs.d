@@ -49,6 +49,10 @@
 ;;             (daemonp)))
 ;;   (exec-path-from-shell-initialize))
 
+;; Wayland environment variables
+(setenv "WAYLAND_DISPLAY" "wayland-1")
+(setenv "XDG_CURRENT_DESKTOP" "Hyprland")
+
 ;; get latest version
 (setq straight-repository-branch "develop")
 
@@ -1132,6 +1136,9 @@ Then run FUN with ARGS."
 
 (use-package lua-mode)
 (use-package nix-mode)
+(use-package dart-mode)
+
+(use-package direnv)
 
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -1198,7 +1205,7 @@ Then run FUN with ARGS."
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :defer t
-	;; :hook (prog-mode . copilot-mode)
+	:hook (prog-mode . copilot-mode)
   :general
   (:states 'insert :keymaps 'copilot-mode-map
            "M-h"  'copilot-complete
