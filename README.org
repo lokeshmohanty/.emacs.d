@@ -2586,6 +2586,16 @@ Add ~(evil-local-mode -1)~ in the function definition of ~elfeed-dashboard--get-
     "0c"  '(0x0-upload-kill-ring :wk "clipboard"))
 #+end_src
 
+** Smarter CD (zoxide)
+
+#+begin_src emacs-lisp
+  (use-package zoxide
+  	:commands (zoxide-find-file))
+
+  (my/leader :states 'normal :keymaps 'override
+    ">"    '(zoxide-travel :which-key "find file (zoxide)"))
+#+end_src
+
 * Emacs Server
 
 #+begin_src emacs-lisp
