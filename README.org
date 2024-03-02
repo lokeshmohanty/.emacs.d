@@ -1465,10 +1465,6 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
 ** Python
 *References*: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode]], [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
 
-#+begin_src shell
-  # pip install "ptvsd>=4.2"
-#+end_src
-
 *** Conda
 
 #+begin_src emacs-lisp
@@ -1498,6 +1494,22 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
   ;; (use-package pyvenv)
 #+end_src
 
+*** IPython
+
+#+begin_src emacs-lisp
+  (use-package code-cells
+    :defer t
+    :general
+  	(:states 'normal :keymaps 'code-cells-mode-map
+  					 "M-p" 'code-cells-backward-cell
+  					 "M-n" 'code-cells-forward-cell
+  					 "C-c C-c" 'code-cells-eval)
+  	:config
+  	;; (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . code-cells-mode))
+  	(add-to-list 'code-cells-eval-region-commands
+  							 '(python-ts-mode . python-shell-send-region) t))
+#+end_src
+
 ** Others
 
 - haskell-mode(C-c C-l), hlint, ghcid, cabal, hindent(M-q)
@@ -1513,7 +1525,8 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
   (use-package nix-mode)
   (use-package dart-mode)
 
-  (use-package direnv)
+  (use-package direnv
+  	(direnv-mode))
 #+end_src
 
 ** Language Server Protocol (LSP)
@@ -1891,11 +1904,11 @@ Allows fuzzy search completion
     :custom
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
-       ("c" "~/Documents/Courses/Aug23/"  "Courses")
+       ("c" "~/Documents/Courses/"        "Courses")
        ("d" "~/Downloads/"                "Downloads")
        ("m" "/mnt/"                       "Drives")
-       ("p" "~/Documents/Projects/"       "Projects")
-       ("s" "~/.local/src"                "Sources")
+       ("p" "~/Projects/"                 "Projects")
+       ("n" "~/Documents/nix-config"      "Nix Config")
        ("t" "~/.local/share/Trash/files/" "TrashCan")))
     :config
     (dirvish-peek-mode) ; Preview files listed in minibuffer

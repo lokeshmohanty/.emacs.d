@@ -1128,6 +1128,18 @@ Then run FUN with ARGS."
 
 ;; (use-package pyvenv)
 
+(use-package code-cells
+  :defer t
+  :general
+	(:states 'normal :keymaps 'code-cells-mode-map
+					 "M-p" 'code-cells-backward-cell
+					 "M-n" 'code-cells-forward-cell
+					 "C-c C-c" 'code-cells-eval)
+	:config
+	;; (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . code-cells-mode))
+	(add-to-list 'code-cells-eval-region-commands
+							 '(python-ts-mode . python-shell-send-region) t))
+
 (use-package haskell-mode)
 (use-package hindent)
 (use-package hs-lint
@@ -1138,7 +1150,8 @@ Then run FUN with ARGS."
 (use-package nix-mode)
 (use-package dart-mode)
 
-(use-package direnv)
+(use-package direnv
+	(direnv-mode))
 
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -1440,11 +1453,11 @@ Then run FUN with ARGS."
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
-     ("c" "~/Documents/Courses/Aug23/"  "Courses")
+     ("c" "~/Documents/Courses/"        "Courses")
      ("d" "~/Downloads/"                "Downloads")
      ("m" "/mnt/"                       "Drives")
-     ("p" "~/Documents/Projects/"       "Projects")
-     ("s" "~/.local/src"                "Sources")
+     ("p" "~/Projects/"                 "Projects")
+     ("n" "~/Documents/nix-config"      "Nix Config")
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
   :config
   (dirvish-peek-mode) ; Preview files listed in minibuffer
