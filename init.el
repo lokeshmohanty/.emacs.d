@@ -1131,11 +1131,12 @@ Then run FUN with ARGS."
 (use-package code-cells
   :defer t
   :general
-	(:states 'normal :keymaps 'code-cells-mode-map
+	(:states '(normal insert) :keymaps 'code-cells-mode-map
 					 "M-p" 'code-cells-backward-cell
 					 "M-n" 'code-cells-forward-cell
 					 "C-c C-c" 'code-cells-eval)
 	:config
+	(define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)
 	;; (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . code-cells-mode))
 	(add-to-list 'code-cells-eval-region-commands
 							 '(python-ts-mode . python-shell-send-region) t))
@@ -1151,7 +1152,7 @@ Then run FUN with ARGS."
 (use-package dart-mode)
 
 (use-package direnv
-	(direnv-mode))
+	:config (direnv-mode))
 
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -1177,17 +1178,26 @@ Then run FUN with ARGS."
   "lfp"  '(flymake-goto-prev-error :wk "close")
   "lr"   '(eglot-rename            :wk "close"))
 
-;; (use-package lsp-mode
-;;   :commands (lsp lsp-deferred)
-;;   :init (setq lsp-keymap-prefix "C-l")
-;;   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
-;;   :hook
-;;   ;; (c-mode . lsp-deferred)
-;;   ;; (c++-mode . lsp-deferred)
-;;   ;; (cmake-mode . lsp-deferred)
-;;   (lsp-mode . lsp-enable-which-key-integration))
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init (setq lsp-keymap-prefix "C-l")
+  :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+  :hook
+  ;; (c-mode . lsp-deferred)
+  ;; (c++-mode . lsp-deferred)
+  ;; (cmake-mode . lsp-deferred)
+  (lsp-mode . lsp-enable-which-key-integration))
 
-;; (use-package lsp-bridge)
+(use-package lsp-ui
+	:commands lsp-ui-mode
+	:config (setq lsp-ui-doc-enable t))
+
+;; (use-package lsp-bridge
+;;   :straight '(lsp-bridge :type git :host github :repo "manateelazycat/lsp-bridge"
+;;             :files (:defaults "*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+;;             :build (:not compile))
+;;   :init
+;;   (global-lsp-bridge-mode))
 
 ;; (use-package dap-mode
 ;;   :after lsp-mode

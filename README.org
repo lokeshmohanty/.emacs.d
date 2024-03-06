@@ -1500,11 +1500,12 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
   (use-package code-cells
     :defer t
     :general
-  	(:states 'normal :keymaps 'code-cells-mode-map
+  	(:states '(normal insert) :keymaps 'code-cells-mode-map
   					 "M-p" 'code-cells-backward-cell
   					 "M-n" 'code-cells-forward-cell
   					 "C-c C-c" 'code-cells-eval)
   	:config
+  	(define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)
   	;; (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . code-cells-mode))
   	(add-to-list 'code-cells-eval-region-commands
   							 '(python-ts-mode . python-shell-send-region) t))
@@ -1526,7 +1527,7 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
   (use-package dart-mode)
 
   (use-package direnv
-  	(direnv-mode))
+  	:config (direnv-mode))
 #+end_src
 
 ** Language Server Protocol (LSP)
@@ -1565,25 +1566,36 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
 #+end_src
 
 *** LSP
-*References*: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]]
+*References*: [[https://emacs-lsp.github.io/lsp-mode/][lsp]], [[https://emacs-lsp.github.io/lsp-mode/page/lsp-cmake/][cmake]], [[https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/][lsp features]]
 
 #+begin_src emacs-lisp
-  ;; (use-package lsp-mode
-  ;;   :commands (lsp lsp-deferred)
-  ;;   :init (setq lsp-keymap-prefix "C-l")
-  ;;   :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
-  ;;   :hook
-  ;;   ;; (c-mode . lsp-deferred)
-  ;;   ;; (c++-mode . lsp-deferred)
-  ;;   ;; (cmake-mode . lsp-deferred)
-  ;;   (lsp-mode . lsp-enable-which-key-integration))
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init (setq lsp-keymap-prefix "C-l")
+    :config (define-key lsp-mode-map (kbd "C-l") lsp-command-map)
+    :hook
+    ;; (c-mode . lsp-deferred)
+    ;; (c++-mode . lsp-deferred)
+    ;; (cmake-mode . lsp-deferred)
+    (lsp-mode . lsp-enable-which-key-integration))
+
+  (use-package lsp-ui
+  	:commands lsp-ui-mode
+    :hook (lsp-mode . lsp-ui-mode)
+  	:config (setq lsp-ui-doc-enable t))
+
 #+end_src
 
 *** LSP Bridge
 *References*: [[https://github.com/manateelazycat/lsp-bridge][lsp-bridge]]
 
 #+begin_src emacs-lisp
-  ;; (use-package lsp-bridge)
+  ;; (use-package lsp-bridge
+  ;;   :straight '(lsp-bridge :type git :host github :repo "manateelazycat/lsp-bridge"
+  ;;             :files (:defaults "*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+  ;;             :build (:not compile))
+  ;;   :init
+  ;;   (global-lsp-bridge-mode))
 #+end_src
 
 ** Debug Adapter Protocol (DAP)
