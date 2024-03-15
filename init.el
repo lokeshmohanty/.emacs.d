@@ -52,6 +52,8 @@
 ;; Wayland environment variables
 (setenv "WAYLAND_DISPLAY" "wayland-1")
 (setenv "XDG_CURRENT_DESKTOP" "Hyprland")
+(setenv "XDG_SESSION_TYPE" "wayland")
+(setenv "QT_QPA_PLATFORMTHEME" "qt5ct")
 
 ;; get latest version
 (setq straight-repository-branch "develop")
@@ -1129,17 +1131,31 @@ Then run FUN with ARGS."
 ;; (use-package pyvenv)
 
 (use-package code-cells
-  :defer t
   :general
 	(:states '(normal insert) :keymaps 'code-cells-mode-map
 					 "M-p" 'code-cells-backward-cell
 					 "M-n" 'code-cells-forward-cell
 					 "C-c C-c" 'code-cells-eval)
 	:config
-	(define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)
-	;; (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . code-cells-mode))
+  (add-hook 'python-ts-mode-hook 'code-cells-mode-maybe)
 	(add-to-list 'code-cells-eval-region-commands
 							 '(python-ts-mode . python-shell-send-region) t))
+
+(with-eval-after-load 'code-cells
+  (let ((map code-cells-mode-map))
+    (define-key map (kbd "M-p") 'code-cells-backward-cell)
+    (define-key map (kbd "M-n") 'code-cells-forward-cell)
+    (define-key map (kbd "C-c C-c") 'code-cells-eval)
+
+    ;; Overriding other minor mode bindings requires some insistence...
+    (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)
+
+		;; Speed keys
+    (define-key map [remap evil-search-next] (code-cells-speed-key 'code-cells-forward-cell)) ;; n
+    (define-key map [remap evil-paste-after] (code-cells-speed-key 'code-cells-backward-cell)) ;; p
+    (define-key map [remap evil-backward-word-begin] (code-cells-speed-key 'code-cells-eval-above)) ;; b
+    (define-key map [remap evil-forward-word-end] (code-cells-speed-key 'code-cells-eval)) ;; e
+    (define-key map [remap evil-jump-forward] (code-cells-speed-key 'outline-cycle)))) ;; TAB
 
 (use-package haskell-mode)
 (use-package hindent)
@@ -1190,6 +1206,7 @@ Then run FUN with ARGS."
 
 (use-package lsp-ui
 	:commands lsp-ui-mode
+  :hook (lsp-mode . lsp-ui-mode)
 	:config (setq lsp-ui-doc-enable t))
 
 ;; (use-package lsp-bridge
