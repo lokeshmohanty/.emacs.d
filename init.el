@@ -32,8 +32,8 @@
 ;; (setq ispell-dictionary "british")
 
 (undelete-frame-mode)
-(setq split-window-keep-point nil)
-(setq split-window-preferred-function ' split-window-vertically)
+(setq split-window-keep-point t)
+(setq split-window-preferred-function 'split-window-sensibly)
 
 ;; Nixos path issues
 ;; (add-to-list 'exec-path "/home/lokesh/.nix-profile/bin")
@@ -403,9 +403,11 @@ Info-mode:
 (condition-case nil
 		;; (set-face-attribute 'default nil :family "Iosevka Comfy Fixed" :height 135)
 		(set-face-attribute 'default nil
-												:family "Victor Mono"
-												:height 135
-												:slant 'italic)
+												:family "Cascadia Code"
+												:width 'normal
+												:height 160
+												:slant 'normal)
+		;; (set-frame-font "Victor Mono-thin-italic-normal")
 	(error (set-frame-font "Monospace-14")))
 
 ;; (set-fontset-font t nil "Noto Color Emoji" nil 'append)
@@ -426,12 +428,15 @@ Info-mode:
 ;; (use-package modus-themes
 ;; 	:config
 ;; 	(load-theme 'modus-vivendi-tinted t))
-;; (use-package gruvbox-theme
-;;   :config
-;;   (load-theme 'gruvbox-dark-medium t))
-(use-package doom-themes
-  :config
-    (load-theme 'doom-gruvbox t))				; others: palenight
+;; (use-package doom-themes
+;;   :config (load-theme 'doom-gruvbox t))				; others: palenight
+;; (use-package catppuccin-theme
+;;   :config (load-theme 'catppuccin t)
+;; 	(setq catppuccin-flavor 'frappe) ;; or 'latte, 'macchiato, or 'mocha
+;; 	(catppuccin-reload))
+(use-package everforest-theme
+	:straight (:type git :host github :repo "Theory-of-Everything/everforest-emacs")
+	:config (load-theme 'everforest-hard-dark t))
 
 ;; very minimal modeline
 ;; (use-package mood-line
@@ -1131,15 +1136,18 @@ Then run FUN with ARGS."
 ;; (use-package pyvenv)
 
 (use-package code-cells
-  :general
+	:general
 	(:states '(normal insert) :keymaps 'code-cells-mode-map
 					 "M-p" 'code-cells-backward-cell
 					 "M-n" 'code-cells-forward-cell
 					 "C-c C-c" 'code-cells-eval)
 	:config
-  (add-hook 'python-ts-mode-hook 'code-cells-mode-maybe)
+  ;; (setq python-shell-interpreter "ipython")
+  ;; (setq python-shell-interpreter-args "--pylab")
+	(add-hook 'python-ts-mode-hook 'code-cells-mode-maybe)
 	(add-to-list 'code-cells-eval-region-commands
 							 '(python-ts-mode . python-shell-send-region) t))
+
 
 (with-eval-after-load 'code-cells
   (let ((map code-cells-mode-map))
@@ -1150,7 +1158,7 @@ Then run FUN with ARGS."
     ;; Overriding other minor mode bindings requires some insistence...
     (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)
 
-		;; Speed keys
+  	;; Speed keys
     (define-key map [remap evil-search-next] (code-cells-speed-key 'code-cells-forward-cell)) ;; n
     (define-key map [remap evil-paste-after] (code-cells-speed-key 'code-cells-backward-cell)) ;; p
     (define-key map [remap evil-backward-word-begin] (code-cells-speed-key 'code-cells-eval-above)) ;; b
@@ -1899,7 +1907,7 @@ command was called, go to its unstaged changes section."
 (setq auth-source-debug t)
 (setq auth-sources '("~/.authinfo.gpg" "~/.netrc"))
 ;; (setq auth-sources '((:source "~/.authinfo.gpg")))
-(setq password-cache-expiry nil)
+;; (setq password-cache-expiry nil)
 (customize-set-variable 'ange-ftp-netrc-filename "~/.authinfo.gpg")
 
 ;; access unix password store
