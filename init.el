@@ -405,7 +405,7 @@ Info-mode:
 		(set-face-attribute 'default nil
 												:family "Cascadia Code"
 												:width 'normal
-												:height 160
+												:height 140
 												:slant 'normal)
 		;; (set-frame-font "Victor Mono-thin-italic-normal")
 	(error (set-frame-font "Monospace-14")))
@@ -434,9 +434,9 @@ Info-mode:
 ;;   :config (load-theme 'catppuccin t)
 ;; 	(setq catppuccin-flavor 'frappe) ;; or 'latte, 'macchiato, or 'mocha
 ;; 	(catppuccin-reload))
-(use-package everforest-theme
-	:straight (:type git :host github :repo "Theory-of-Everything/everforest-emacs")
-	:config (load-theme 'everforest-hard-dark t))
+;; (use-package everforest-theme
+;;   :straight (:type git :host github :repo   "Theory-of-Everything/everforest-emacs")
+;;   :config (load-theme 'everforest-hard-oldlight))
 
 ;; very minimal modeline
 ;; (use-package mood-line
@@ -1250,18 +1250,18 @@ Then run FUN with ARGS."
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
-(use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-  :defer t
-	:hook (prog-mode . copilot-mode)
-  :general
-  (:states 'insert :keymaps 'copilot-mode-map
-           "M-h"  'copilot-complete
-           "M-n"  'copilot-next-completion
-           "M-p"  'copilot-previous-completion
-           "M-l"  'copilot-accept-completion-by-word
-           "M-j"  'copilot-accept-completion-by-line
-           "M-<return>"  'copilot-accept-completion))
+;; (use-package copilot
+;;   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+;;   :defer t
+;; 	:hook (prog-mode . copilot-mode)
+;;   :general
+;;   (:states 'insert :keymaps 'copilot-mode-map
+;;            "M-h"  'copilot-complete
+;;            "M-n"  'copilot-next-completion
+;;            "M-p"  'copilot-previous-completion
+;;            "M-l"  'copilot-accept-completion-by-word
+;;            "M-j"  'copilot-accept-completion-by-line
+;;            "M-<return>"  'copilot-accept-completion))
 
 (use-package vertico
   :straight (:files (:defaults "extensions/*")) ; load the extensions as well
