@@ -94,7 +94,7 @@ might not be upto date. It will be removed once my emacs setup on =NixOS= is com
     (add-to-list 'default-frame-alist '(tooltip-lines . 0))    ; disable the toolbar
     (add-to-list 'default-frame-alist '(menu-bar-lines . 0))   ; disalbe the menu bar
     (add-to-list 'default-frame-alist '(vertical-scroll-bars)) ; disable scroll bars
-    ;; (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
+    (add-to-list 'default-frame-alist '(alpha 90 . 90))				 ; transparency
 
     ;; Example of setting a frame parameter manually
     ;; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -1472,31 +1472,18 @@ Install ~clangd~ from the OS and generate ~compile-commands.json~ in the root fo
 ** Python
 *References*: [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright]], [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode]], [[https://github.com/jorgenschaefer/pyvenv][pyvenv]]
 
-*** Conda
-
-#+begin_src emacs-lisp
-  (use-package conda
-    :defer t
-    :init
-    (setq conda-anaconda-home (expand-file-name "~/.conda"))
-    (setq conda-env-home-directory (expand-file-name "~/.conda/envs"))
-    :config
-    (conda-env-initialize-interactive-shells)
-    (conda-env-initialize-eshell))
-#+end_src
-
 *** Pyright
 
 #+begin_src emacs-lisp
-  (use-package lsp-pyright
-    :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-    ;; :config
-    ;; (require 'dap-python)
-    ;; these hooks can't go in the :hook section since lsp-restart-workspace
-    ;; is not available if lsp isn't active
-    ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-    ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
-  )
+  ;; (use-package lsp-pyright
+  ;;   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
+  ;;   ;; :config
+  ;;   ;; (require 'dap-python)
+  ;;   ;; these hooks can't go in the :hook section since lsp-restart-workspace
+  ;;   ;; is not available if lsp isn't active
+  ;;   ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
+  ;;   ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
+  ;; )
 
   ;; (use-package pyvenv)
 #+end_src

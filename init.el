@@ -1114,24 +1114,15 @@ Then run FUN with ARGS."
 
 (use-package cuda-mode)
 
-(use-package conda
-  :defer t
-  :init
-  (setq conda-anaconda-home (expand-file-name "~/.conda"))
-  (setq conda-env-home-directory (expand-file-name "~/.conda/envs"))
-  :config
-  (conda-env-initialize-interactive-shells)
-  (conda-env-initialize-eshell))
-
-(use-package lsp-pyright
-  :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-  ;; :config
-  ;; (require 'dap-python)
-  ;; these hooks can't go in the :hook section since lsp-restart-workspace
-  ;; is not available if lsp isn't active
-  ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-  ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
-)
+;; (use-package lsp-pyright
+;;   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp-deferred)))
+;;   ;; :config
+;;   ;; (require 'dap-python)
+;;   ;; these hooks can't go in the :hook section since lsp-restart-workspace
+;;   ;; is not available if lsp isn't active
+;;   ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
+;;   ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))
+;; )
 
 ;; (use-package pyvenv)
 
